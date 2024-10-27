@@ -12,12 +12,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-white min-h-screen p-4 sm:p-6">
+<body class="bg-slate-50 min-h-screen p-4 sm:p-6">
     <div class="max-w-full mx-auto">
         <!-- Header Section -->
-        <div class="bg-green-900 text-white rounded-xl p-4 mb-4">
+        <div class="bg-slate-800 text-white rounded-xl p-4 mb-4">
             <h1 class="text-xl">จัดการข้อมูลการดำเนินการ</h1>
         </div>
+
         <!-- Filter Section -->
         <div class="bg-green-200 rounded-xl p-4 mb-4">
             <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
@@ -35,7 +36,7 @@
                 <input type="date" id="filter-date"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
                 <div class="flex w-full sm:w-auto space-x-2">
-                    <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto"
+                    <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto"
                         onclick="applyFilters()">กรองข้อมูล</button>
                     <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700 w-full sm:w-auto"
                         onclick="clearFilters()">ยกเลิกการกรอง</button>
@@ -45,13 +46,12 @@
 
         <!-- Data Table -->
         <div class="overflow-x-auto">
-            <table id="data-table" class="min-w-full text-xs bg-slate-100 rounded-xl">
+            <table id="data-table" class="min-w-full text-xs bg-slate-200 rounded-xl">
                 <thead>
                     <tr class="text-slate-800 text-sm">
                         <th class="py-2 px-4 border">สถานะ</th>
                         <th class="py-2 px-4 border">ชื่อลูกค้า</th>
-                        <th class="py-2 px-4 border">วันที่</th>
-                        <th class="py-2 w-48 px-4 border">คำสั่ง</th>
+                        <th class="py-2 px-4 border">คำสั่ง</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm"></tbody>
@@ -85,10 +85,9 @@
                 <div class="mb-4">
                     <label for="start-status" class="block mb-1">สถานะ</label>
                     <select id="start-status" class="w-full border px-2 py-1 rounded-xl" required>
-                        <option value="เริ่มงาน">เริ่มงาน</option>
-                        <option value="อนุมัติ">อนุมัติ</option>
-                        <option value="รอดำเนินการ">รอดำเนินการ</option>
-                        <option value="ปฏิเสธ">ปฏิเสธ</option>
+                        <option value="เริ่มงาน"selected>เริ่มงาน</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
                     </select>
                 </div>
 
@@ -120,13 +119,11 @@
                 <div class="mb-4">
                     <label for="process-status" class="block mb-1">Status</label>
                     <select id="process-status" class="w-full border px-2 py-1 rounded-xl" required>
-                        <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                        <option value="อนุมัติ">อนุมัติ</option>
-                        <option value="รอดำเนินการ">รอดำเนินการ</option>
-                        <option value="ปฏิเสธ">ปฏิเสธ</option>
+                        <option value="ดำเนินการ"selected>ดำเนินการ</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
                     </select>
                 </div>
-
                 <div class="mb-4">
                     <label for="process-time-process" class="block mb-1">เวลา</label>
                     <input type="datetime-local" id="process-time-process" class="w-full border px-2 py-1 rounded-xl" required>
@@ -155,10 +152,9 @@
                 <div class="mb-4">
                     <label for="complete-status" class="block mb-1">สถานะ</label>
                     <select id="complete-status" class="w-full border px-2 py-1 rounded-xl" value="ดำเนินการสำเร็จ" required>
-                        <option value="ดำเนินการสำเร็จ">ดำเนินการสำเร็จ</option>
-                        <option value="อนุมัติ">อนุมัติ</option>
-                        <option value="รอดำเนินการ">รอดำเนินการ</option>
-                        <option value="ปฏิเสธ">ปฏิเสธ</option>
+                        <option value="ดำเนินการสำเร็จ"selected>ดำเนินการสำเร็จ</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
                     </select>
                 </div>
 
@@ -279,12 +275,11 @@
                 tr.innerHTML = `
                     <td class="py-2 px-4 border">${row.status}</td>
                     <td class="py-2 px-4 border">${row.Name || ''}</td>
-                    <td class="py-2 px-4 border">${formatDateToDDMMYYYYHHmm(row.Date)}</td>
                     <td class="py-2 px-4 border flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto" onclick="openViewDetailsModal('${row.idkey}')">รายละเอียด</button>
+                        <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto" onclick="openViewDetailsModal('${row.idkey}')">View</button>
                         <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700 w-full sm:w-auto" onclick="openStartJobModal('${row.idkey}')">เริ่มงาน</button>
                         <button class="bg-yellow-500 text-white py-1 px-3 rounded-xl hover:bg-yellow-700 w-full sm:w-auto" onclick="openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
-                        <button class="bg-purple-500 text-white py-1 px-3 rounded-xl hover:bg-purple-700 w-full sm:w-auto" onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้น</button>
+                        <button class="bg-purple-500 text-white py-1 px-3 rounded-xl hover:bg-purple-700 w-full sm:w-auto" onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
                     </td>
                 `;
                 tableBody.appendChild(tr);
