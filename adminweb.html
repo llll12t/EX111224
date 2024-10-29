@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets CRUD Form</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl text-center font-bold mb-8">Google Sheets CRUD Form</h1>
+
+        <form id="crud-form" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
+            <div class="grid grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="IDkey">IDkey:</label>
+                    <input type="text" id="IDkey" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="UserIDline">UserIDline:</label>
+                    <input type="text" id="UserIDline" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Name">Name:</label>
+                    <input type="text" id="Name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Address">Address:</label>
+                    <input type="text" id="Address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Maplink">Maplink:</label>
+                    <input type="url" id="Maplink" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Number">Number:</label>
+                    <input type="text" id="Number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Date">Date:</label>
+                    <input type="date" id="Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Detail">Detail:</label>
+                    <input type="text" id="Detail" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Note">Note:</label>
+                    <input type="text" id="Note" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Contact">Contact:</label>
+                    <input type="text" id="Contact" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Payment">Payment:</label>
+                    <input type="number" id="Payment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Status">Status:</label>
+                    <input type="text" id="Status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Responsible">Responsible:</label>
+                    <input type="text" id="Responsible" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="UserIDresponsible">UserIDresponsible:</label>
+                    <input type="text" id="UserIDresponsible" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Admin">Admin:</label>
+                    <input type="text" id="Admin" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="adminNote">admin-Note:</label>
+                    <input type="text" id="adminNote" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-6">
+                <button type="button" onclick="createData()" id="save-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Save
+                </button>
+                <button type="button" onclick="fetchData()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Fetch Data
+                </button>
+                <button type="button" onclick="resetForm()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Reset
+                </button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">IDkey</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">UserIDline</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Address</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Maplink</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Number</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Detail</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Note</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Contact</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Payment</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Status</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Responsible</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">UserIDresponsible</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Admin</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">admin-Note</th>
+                        <th class="w-auto text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table" class="text-gray-700">
+                    <!-- ข้อมูลจะแสดงที่นี่ -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- JavaScript -->
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxM88b8xd4jbJ-ZQGAuF4U4O0E-F4FNiaOv1lwrOqydlvAwtVJNSUkB5FRyTLJUUXB2A/exec'; // แทนที่ด้วย URL ของ Web App ที่คุณ Deploy
+
+        let editRow = null; // ตัวแปรเก็บหมายเลขแถวที่กำลังแก้ไข
+
+        function createData() {
+            const data = {
+                method: 'create',
+                IDkey: document.getElementById('IDkey').value,
+                UserIDline: document.getElementById('UserIDline').value,
+                Name: document.getElementById('Name').value,
+                Address: document.getElementById('Address').value,
+                Maplink: document.getElementById('Maplink').value,
+                Number: document.getElementById('Number').value,
+                Date: document.getElementById('Date').value,
+                Detail: document.getElementById('Detail').value,
+                Note: document.getElementById('Note').value,
+                Contact: document.getElementById('Contact').value,
+                Payment: document.getElementById('Payment').value,
+                Status: document.getElementById('Status').value,
+                Responsible: document.getElementById('Responsible').value,
+                UserIDresponsible: document.getElementById('UserIDresponsible').value,
+                Admin: document.getElementById('Admin').value,
+                adminNote: document.getElementById('adminNote').value
+            };
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+                .then(response => response.json())
+                .then(result => {
+                    Swal.fire(
+                        'สำเร็จ!',
+                        result.message,
+                        'success'
+                    );
+                    fetchData();
+                    resetForm();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'เกิดข้อผิดพลาด!',
+                        'ไม่สามารถบันทึกข้อมูลได้',
+                        'error'
+                    );
+                });
+        }
+
+        function fetchData() {
+            const data = { method: 'read' };
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+                .then(response => response.json())
+                .then(rows => {
+                    const tableBody = document.getElementById('data-table');
+                    tableBody.innerHTML = '';
+                    rows.forEach((row, index) => {
+                        // ข้ามแถวหัวตาราง
+                        if(index === 0) return;
+                        const tr = document.createElement('tr');
+                        tr.classList.add("bg-gray-100", "border-b", "border-gray-200");
+                        tr.innerHTML = `
+                            <td class="py-3 px-4">${row[0]}</td>
+                            <td class="py-3 px-4">${row[1]}</td>
+                            <td class="py-3 px-4">${row[2]}</td>
+                            <td class="py-3 px-4">${row[3]}</td>
+                            <td class="py-3 px-4"><a href="${row[4]}" target="_blank" class="text-blue-500 underline">Link</a></td>
+                            <td class="py-3 px-4">${row[5]}</td>
+                            <td class="py-3 px-4">${row[6]}</td>
+                            <td class="py-3 px-4">${row[7]}</td>
+                            <td class="py-3 px-4">${row[8]}</td>
+                            <td class="py-3 px-4">${row[9]}</td>
+                            <td class="py-3 px-4">${row[10]}</td>
+                            <td class="py-3 px-4">${row[11]}</td>
+                            <td class="py-3 px-4">${row[12]}</td>
+                            <td class="py-3 px-4">${row[13]}</td>
+                            <td class="py-3 px-4">${row[14]}</td>
+                            <td class="py-3 px-4">${row[15]}</td>
+                            <td class="py-3 px-4">
+                                <button onclick="editData(${index + 1}, ${JSON.stringify(row)})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded">Edit</button>
+                                <button onclick="deleteData(${index + 1})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded">Delete</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'เกิดข้อผิดพลาด!',
+                        'ไม่สามารถดึงข้อมูลได้',
+                        'error'
+                    );
+                });
+        }
+
+        function editData(row, rowData) {
+            editRow = row;
+            document.getElementById('IDkey').value = rowData[0];
+            document.getElementById('UserIDline').value = rowData[1];
+            document.getElementById('Name').value = rowData[2];
+            document.getElementById('Address').value = rowData[3];
+            document.getElementById('Maplink').value = rowData[4];
+            document.getElementById('Number').value = rowData[5];
+            document.getElementById('Date').value = rowData[6];
+            document.getElementById('Detail').value = rowData[7];
+            document.getElementById('Note').value = rowData[8];
+            document.getElementById('Contact').value = rowData[9];
+            document.getElementById('Payment').value = rowData[10];
+            document.getElementById('Status').value = rowData[11];
+            document.getElementById('Responsible').value = rowData[12];
+            document.getElementById('UserIDresponsible').value = rowData[13];
+            document.getElementById('Admin').value = rowData[14];
+            document.getElementById('adminNote').value = rowData[15];
+
+            // เปลี่ยนปุ่ม Save เป็น Update
+            const saveButton = document.getElementById('save-button');
+            saveButton.textContent = 'Update';
+            saveButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+            saveButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700');
+            saveButton.onclick = updateData;
+        }
+
+        function updateData() {
+            if (editRow === null) {
+                Swal.fire(
+                    'เกิดข้อผิดพลาด!',
+                    'ไม่มีแถวที่กำลังแก้ไข',
+                    'error'
+                );
+                return;
+            }
+
+            const data = {
+                method: 'update',
+                row: editRow,
+                IDkey: document.getElementById('IDkey').value,
+                UserIDline: document.getElementById('UserIDline').value,
+                Name: document.getElementById('Name').value,
+                Address: document.getElementById('Address').value,
+                Maplink: document.getElementById('Maplink').value,
+                Number: document.getElementById('Number').value,
+                Date: document.getElementById('Date').value,
+                Detail: document.getElementById('Detail').value,
+                Note: document.getElementById('Note').value,
+                Contact: document.getElementById('Contact').value,
+                Payment: document.getElementById('Payment').value,
+                Status: document.getElementById('Status').value,
+                Responsible: document.getElementById('Responsible').value,
+                UserIDresponsible: document.getElementById('UserIDresponsible').value,
+                Admin: document.getElementById('Admin').value,
+                adminNote: document.getElementById('adminNote').value
+            };
+
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+                .then(response => response.json())
+                .then(result => {
+                    Swal.fire(
+                        'สำเร็จ!',
+                        result.message,
+                        'success'
+                    );
+                    fetchData();
+                    resetForm();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'เกิดข้อผิดพลาด!',
+                        'ไม่สามารถอัปเดตข้อมูลได้',
+                        'error'
+                    );
+                });
+        }
+
+        function deleteData(row) {
+            Swal.fire({
+                title: 'คุณแน่ใจไหม?',
+                text: "คุณต้องการลบข้อมูลนี้ใช่หรือไม่!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'ใช่, ลบมัน!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const data = { method: 'delete', row: row };
+                    fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+                        .then(response => response.json())
+                        .then(result => {
+                            Swal.fire(
+                                'ลบเรียบร้อย!',
+                                result.message,
+                                'success'
+                            );
+                            fetchData();
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'เกิดข้อผิดพลาด!',
+                                'ไม่สามารถลบข้อมูลได้',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('crud-form').reset();
+            editRow = null;
+            // เปลี่ยนปุ่ม Update กลับเป็น Save
+            const saveButton = document.getElementById('save-button');
+            saveButton.textContent = 'Save';
+            saveButton.classList.remove('bg-indigo-500', 'hover:bg-indigo-700');
+            saveButton.classList.add('bg-blue-500', 'hover:bg-blue-700');
+            saveButton.onclick = createData;
+        }
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
