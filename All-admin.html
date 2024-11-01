@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รวมข้อมูลการจัดการ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 sm:p-6">
+
+    <!-- Tab Navigation -->
+    <div class="flex justify-center max-w-xl mx-auto mb-4">
+        <button id="tab1-btn" class="py-2 px-4 w-1/2 rounded-t-lg bg-slate-800 text-white focus:outline-none" onclick="showSection('section1')">จัดการข้อมูลการสั่งซื้อ</button>
+        <button id="tab2-btn" class="py-2 px-4  w-1/2 rounded-t-lg bg-gray-300 text-slate-800 focus:outline-none" onclick="showSection('section2')">จัดการข้อมูลการดำเนินการ</button>
+    </div>
+    <!-- Section 1 -->
+    <div id="section1">
+        <div class="max-w-xl mx-auto">
+            <!-- Filter Section -->
+            <div class="bg-slate-800 rounded-xl p-4 mb-4">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" id="filter-name" placeholder="Filter by Name"
+                        class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                    <select id="filter-status" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                        <option value="">สถานะ</option>
+                        <option value="approve">อนุมัติ</option>
+                        <option value="pending">รอดำเนินการ</option>
+                        <option value="rejected">ปฏิเสธ</option>
+                    </select>
+                    <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
+                        onclick="section1_applyFilters()">กรองข้อมูล</button>
+                    <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
+                        onclick="section1_clearFilters()">ยกเลิกการกรอง</button>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <table id="data-table1" class="min-w-full text-xs bg-slate-100 rounded-xl">
+                <thead>
+                    <tr class="text-slate-800 text-sm">
+                        <th class="py-2 px-4 border">ชื่อ</th>
+                        <th class="py-2 px-4 border">สถานะ</th>
+                        <th class="py-2 px-4 border">คำสั่ง</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm"></tbody>
+            </table>
+
+            <!-- Loading Message -->
+            <div id="loading-message1" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-xl w-1/3">
+                <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
+                <form id="edit-form">
+                    <input type="hidden" id="edit-idkey">
+                    
+                    <div class="mb-4">
+                        <label for="edit-status" class="block mb-1">สถานะ</label>
+                        <select id="edit-status" class="w-full border px-2 py-1 rounded-xl">
+                            <option value="approve">อนุมัติ</option>
+                            <option value="pending">รอดำเนินการ</option>
+                            <option value="rejected">ปฏิเสธ</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
+                        <input type="text" id="edit-responsible" class="w-full border px-2 py-1 rounded-xl" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
+                        <input type="text" id="edit-admin-note" class="w-full border px-2 py-1 rounded-xl" required>
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700 mr-2" onclick="section1_closeModal()">ยกเลิก</button>
+                        <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div id="section2" class="hidden">
+        <div class="max-w-xl mx-auto">
+            <!-- Filter Section -->
+            <div class="bg-green-50 rounded-xl p-4 mb-4">
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+                    <select id="filter-status2" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="เริ่มงาน">เริ่มงาน</option>
+                        <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                        <option value="ดำเนินการสำเร็จ">ดำเนินการสำเร็จ</option>
+                        <option value="อนุมัติ">อนุมัติ</option>
+                        <option value="รอดำเนินการ">รอดำเนินการ</option>
+                        <option value="ปฏิเสธ">ปฏิเสธ</option>
+                    </select>
+                    <input type="text" id="filter-name2" placeholder="ค้นหาตามชื่อ"
+                        class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                    <input type="date" id="filter-date2"
+                        class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                    <div class="flex w-full sm:w-auto space-x-2">
+                        <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto"
+                            onclick="section2_applyFilters()">กรองข้อมูล</button>
+                        <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700 w-full sm:w-auto"
+                            onclick="section2_clearFilters()">ยกเลิกการกรอง</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="overflow-x-auto">
+                <table id="data-table2" class="min-w-full text-xs bg-slate-50 rounded-xl">
+                    <thead>
+                        <tr class="text-slate-800 text-sm">
+                            <th class="py-2 px-4 border">สถานะ</th>
+                            <th class="py-2 px-4 border">ชื่อลูกค้า</th>
+                            <th class="py-2 px-4 border">คำสั่ง</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm"></tbody>
+                </table>
+            </div>
+
+            <!-- Loading Message -->
+            <div id="loading-message2" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+        </div>
+
+        <!-- View Details Modal -->
+        <div id="view-details-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-xl w-full max-w-lg overflow-y-auto max-h-full">
+                <h2 class="text-xl mb-4">รายละเอียดข้อมูล</h2>
+                <div id="details-content" class="space-y-2">
+                    <!-- ข้อมูลทั้งหมดจะแสดงที่นี่ -->
+                </div>
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700" onclick="section2_closeViewDetailsModal()">ปิด</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Job Modal -->
+        <div id="start-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-xl w-full max-w-md overflow-y-auto max-h-full">
+                <h2 class="text-xl mb-4">เริ่มงาน</h2>
+                <form id="start-job-form">
+                    <input type="hidden" id="start-job-idkey">
+
+                    <div class="mb-4">
+                        <label for="start-status" class="block mb-1">สถานะ</label>
+                        <select id="start-status" class="w-full border px-2 py-1 rounded-xl" required>
+                            <option value="เริ่มงาน" selected>เริ่มงาน</option>
+                            <option value="ยกเลิก">ยกเลิก</option>
+                            <option value="เลื่อน">เลื่อน</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="start-time-inside" class="block mb-1">เวลา</label>
+                        <input type="datetime-local" id="start-time-inside" class="w-full border px-2 py-1 rounded-xl" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="start-inside-note" class="block mb-1">หมายเหตุ</label>
+                        <textarea type="text" id="start-inside-note" class="w-full border px-2 py-1 rounded-xl"></textarea>
+                    </div>
+
+                    <div class="flex justify-end mt-4 space-x-2">
+                        <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700" onclick="section2_closeStartJobModal()">ยกเลิก</button>
+                        <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Process Job Modal -->
+        <div id="process-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-xl w-full max-w-md overflow-y-auto max-h-full">
+                <h2 class="text-xl mb-4">ดำเนินการ</h2>
+                <form id="process-job-form">
+                    <input type="hidden" id="process-job-idkey">
+
+                    <div class="mb-4">
+                        <label for="process-status" class="block mb-1">สถานะ</label>
+                        <select id="process-status" class="w-full border px-2 py-1 rounded-xl" required>
+                            <option value="ดำเนินการ" selected>ดำเนินการ</option>
+                            <option value="ยกเลิก">ยกเลิก</option>
+                            <option value="เลื่อน">เลื่อน</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="process-time-process" class="block mb-1">เวลา</label>
+                        <input type="datetime-local" id="process-time-process" class="w-full border px-2 py-1 rounded-xl" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="process-process-note" class="block mb-1">หมายเหตุ</label>
+                        <textarea type="text" id="process-process-note" class="w-full border px-2 py-1 rounded-xl"></textarea>
+                    </div>
+
+                    <div class="flex justify-end mt-4 space-x-2">
+                        <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700" onclick="section2_closeProcessJobModal()">ยกเลิก</button>
+                        <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Complete Job Modal -->
+        <div id="complete-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-xl w-full max-w-lg overflow-y-auto max-h-full">
+                <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
+                <form id="complete-job-form" enctype="multipart/form-data">
+                    <input type="hidden" id="complete-job-idkey">
+
+                    <div class="mb-4">
+                        <label for="complete-status" class="block mb-1">สถานะ</label>
+                        <select id="complete-status" class="w-full border px-2 py-1 rounded-xl" required>
+                            <option value="ดำเนินการสำเร็จ" selected>ดำเนินการสำเร็จ</option>
+                            <option value="ยกเลิก">ยกเลิก</option>
+                            <option value="เลื่อน">เลื่อน</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="complete-time-compress" class="block mb-1">เวลา</label>
+                        <input type="datetime-local" id="complete-time-compress" class="w-full border px-2 py-1 rounded-xl" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="complete-compress-note" class="block mb-1">หมายเหตุ</label>
+                        <textarea type="text" id="complete-compress-note" class="w-full border px-2 py-1 rounded-xl"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="complete-compress-photo" class="block mb-1">รูปภาพ (ไม่บังคับ)</label>
+                        <input type="file" id="complete-compress-photo" accept="image/*" class="w-full border px-2 py-1 rounded-xl">
+                    </div>
+
+                    <div class="flex justify-end mt-4 space-x-2">
+                        <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700" onclick="section2_closeCompleteJobModal()">ยกเลิก</button>
+                        <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function showSection(sectionId) {
+            document.getElementById('section1').classList.add('hidden');
+            document.getElementById('section2').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Update tab styles
+            if (sectionId === 'section1') {
+                document.getElementById('tab1-btn').classList.add('bg-slate-800', 'text-white');
+                document.getElementById('tab1-btn').classList.remove('bg-gray-300', 'text-slate-800');
+
+                document.getElementById('tab2-btn').classList.add('bg-gray-300', 'text-slate-800');
+                document.getElementById('tab2-btn').classList.remove('bg-slate-800', 'text-white');
+
+                // Fetch data for section1
+                if (window.section1_fetchData) {
+                    window.section1_fetchData();
+                }
+
+            } else if (sectionId === 'section2') {
+                document.getElementById('tab2-btn').classList.add('bg-slate-800', 'text-white');
+                document.getElementById('tab2-btn').classList.remove('bg-gray-300', 'text-slate-800');
+
+                document.getElementById('tab1-btn').classList.add('bg-gray-300', 'text-slate-800');
+                document.getElementById('tab1-btn').classList.remove('bg-slate-800', 'text-white');
+
+                // Fetch data for section2
+                if (window.section2_fetchData) {
+                    window.section2_fetchData();
+                }
+            }
+        }
+
+        // Show section1 by default
+        showSection('section1');
+    </script>
+
+    <!-- Section 1 Scripts -->
+    <script>
+        (function(){
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
+
+            let tableData1 = []; 
+
+            async function fetchData() {
+                document.getElementById('loading-message1').style.display = 'block';
+                try {
+                    const response = await fetch(`${WEB_APP_URL}?sheet=ข้อมูลงาน`);
+                    const result = await response.json();
+                    if (result.success) {
+                        tableData1 = result.data;
+                        applyFilters(); 
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+                } finally {
+                    document.getElementById('loading-message1').style.display = 'none';
+                }
+            }
+
+            function displayTable(data) {
+                const tableBody = document.querySelector('#data-table1 tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2 px-4 border">${row.Name}</td>
+                        <td class="py-2 px-4 border">${translateStatus(row.Status)}</td>
+                        <td class="py-2 px-4 border flex space-x-2">
+                            <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700" onclick="section1_viewDetails('${row.IDkey}')">View</button>
+                            <button class="bg-yellow-500 text-white py-1 px-3 rounded-xl hover:bg-yellow-700" onclick="section1_openEditModal('${row.IDkey}')">แก้ไข</button>
+                            <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700" onclick="section1_takeJob('${row.IDkey}')">รับงาน</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            function translateStatus(status) {
+                switch(status.toLowerCase()) {
+                    case 'approve': return 'อนุมัติ';
+                    case 'pending': return 'รอดำเนินการ';
+                    case 'rejected': return 'ปฏิเสธ';
+                    case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
+                    default: return status;
+                }
+            }
+
+            function viewDetails(idkey) {
+                const row = tableData1.find(row => row.IDkey === idkey);
+                if (row) {
+                    Swal.fire({
+                        title: 'รายละเอียด',
+                        html: `
+                            <p><b>ชื่อ:</b> ${row.Name}</p>
+                            <p><b>ที่อยู่:</b> ${row.Address}</p>
+                            <p><b>รายละเอียด:</b> ${row.Detail}</p>
+                            <p><b>เบอร์ติดต่อ:</b> ${row.Contact}</p>
+                            <p><b>การชำระเงิน:</b> ${row.Payment}</p>
+                            <p><b>ผู้รับผิดชอบ:</b> ${row.Responsible}</p>
+                            <p><b>หมายเหตุ Admin:</b> ${row.adminNote}</p>
+                        `,
+                        confirmButtonText: 'ปิด'
+                    });
+                }
+            }
+
+            function openEditModal(idkey) {
+                const row = tableData1.find(row => row.IDkey === idkey);
+                if (row) {
+                    document.getElementById('edit-idkey').value = row.IDkey;
+                    document.getElementById('edit-status').value = row.Status;
+                    document.getElementById('edit-responsible').value = row.Responsible;
+                    document.getElementById('edit-admin-note').value = row.adminNote;
+                    document.getElementById('edit-modal').classList.remove('hidden');
+                }
+            }
+
+            function closeModal() {
+                document.getElementById('edit-modal').classList.add('hidden');
+            }
+
+            document.getElementById('edit-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('edit-idkey').value;
+                const status = document.getElementById('edit-status').value;
+                const responsible = document.getElementById('edit-responsible').value.trim();
+                const adminNote = document.getElementById('edit-admin-note').value.trim();
+
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeModal();
+                        fetchData(); 
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            async function takeJob(idkey) {
+                Swal.fire({
+                    title: 'ยืนยันการรับงาน?',
+                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'ใช่, รับงาน',
+                    cancelButtonText: 'ยกเลิก'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(WEB_APP_URL, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
+                            });
+                            const resultData = await response.json();
+
+                            if (resultData.success) {
+                                Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
+                                fetchData();
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
+                            }
+                        } catch (error) {
+                            console.error('Error updating data:', error);
+                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                        }
+                    }
+                });
+            }
+
+            function applyFilters() {
+                const filterName = document.getElementById('filter-name').value.toLowerCase();
+                const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+
+                const filteredData = tableData1.filter(row => {
+                    const matchesName = row.Name.toLowerCase().includes(filterName);
+                    const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
+                    return matchesName && matchesStatus;
+                });
+
+                displayTable(filteredData);
+            }
+
+            function clearFilters() {
+                document.getElementById('filter-name').value = '';
+                document.getElementById('filter-status').value = '';
+                displayTable(tableData1);
+            }
+
+            // Expose functions to global scope
+            window.section1_applyFilters = applyFilters;
+            window.section1_clearFilters = clearFilters;
+            window.section1_viewDetails = viewDetails;
+            window.section1_openEditModal = openEditModal;
+            window.section1_closeModal = closeModal;
+            window.section1_takeJob = takeJob;
+            window.section1_fetchData = fetchData;
+
+            // Fetch data when the section is shown
+            // You can add code here if needed
+
+        })();
+    </script>
+
+    <!-- Section 2 Scripts -->
+    <script>
+        (function(){
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
+
+            let tableData2 = []; // ตัวแปรเก็บข้อมูลทั้งหมด
+
+            /**
+             * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
+             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+             * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
+             */
+            function parseDateDDMMYYYYHHmm(dateStr) {
+                if (!dateStr) return null;
+                const parts = dateStr.split(' ');
+                if (parts.length !== 2) return null;
+                const [datePart, timePart] = parts;
+                const [day, month, year] = datePart.split('/').map(Number);
+                const [hours, minutes] = timePart.split(':').map(Number);
+                return new Date(year, month - 1, day, hours, minutes);
+            }
+
+            /**
+             * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
+             * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+             */
+            function formatDateToDDMMYYYYHHmm(dateStr) {
+                if (!dateStr) return '';
+                // ตรวจสอบว่าเป็น ISO string หรือ DD/MM/YYYY HH:mm
+                let date;
+                if (dateStr.includes('/') && dateStr.includes(':')) {
+                    date = parseDateDDMMYYYYHHmm(dateStr);
+                } else {
+                    date = new Date(dateStr);
+                }
+                if (!date || isNaN(date.getTime())) return '';
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            /**
+             * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
+             * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
+             * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+             */
+            function formatDateForSubmit(datetimeLocal) {
+                if (!datetimeLocal) return '';
+                const date = new Date(datetimeLocal);
+                if (isNaN(date.getTime())) return '';
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            /**
+             * ฟังก์ชันดึงข้อมูลจาก Google Sheets
+             */
+            async function fetchData() {
+                document.getElementById('loading-message2').style.display = 'block';
+                try {
+                    const response = await fetch(`${WEB_APP_URL}?sheet=การดำเนินการ`);
+                    const result = await response.json();
+                    if (result.success) {
+                        tableData2 = result.data; // เก็บข้อมูลในตัวแปร tableData2
+                        applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+                } finally {
+                    document.getElementById('loading-message2').style.display = 'none';
+                }
+            }
+
+            /**
+             * ฟังก์ชันแสดงข้อมูลในตาราง
+             */
+            function displayTable(data) {
+                const tableBody = document.querySelector('#data-table2 tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2 px-4 border">${row.status}</td>
+                        <td class="py-2 px-4 border">${row.Name || ''}</td>
+                        <td class="py-2 px-4 border flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                            <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700 w-full sm:w-auto" onclick="section2_openViewDetailsModal('${row.idkey}')">View</button>
+                            <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700 w-full sm:w-auto" onclick="section2_openStartJobModal('${row.idkey}')">เริ่มงาน</button>
+                            <button class="bg-yellow-500 text-white py-1 px-3 rounded-xl hover:bg-yellow-700 w-full sm:w-auto" onclick="section2_openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
+                            <button class="bg-purple-500 text-white py-1 px-3 rounded-xl hover:bg-purple-700 w-full sm:w-auto" onclick="section2_openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            /**
+             * ฟังก์ชันเปิด Modal สำหรับดูรายละเอียดข้อมูล
+             */
+            function openViewDetailsModal(idkey) {
+                const row = tableData2.find(row => row.idkey === idkey);
+                if (row) {
+                    const detailsContent = document.getElementById('details-content');
+                    detailsContent.innerHTML = `
+                        <p><strong>PO:</strong> ${row.idkey}</p>
+                        <p><strong>สถานะ:</strong> ${row.status}</p>
+                        <p><strong>เวลาเริ่มงาน:</strong> ${formatDateToDDMMYYYYHHmm(row.timeInside)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.insideNote || ''}</p>
+                        <p><strong>เวลาดำเนินการ:</strong> ${formatDateToDDMMYYYYHHmm(row.timeProcess)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.processNote || ''}</p>
+                        <p><strong>เวลาเสร็จสิ้น:</strong> ${formatDateToDDMMYYYYHHmm(row.timeCompress)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.compressNote || ''}</p>
+                        <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
+                        <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
+                        <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
+                        <p><strong>ผู้มอบหมาย:</strong> ${row.admin || ''}</p>
+                        <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
+                    `;
+                    document.getElementById('view-details-modal').classList.remove('hidden');
+                }
+            }
+
+            /**
+             * ฟังก์ชันปิด Modal สำหรับดูรายละเอียดข้อมูล
+             */
+            function closeViewDetailsModal() {
+                document.getElementById('view-details-modal').classList.add('hidden');
+            }
+
+            /**
+             * ฟังก์ชันจัดการฟอร์มกรองข้อมูล
+             */
+            function applyFilters() {
+                const filterStatus = document.getElementById('filter-status2').value.toLowerCase();
+                const filterName = document.getElementById('filter-name2').value.toLowerCase();
+                const filterDate = document.getElementById('filter-date2').value;
+
+                let formattedFilterDate = '';
+                if (filterDate) {
+                    const [year, month, day] = filterDate.split('-');
+                    formattedFilterDate = `${day}/${month}/${year}`;
+                }
+
+                const filteredData = tableData2.filter(row => {
+                    const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+                    const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+                    const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
+                    return matchesStatus && matchesName && matchesDate;
+                });
+
+                displayTable(filteredData);
+            }
+
+            /**
+             * ฟังก์ชันยกเลิกการกรอง
+             */
+            function clearFilters() {
+                document.getElementById('filter-status2').value = '';
+                document.getElementById('filter-name2').value = '';
+                document.getElementById('filter-date2').value = '';
+                displayTable(tableData2);
+            }
+
+            /**
+             * ฟังก์ชันจัดการฟอร์มเริ่มงาน
+             */
+            document.getElementById('start-job-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('start-job-idkey').value;
+                const status = document.getElementById('start-status').value;
+                const timeInside = document.getElementById('start-time-inside').value;
+                const insideNote = document.getElementById('start-inside-note').value.trim();
+
+                if (!idkey || !status || !timeInside) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+                const formattedTimeInside = formatDateForSubmit(timeInside);
+
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeStartJobModal();
+                        fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            /**
+             * ฟังก์ชันปิดโมดอลสำหรับเริ่มงาน
+             */
+            function closeStartJobModal() {
+                document.getElementById('start-job-modal').classList.add('hidden');
+            }
+
+            /**
+             * ฟังก์ชันเปิดโมดอลสำหรับเริ่มงาน
+             */
+            function openStartJobModal(idkey) {
+                const row = tableData2.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('start-job-idkey').value = row.idkey;
+                    document.getElementById('start-time-inside').value = getCurrentDateTimeGMT7();
+                    document.getElementById('start-inside-note').value = row.insideNote || '';
+                    document.getElementById('start-status').value = row.status || '';
+                    document.getElementById('start-job-modal').classList.remove('hidden');
+                }
+            }
+
+            /**
+             * ฟังก์ชันจัดการฟอร์มดำเนินการ
+             */
+            document.getElementById('process-job-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('process-job-idkey').value;
+                const status = document.getElementById('process-status').value;
+                const timeProcess = document.getElementById('process-time-process').value;
+                const processNote = document.getElementById('process-process-note').value.trim();
+
+                if (!idkey || !status || !timeProcess) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+                const formattedTimeProcess = formatDateForSubmit(timeProcess);
+
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=processJob&idkey=${encodeURIComponent(idkey)}&timeProcess=${encodeURIComponent(formattedTimeProcess)}&processNote=${encodeURIComponent(processNote)}&status=${encodeURIComponent(status)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeProcessJobModal();
+                        fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            /**
+             * ฟังก์ชันเปิดโมดอลสำหรับดำเนินการ
+             */
+            function openProcessJobModal(idkey) {
+                const row = tableData2.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('process-job-idkey').value = row.idkey;
+                    document.getElementById('process-time-process').value = getCurrentDateTimeGMT7();
+                    document.getElementById('process-process-note').value = row.processNote || '';
+                    document.getElementById('process-status').value = row.status || '';
+                    document.getElementById('process-job-modal').classList.remove('hidden');
+                }
+            }
+
+            /**
+             * ฟังก์ชันปิดโมดอลสำหรับดำเนินการ
+             */
+            function closeProcessJobModal() {
+                document.getElementById('process-job-modal').classList.add('hidden');
+            }
+
+            /**
+             * ฟังก์ชันจัดการฟอร์มเสร็จสิ้นงาน
+             */
+            document.getElementById('complete-job-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('complete-job-idkey').value;
+                const status = document.getElementById('complete-status').value;
+                const timeCompress = document.getElementById('complete-time-compress').value;
+                const compressNote = document.getElementById('complete-compress-note').value.trim();
+                const compressPhotoInput = document.getElementById('complete-compress-photo');
+                const compressPhotoFile = compressPhotoInput.files[0];
+                let compressPhotoData = '';
+
+                if (compressPhotoFile) {
+                    // อ่านไฟล์เป็น base64
+                    compressPhotoData = await readFileAsBase64(compressPhotoFile);
+                }
+
+                if (!idkey || !status || !timeCompress) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+                const formattedTimeCompress = formatDateForSubmit(timeCompress);
+
+                try {
+                    let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(formattedTimeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
+                    if (compressPhotoData) {
+                        bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
+                    }
+
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: bodyParams
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeCompleteJobModal();
+                        fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            /**
+             * ฟังก์ชันเปิดโมดอลสำหรับเสร็จสิ้นงาน
+             */
+            function openCompleteJobModal(idkey) {
+                const row = tableData2.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('complete-job-idkey').value = row.idkey;
+                    document.getElementById('complete-time-compress').value = getCurrentDateTimeGMT7();
+                    document.getElementById('complete-compress-note').value = row.compressNote || '';
+                    document.getElementById('complete-compress-photo').value = ''; // รีเซ็ตไฟล์
+                    document.getElementById('complete-status').value = row.status || '';
+                    document.getElementById('complete-job-modal').classList.remove('hidden');
+                }
+            }
+
+            /**
+             * ฟังก์ชันปิดโมดอลสำหรับเสร็จสิ้นงาน
+             */
+            function closeCompleteJobModal() {
+                document.getElementById('complete-job-modal').classList.add('hidden');
+            }
+
+            /**
+             * ฟังก์ชันอ่านไฟล์เป็น base64
+             * @param {File} file 
+             * @returns {Promise<string>} - base64 string
+             */
+            function readFileAsBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // แยกแค่ base64 string
+                        const base64 = e.target.result.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.onerror = function (e) {
+                        reject(e);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            /**
+             * ฟังก์ชันสำหรับแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
+             * @returns {string} - วันที่ในรูปแบบ YYYY-MM-DDTHH:mm
+             */
+            function getCurrentDateTimeGMT7() {
+                const now = new Date();
+                // แปลงเวลาเป็น UTC
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                // แปลงเวลาเป็น GMT+7
+                const gmt7Time = new Date(utc + (7 * 3600000));
+                const year = gmt7Time.getFullYear();
+                const month = String(gmt7Time.getMonth() + 1).padStart(2, '0');
+                const day = String(gmt7Time.getDate()).padStart(2, '0');
+                const hours = String(gmt7Time.getHours()).padStart(2, '0');
+                const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            // Expose functions to global scope
+            window.section2_applyFilters = applyFilters;
+            window.section2_clearFilters = clearFilters;
+            window.section2_openViewDetailsModal = openViewDetailsModal;
+            window.section2_closeViewDetailsModal = closeViewDetailsModal;
+            window.section2_openStartJobModal = openStartJobModal;
+            window.section2_closeStartJobModal = closeStartJobModal;
+            window.section2_openProcessJobModal = openProcessJobModal;
+            window.section2_closeProcessJobModal = closeProcessJobModal;
+            window.section2_openCompleteJobModal = openCompleteJobModal;
+            window.section2_closeCompleteJobModal = closeCompleteJobModal;
+            window.section2_fetchData = fetchData;
+
+        })();
+    </script>
+
+</body>
+</html>
