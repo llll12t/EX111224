@@ -74,10 +74,9 @@
         <table id="data-table" class="min-w-full text-xs bg-white rounded-lg">
             <thead>
                 <tr class="text-green text-sm">
-                    <th class="py-2 px-4 border">ชื่อ</th>
-                    <th class="py-2 px-4 border">วันที่</th> <!-- เพิ่มคอลัมน์วันที่ -->
-                    <th class="py-2 px-4 border">สถานที่</th>
-                    <th class="py-2 px-4 border">สถานะ</th>
+                     <th class="py-2 px-4 border">วันที่</th> <!-- เพิ่มคอลัมน์วันที่ -->
+                     <th class="py-2 px-4 border">ชื่อ</th>
+                     <th class="py-2 px-4 border">สถานะ</th>
                 </tr>
             </thead>
             <tbody class="text-sm"></tbody>
@@ -210,9 +209,8 @@
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-2 px-4 text-center border">${row.Name}</td>
                     <td class="py-2 px-4 text-center border">${formatDate(row.Date)}</td> <!-- แสดงวันที่ -->
-                    <td class="py-2 px-4 text-center border"><a class="text-green-700" href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td>
+                    <td class="py-2 px-4 text-center border">${row.Name}</td>
                     <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
                 `;
                 tableBody.appendChild(tr);
