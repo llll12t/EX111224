@@ -224,7 +224,7 @@
         async function fetchData(userId) {
             document.getElementById('loading-message').style.display = 'block';
             try {
-                const response = await fetch(`${WEB_APP_URL}?sheet=การดำเนินการ`);
+                const response = await fetch(`${WEB_APP_URL}?sheet=Dataservice`);
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data; // เก็บข้อมูลในตัวแปร tableData
