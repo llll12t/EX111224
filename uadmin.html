@@ -57,9 +57,8 @@
             <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
-                    <th class="py-2 px-4 border">เบอร์ติดต่อ</th>
+                    <th class="py-2 px-4 border">สถานที่</th>
                     <th class="py-2 px-4 border">สถานะ</th>
-                    <th class="py-2 px-4 border">คำสั่ง</th>
                 </tr>
             </thead>
             <tbody class="text-sm"></tbody>
@@ -193,7 +192,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="py-2 px-4 text-center border">${row.Name}</td>
-                    <td class="py-2 px-4 text-center border">${row.Contact}</td>
+                    <td class="py-2 px-4 text-center border"><a class="text-green-700" href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td>
                     <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
                 `;
                 tableBody.appendChild(tr);
