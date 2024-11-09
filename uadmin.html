@@ -149,6 +149,7 @@
                 const userId = profile.userId;
                 currentUserId = userId;
                 document.getElementById('userId').value = userId; // แสดง userId ใน input field
+                console.log('User ID:', userId); // สำหรับการดีบัก
                 fetchData(userId); // ดึงและกรองข้อมูลตาม userId
             } catch (error) {
                 console.error('Error getting profile data:', error);
@@ -167,6 +168,7 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
+                    console.log('Data fetched:', tableData); // สำหรับการดีบัก
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -373,12 +375,12 @@
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const sortOrder = document.getElementById('sort-order').value;
 
-            // Filter by name, status, and userId
+            // Filter by name and status
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus && matchesUserId;
+                // const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
+                return matchesName && matchesStatus; // && matchesUserId;
             });
 
             // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
@@ -396,16 +398,6 @@
             // แสดงข้อมูลหน้าปัจจุบัน
             const paginatedData = paginateData(filteredData, currentPage);
             displayTable(paginatedData);
-        }
-
-        /**
-         * ฟังก์ชันยกเลิกการกรอง
-         */
-        function clearFilters() {
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-status').value = '';
-            document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
-            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
         /**
@@ -461,6 +453,8 @@
             initializeLiff(); // เริ่มต้น LIFF
 
             // เพิ่ม Event Listeners สำหรับฟิลเตอร์
+            document.getElementById('filter-name').addEventListener('input', applyFilters);
+            document.getElementById('filter-status').addEventListener('change', applyFilters);
             document.getElementById('sort-order').addEventListener('change', applyFilters);
         };
     </script>
