@@ -57,6 +57,7 @@
             <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
+                    <th class="py-2 px-4 border">วันที่</th> <!-- เพิ่มคอลัมน์วันที่ -->
                     <th class="py-2 px-4 border">สถานที่</th>
                     <th class="py-2 px-4 border">สถานะ</th>
                 </tr>
@@ -163,11 +164,11 @@
         async function fetchData(userId) {
             document.getElementById('loading-message').style.display = 'block';
             try {
-                const response = await fetch(`${WEB_APP_URL}?sheet=Data`);  // เปลี่ยนเป็น `sheet=Data`
+                const response = await fetch(`${WEB_APP_URL}?sheet=Data`);
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    // เรียงข้อมูลตามวันที่ล่าสุด
+                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง
                     tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
@@ -192,6 +193,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="py-2 px-4 text-center border">${row.Name}</td>
+                    <td class="py-2 px-4 text-center border">${formatDate(row.Date)}</td> <!-- แสดงวันที่ -->
                     <td class="py-2 px-4 text-center border"><a class="text-green-700" href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td>
                     <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
                 `;
@@ -199,12 +201,12 @@
                 // แถวปุ่ม Action แบบเต็มแถว
                 const actionRow = document.createElement('tr');
                 actionRow.innerHTML = `
-                    <td colspan="3" class="py-2 px-4 border text-center">
+                    <td colspan="4" class="py-2 px-4 border text-center">
                         <div class="flex flex-between">
-                        <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
-                        <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
-                        <button 
-                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700  w-full ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
+                            <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
+                            <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                            <button 
+                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
                                 onclick="${row.Status === 'กำลังดำเนินการ' ? '' : `takeJob('${row.IDkey}')`}" 
                                 ${row.Status === 'กำลังดำเนินการ' ? 'disabled' : ''}>
                                 ยืนยัน
@@ -381,7 +383,7 @@
                 return matchesName && matchesStatus && matchesUserId;
             });
 
-            // เรียงข้อมูลตามวันที่ล่าสุด
+            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
             filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
             // คำนวณจำนวนหน้าทั้งหมด
