@@ -36,6 +36,8 @@
                 </select>
                 <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
+                  <input type="text" id="userId" placeholder="userId"
+                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
                 <input type="date" id="filter-date"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
                 <div class="flex w-full sm:w-auto space-x-2">
@@ -369,7 +371,8 @@
                     <p><strong>หมายเหตุ:</strong> ${row.compressNote || ''}</p>
                     <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
-                    <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
+                    <p><strong>lineผู้ดูแล:</strong> ${row.useridresponsible || ''}</p>
+                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.admin || ''}</p>
                     <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
                 `;
