@@ -228,7 +228,7 @@
                 const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
                 const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
                 const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
-                const matchesUserId = row.UserIDline === userId; // เงื่อนไขกรองตาม userId
+                const matchesUserId = row.row.useridresponsible  === userId; // เงื่อนไขกรองตาม userId
 
                 return matchesStatus && matchesName && matchesDate && matchesUserId;
             });
