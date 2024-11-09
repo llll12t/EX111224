@@ -54,8 +54,8 @@
             <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
+                    <th class="py-2 px-4 border">เบอร์ติดต่อ</th>
                     <th class="py-2 px-4 border">สถานะ</th>
-                    <th class="py-2 px-4 border">คำสั่ง</th>
                 </tr>
             </thead>
             <tbody class="text-sm"></tbody>
@@ -173,15 +173,24 @@
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-2 px-4 border">${row.Name}</td>
-                    <td class="py-2 px-4 border">${translateStatus(row.Status)}</td>
-                    <td class="py-2 px-4 border flex space-x-2">
-                        <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700" onclick="viewDetails('${row.IDkey}')">View</button>
-                        <button class="bg-yellow-500 text-white py-1 px-3 rounded-xl hover:bg-yellow-700" onclick="openEditModal('${row.IDkey}')">แก้ไข</button>
-                        <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700" onclick="takeJob('${row.IDkey}')">รับงาน</button>
-                    </td>
+                    <td class="py-2 px-4 text-center border">${row.Name}</td>
+                    <td class="py-2 px-4 text-center border">${row.Contact}</td>
+                    <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
                 `;
                 tableBody.appendChild(tr);
+                // แถวปุ่ม Action แบบเต็มแถว
+                const actionRow = document.createElement('tr');
+                actionRow.innerHTML = `
+                    <td colspan="3" class="py-2 px-4 border text-center">
+                        <div class="flex flex-between">
+                        <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
+                        <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                        <button class="bg-green-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full" onclick="takeJob('${row.IDkey}')">ยืนยัน</button>
+                        </div>
+                    </td>
+                `;
+
+                tableBody.appendChild(actionRow);
             });
         }
 
