@@ -15,8 +15,12 @@
 </head>
 
 <style>
-    .bg-green{
-        background:#078274;
+    .bg-green {
+        background: #078274;
+    }
+    .disabled-button {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 </style>
 
@@ -40,8 +44,7 @@
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                 </select>
                 <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
-                <input type="hidden" id="userId" placeholder="userId" readonly
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl bg-gray-100">
+                <input type="hidden" id="userId" readonly>
                 <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
                     onclick="applyFilters()">กรองข้อมูล</button>
                 <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
@@ -51,17 +54,20 @@
 
         <!-- Data Table -->
         <table id="data-table" class="min-w-full text-xs bg-white rounded-xl">
-             <thead>
+            <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
                     <th class="py-2 px-4 border">เบอร์ติดต่อ</th>
                     <th class="py-2 px-4 border">สถานะ</th>
+                    <th class="py-2 px-4 border">คำสั่ง</th>
                 </tr>
             </thead>
             <tbody class="text-sm"></tbody>
         </table>
-          <!-- Loading Message -->
+        
+        <!-- Loading Message -->
         <div id="loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+
         <!-- Pagination Controls -->
         <div id="pagination-controls" class="flex justify-center mt-4 space-x-2">
             <button id="prev-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="changePage(currentPage - 1)">ก่อนหน้า</button>
@@ -70,13 +76,11 @@
             </div>
             <button id="next-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="changePage(currentPage + 1)">ถัดไป</button>
         </div>
-
-      
     </div>
 
     <!-- Edit Modal -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-xl w-full">
+        <div class="bg-white p-6 rounded-xl w-full max-w-md">
             <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
             <form id="edit-form">
                 <input type="hidden" id="edit-idkey">
@@ -181,7 +185,7 @@
         /**
          * ฟังก์ชันแสดงข้อมูลในตาราง
          */
-         function displayTable(data) {
+        function displayTable(data) {
             const tableBody = document.querySelector('#data-table tbody');
             tableBody.innerHTML = '';
 
@@ -191,21 +195,20 @@
                     <td class="py-2 px-4 text-center border">${row.Name}</td>
                     <td class="py-2 px-4 text-center border">${row.Contact}</td>
                     <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
-                `;
-                tableBody.appendChild(tr);
-                // แถวปุ่ม Action แบบเต็มแถว
-                const actionRow = document.createElement('tr');
-                actionRow.innerHTML = `
-                    <td colspan="3" class="py-2 px-4 border text-center">
-                        <div class="flex flex-between">
-                        <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
-                        <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
-                        <button class="bg-green-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full" onclick="takeJob('${row.IDkey}')">ยืนยัน</button>
+                    <td class="py-2 px-4 text-center border">
+                        <div class="flex space-x-2">
+                            <button class="bg-purple-700 text-white py-2 px-3 rounded-lg hover:bg-purple-800" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
+                            <button class="bg-yellow-500 text-white py-2 px-3 rounded-lg hover:bg-yellow-600" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                            <button 
+                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
+                                onclick="${row.Status === 'กำลังดำเนินการ' ? '' : `takeJob('${row.IDkey}')`}" 
+                                ${row.Status === 'กำลังดำเนินการ' ? 'disabled' : ''}>
+                                ยืนยัน
+                            </button>
                         </div>
                     </td>
                 `;
-
-                tableBody.appendChild(actionRow);
+                tableBody.appendChild(tr);
             });
         }
 
