@@ -48,6 +48,12 @@
                     <option value="newest">ใหม่สุด</option>
                     <option value="oldest">เก่าสุด</option>
                 </select>
+                <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
+                <input type="hidden" id="userId" readonly>
+                <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
+                    onclick="applyFilters()">กรองข้อมูล</button>
+                <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
+                    onclick="clearFilters()">ยกเลิกการกรอง</button>
             </div>
         </div>
 
@@ -149,7 +155,6 @@
                 const userId = profile.userId;
                 currentUserId = userId;
                 document.getElementById('userId').value = userId; // แสดง userId ใน input field
-                console.log('User ID:', userId); // สำหรับการดีบัก
                 fetchData(userId); // ดึงและกรองข้อมูลตาม userId
             } catch (error) {
                 console.error('Error getting profile data:', error);
@@ -168,7 +173,6 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    console.log('Data fetched:', tableData); // สำหรับการดีบัก
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -375,12 +379,12 @@
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const sortOrder = document.getElementById('sort-order').value;
 
-            // Filter by name and status
+            // Filter by name, status, and userId
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                // const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus; // && matchesUserId;
+                const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
+                return matchesName && matchesStatus && matchesUserId;
             });
 
             // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
@@ -398,6 +402,16 @@
             // แสดงข้อมูลหน้าปัจจุบัน
             const paginatedData = paginateData(filteredData, currentPage);
             displayTable(paginatedData);
+        }
+
+        /**
+         * ฟังก์ชันยกเลิกการกรอง
+         */
+        function clearFilters() {
+            document.getElementById('filter-name').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
+            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
         /**
@@ -451,11 +465,7 @@
          */
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
-
-            // เพิ่ม Event Listeners สำหรับฟิลเตอร์
-            document.getElementById('filter-name').addEventListener('input', applyFilters);
-            document.getElementById('filter-status').addEventListener('change', applyFilters);
-            document.getElementById('sort-order').addEventListener('change', applyFilters);
+            // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
         };
     </script>
 </body>
