@@ -11,6 +11,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script> <!-- Include the LIFF SDK -->
+
 </head>
 <style>
     .bg-green{
@@ -184,6 +186,56 @@
 
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
+        const LIFF_ID = '2006504113-bBeyx8LX'; // Replace with your LIFF ID
+
+        async function initializeLiff() {
+        try {
+            await liff.init({ liffId: `${LIFF_ID}` });
+            if (liff.isLoggedIn()) {
+            getUserProfile();
+            } else {
+            liff.login();
+            }
+        } catch (error) {
+            console.error('LIFF Initialization failed', error);
+        }
+        }
+
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                applyFilter(userId); // ส่งค่า userId เพื่อกรองข้อมูลในตาราง
+            } catch (error) {
+                console.error('Error getting profile data:', error);
+            }
+        }
+
+        // ปรับฟังก์ชัน applyFilters ให้กรองตาม userId
+        function applyFilter(userId) {
+            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+            const filterName = document.getElementById('filter-name').value.toLowerCase();
+            const filterDate = document.getElementById('filter-date').value;
+
+            let formattedFilterDate = '';
+            if (filterDate) {
+                const [year, month, day] = filterDate.split('-');
+                formattedFilterDate = `${day}/${month}/${year}`;
+            }
+
+            // กรองข้อมูลใน tableData
+            const filteredData = tableData.filter(row => {
+                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
+                const matchesUserId = row.UserIDline === userId; // เงื่อนไขกรองตาม userId
+
+                return matchesStatus && matchesName && matchesDate && matchesUserId;
+            });
+
+            displayTable(filteredData);
+        }
+
 
         let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
 
@@ -267,9 +319,9 @@
         /**
          * ฟังก์ชันแสดงข้อมูลในตาราง
          */
-         function displayTable(data) {
-    const tableBody = document.querySelector('#data-table tbody');
-    tableBody.innerHTML = '';
+        function displayTable(data) {
+        const tableBody = document.querySelector('#data-table tbody');
+        tableBody.innerHTML = '';
 
     data.forEach(row => {
         // แถวข้อมูลหลัก
@@ -601,8 +653,12 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
-        // ดึงข้อมูลเมื่อโหลดหน้า
-        window.onload = fetchData;
+      // ดึงข้อมูลเมื่อโหลดหน้า
+        window.onload = function() {
+            initializeLiff(); // เริ่มต้น LIFF
+            fetchData(); // ดึงข้อมูลจาก Google Sheets
+        };
+
     </script>
 </body>
 </html>
