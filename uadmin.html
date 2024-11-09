@@ -43,11 +43,6 @@
                     <option value="rejected">ปฏิเสธ</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                 </select>
-                <!-- เพิ่มฟิลด์สำหรับเลือกวันที่เริ่มต้นและวันที่สิ้นสุด -->
-                <input type="text" id="filter-start-date" placeholder="เริ่มต้น (DD/MM/YYYY HH:mm)"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
-                <input type="text" id="filter-end-date" placeholder="สิ้นสุด (DD/MM/YYYY HH:mm)"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
                 <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
                 <input type="hidden" id="userId" readonly>
                 <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
@@ -173,8 +168,13 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง
-                    tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง โดยใช้ parseDate
+                    tableData.sort((a, b) => {
+                        const dateA = parseDate(a.Date);
+                        const dateB = parseDate(b.Date);
+                        if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
+                        return dateB - dateA; // เรียงจากใหม่ไปเก่า
+                    });
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -403,36 +403,22 @@
         function applyFilters() {
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const filterStartDateStr = document.getElementById('filter-start-date').value.trim();
-            const filterEndDateStr = document.getElementById('filter-end-date').value.trim();
-
-            const filterStartDate = filterStartDateStr ? parseDate(filterStartDateStr) : null;
-            const filterEndDate = filterEndDateStr ? parseDate(filterEndDateStr) : null;
-
-            if ((filterStartDateStr && !filterStartDate) || (filterEndDateStr && !filterEndDate)) {
-                Swal.fire({ icon: 'error', title: 'วันที่ไม่ถูกต้อง', text: 'กรุณากรอกวันที่ในรูปแบบ DD/MM/YYYY HH:mm' });
-                return;
-            }
 
             // Filter by name, status, and userId
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-
-                let matchesDate = true;
-                if (filterStartDate || filterEndDate) {
-                    const rowDate = parseDate(formatDate(row.Date));
-                    if (!rowDate) return false;
-                    if (filterStartDate && rowDate < filterStartDate) return false;
-                    if (filterEndDate && rowDate > filterEndDate) return false;
-                }
-
-                return matchesName && matchesStatus && matchesUserId && matchesDate;
+                return matchesName && matchesStatus && matchesUserId;
             });
 
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
-            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง โดยใช้ parseDate
+            filteredData.sort((a, b) => {
+                const dateA = parseDate(a.Date);
+                const dateB = parseDate(b.Date);
+                if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
+                return dateB - dateA; // เรียงจากใหม่ไปเก่า
+            });
 
             // คำนวณจำนวนหน้าทั้งหมด
             totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -450,8 +436,6 @@
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
-            document.getElementById('filter-start-date').value = '';
-            document.getElementById('filter-end-date').value = '';
             applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
