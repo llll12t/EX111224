@@ -35,7 +35,7 @@
                 <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
                 <!-- Optional: แสดง userId ให้ผู้ใช้เห็น -->
-                <input type="text" id="userId" placeholder="userId" readonly
+                <input type="hidden" id="userId" placeholder="userId" readonly
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg bg-gray-100">
                 <input type="date" id="filter-date"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
@@ -330,9 +330,8 @@
                     <p><strong>หมายเหตุ:</strong> ${row.compressNote || ''}</p>
                     <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
-                    <p><strong>lineผู้ดูแล:</strong> ${row.useridresponsible || ''}</p>
-                    <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
-                    <p><strong>ผู้มอบหมาย:</strong> ${row.admin || ''}</p>
+                    <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
+                    <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
                     <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
                 `;
                 document.getElementById('view-details-modal').classList.remove('hidden');
