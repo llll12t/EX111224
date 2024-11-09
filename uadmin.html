@@ -33,33 +33,42 @@
 
         <!-- Filter Section -->
         <div class="bg-green rounded-xl p-4 mb-4">
-            <div class="flex flex-wrap gap-4">
-                <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
-                <select id="filter-status" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+            <div class="flex ">
+                <div class="p-2">
+                <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                </div>
+                <div class="p-2">
+                    <select id="filter-status" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
                     <option value="">สถานะ</option>
                     <option value="รอดำเนินการ">รอดำเนินการ</option>
                     <option value="ปฏิเสธ">ปฏิเสธ</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                    <option value="เสร็จสิ้น">เสร็จสิ้น</option> <!-- แก้ไขค่าและป้ายชื่อให้ถูกต้อง -->
+                    <option value="เสร็จสิ้น">อนุมัติ</option>
                 </select>
-                <!-- เพิ่มตัวเลือกการเรียงลำดับวันที่ -->
+                </div>
+                <div class="p-2">
+                    <!-- เพิ่มตัวเลือกการเรียงลำดับวันที่ -->
                 <select id="sort-order" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
                     <option value="newest">ใหม่สุด</option>
                     <option value="oldest">เก่าสุด</option>
                 </select>
-                <!-- เพิ่ม Checkbox สำหรับซ่อนข้อมูลสถานะเสร็จสิ้น -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="hide-completed" class="mr-2">
-                    <label for="hide-completed" class="text-white">ซ่อนข้อมูลสถานะเสร็จสิ้น</label>
-                </div>
             </div>
-        </div>
+            </div>
+            <div>
+                <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
+                <input type="hidden" id="userId" readonly>
+                <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
+                    onclick="applyFilters()">กรองข้อมูล</button>
+                <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
+                    onclick="clearFilters()">ยกเลิกการกรอง</button>
+            </div>
+            </div>
+     
 
         <!-- Data Table -->
         <table id="data-table" class="min-w-full text-xs bg-white rounded-xl">
             <thead>
-                <tr class="text-green text-sm">
+                <tr class="text-greebg-green text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
                     <th class="py-2 px-4 border">วันที่</th> <!-- เพิ่มคอลัมน์วันที่ -->
                     <th class="py-2 px-4 border">สถานที่</th>
@@ -96,7 +105,6 @@
                         <option value="pending">รอดำเนินการ</option>
                         <option value="rejected">ปฏิเสธ</option>
                         <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                        <option value="เสร็จสิ้น">เสร็จสิ้น</option>
                     </select>
                 </div>
 
@@ -155,7 +163,6 @@
                 const userId = profile.userId;
                 currentUserId = userId;
                 document.getElementById('userId').value = userId; // แสดง userId ใน input field
-                console.log('User ID:', userId); // สำหรับการดีบัก
                 fetchData(userId); // ดึงและกรองข้อมูลตาม userId
             } catch (error) {
                 console.error('Error getting profile data:', error);
@@ -174,7 +181,6 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    console.log('Data fetched:', tableData); // สำหรับการดีบัก
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -211,9 +217,9 @@
                             <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
                             <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
                             <button 
-                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled-button' : ''}" 
-                                onclick="${(row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น') ? '' : `takeJob('${row.IDkey}')`}" 
-                                ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled' : ''}>
+                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
+                                onclick="${row.Status === 'กำลังดำเนินการ' ? '' : `takeJob('${row.IDkey}')`}" 
+                                ${row.Status === 'กำลังดำเนินการ' ? 'disabled' : ''}>
                                 ยืนยัน
                             </button>
                         </div>
@@ -233,7 +239,6 @@
                 case 'pending': return 'รอดำเนินการ';
                 case 'rejected': return 'ปฏิเสธ';
                 case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
-                case 'เสร็จสิ้น': return 'เสร็จสิ้น';
                 default: return status;
             }
         }
@@ -381,15 +386,13 @@
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const sortOrder = document.getElementById('sort-order').value;
-            const hideCompleted = document.getElementById('hide-completed').checked;
 
-            // Filter by name, status, userId, และ checkbox ซ่อนเสร็จสิ้น
+            // Filter by name, status, and userId
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                const matchesHideCompleted = hideCompleted ? row.Status.toLowerCase() !== 'เสร็จสิ้น' : true;
-                return matchesName && matchesStatus && matchesUserId && matchesHideCompleted;
+                return matchesName && matchesStatus && matchesUserId;
             });
 
             // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
@@ -407,6 +410,16 @@
             // แสดงข้อมูลหน้าปัจจุบัน
             const paginatedData = paginateData(filteredData, currentPage);
             displayTable(paginatedData);
+        }
+
+        /**
+         * ฟังก์ชันยกเลิกการกรอง
+         */
+        function clearFilters() {
+            document.getElementById('filter-name').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
+            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
         /**
@@ -460,12 +473,7 @@
          */
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
-
-            // เพิ่ม Event Listeners สำหรับฟิลเตอร์
-            document.getElementById('filter-name').addEventListener('input', applyFilters);
-            document.getElementById('filter-status').addEventListener('change', applyFilters);
-            document.getElementById('sort-order').addEventListener('change', applyFilters);
-            document.getElementById('hide-completed').addEventListener('change', applyFilters);
+            // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
         };
     </script>
 </body>
