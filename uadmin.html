@@ -23,16 +23,16 @@
 <body class="bg-white min-h-screen p-6">
     <div class="max-w-xl mx-auto">
         <!-- Header Section -->
-        <div class="bg-slate-800 text-white rounded-lg p-4 mb-4">
+        <div class="bg-slate-800 text-white rounded-xl p-4 mb-4">
             <h1 class="text-xl">จัดการข้อมูลการสั่งซื้อ</h1>
         </div>
 
         <!-- Filter Section -->
-        <div class="bg-slate-800 rounded-lg p-4 mb-4">
+        <div class="bg-slate-800 rounded-xl p-4 mb-4">
             <div class="flex flex-wrap gap-4">
-                <input type="text" id="filter-name" placeholder="Filter by Name"
-                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
-                <select id="filter-status" class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
+                <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
+                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                <select id="filter-status" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
                     <option value="">สถานะ</option>
                     <option value="approve">อนุมัติ</option>
                     <option value="pending">รอดำเนินการ</option>
@@ -41,25 +41,34 @@
                 </select>
                 <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
                 <input type="text" id="userId" placeholder="userId" readonly
-                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg bg-gray-100">
-                <button class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-700"
+                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl bg-gray-100">
+                <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
                     onclick="applyFilters()">กรองข้อมูล</button>
-                <button class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-700"
+                <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
                     onclick="clearFilters()">ยกเลิกการกรอง</button>
             </div>
         </div>
 
         <!-- Data Table -->
-        <table id="data-table" class="min-w-full text-xs bg-slate-100 rounded-lg">
+        <table id="data-table" class="min-w-full text-xs bg-slate-100 rounded-xl">
             <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
-                    <th class="py-2 px-4 border">เบอร์ติดต่อ</th>
                     <th class="py-2 px-4 border">สถานะ</th>
+                    <th class="py-2 px-4 border">คำสั่ง</th>
                 </tr>
             </thead>
             <tbody class="text-sm"></tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="flex justify-center mt-4 space-x-2">
+            <button id="prev-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="changePage(currentPage - 1)">ก่อนหน้า</button>
+            <div id="page-numbers" class="flex space-x-1">
+                <!-- ตัวเลขหน้าจะถูกสร้างที่นี่ -->
+            </div>
+            <button id="next-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="changePage(currentPage + 1)">ถัดไป</button>
+        </div>
 
         <!-- Loading Message -->
         <div id="loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
@@ -67,14 +76,14 @@
 
     <!-- Edit Modal -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg w-full ">
+        <div class="bg-white p-6 rounded-xl w-1/3">
             <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
             <form id="edit-form">
                 <input type="hidden" id="edit-idkey">
                 
                 <div class="mb-4">
                     <label for="edit-status" class="block mb-1">สถานะ</label>
-                    <select id="edit-status" class="w-full border p-2 rounded-lg">
+                    <select id="edit-status" class="w-full border px-2 py-1 rounded-xl">
                         <option value="approve">อนุมัติ</option>
                         <option value="pending">รอดำเนินการ</option>
                         <option value="rejected">ปฏิเสธ</option>
@@ -84,17 +93,17 @@
 
                 <div class="mb-4">
                     <label for="edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
-                    <input type="text" id="edit-responsible" class="w-full border p-2 rounded-lg" required>
+                    <input type="text" id="edit-responsible" class="w-full border px-2 py-1 rounded-xl" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
-                    <textarea type="text" id="edit-admin-note" class="w-full border p-2 rounded-lg" ></textarea>
+                    <input type="text" id="edit-admin-note" class="w-full border px-2 py-1 rounded-xl" required>
                 </div>
 
                 <div class="flex justify-end mt-4">
-                    <button type="button" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-700 mr-2" onclick="closeModal()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white p-2 px-5 rounded-lg hover:bg-blue-700">บันทึก</button>
+                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700 mr-2" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -102,10 +111,14 @@
 
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
-        const LIFF_ID = '2006504113-0XkPGbvm'; // เปลี่ยนเป็น LIFF ID ของคุณ
+        const LIFF_ID = 'YOUR_LIFF_ID_HERE'; // เปลี่ยนเป็น LIFF ID ของคุณ
 
         let tableData = []; 
+        let filteredData = [];
         let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let totalPages = 1;
 
         /**
          * ฟังก์ชันเริ่มต้น LIFF
@@ -151,6 +164,8 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
+                    // เรียงข้อมูลตามวันที่ล่าสุด
+                    tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -173,24 +188,15 @@
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-2 px-4 text-center border">${row.Name}</td>
-                    <td class="py-2 px-4 text-center border">${row.Contact}</td>
-                    <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
-                `;
-                tableBody.appendChild(tr);
-                // แถวปุ่ม Action แบบเต็มแถว
-                const actionRow = document.createElement('tr');
-                actionRow.innerHTML = `
-                    <td colspan="3" class="py-2 px-4 border text-center">
-                        <div class="flex flex-between">
-                        <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
-                        <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
-                        <button class="bg-green-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full" onclick="takeJob('${row.IDkey}')">ยืนยัน</button>
-                        </div>
+                    <td class="py-2 px-4 border">${row.Name}</td>
+                    <td class="py-2 px-4 border">${translateStatus(row.Status)}</td>
+                    <td class="py-2 px-4 border flex space-x-2">
+                        <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700" onclick="viewDetails('${row.IDkey}')">View</button>
+                        <button class="bg-yellow-500 text-white py-1 px-3 rounded-xl hover:bg-yellow-700" onclick="openEditModal('${row.IDkey}')">แก้ไข</button>
+                        <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700" onclick="takeJob('${row.IDkey}')">รับงาน</button>
                     </td>
                 `;
-
-                tableBody.appendChild(actionRow);
+                tableBody.appendChild(tr);
             });
         }
 
@@ -350,14 +356,25 @@
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
 
-            const filteredData = tableData.filter(row => {
+            // Filter by name, status, and userId
+            filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
                 return matchesName && matchesStatus && matchesUserId;
             });
 
-            displayTable(filteredData);
+            // เรียงข้อมูลตามวันที่ล่าสุด
+            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+            // คำนวณจำนวนหน้าทั้งหมด
+            totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            currentPage = 1;
+            setupPagination();
+
+            // แสดงข้อมูลหน้าปัจจุบัน
+            const paginatedData = paginateData(filteredData, currentPage);
+            displayTable(paginatedData);
         }
 
         /**
@@ -366,8 +383,53 @@
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
-            // ไม่รีเซ็ต userId เพราะต้องการกรองข้อมูลตาม userId เสมอ
             applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
+        }
+
+        /**
+         * ฟังก์ชันตั้งค่าการแบ่งหน้า
+         */
+        function setupPagination() {
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            pageNumbersContainer.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.innerText = i;
+                pageButton.className = `px-3 py-1 rounded-lg ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`;
+                pageButton.onclick = () => changePage(i);
+                pageNumbersContainer.appendChild(pageButton);
+            }
+
+            // ปรับสถานะปุ่มก่อนหน้าและถัดไป
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        /**
+         * ฟังก์ชันเปลี่ยนหน้า
+         * @param {number} page - หน้าที่ต้องการเปลี่ยนไป
+         */
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            setupPagination();
+
+            // แสดงข้อมูลหน้าปัจจุบัน
+            const paginatedData = paginateData(filteredData, currentPage);
+            displayTable(paginatedData);
+        }
+
+        /**
+         * ฟังก์ชันแบ่งข้อมูลตามหน้า
+         * @param {Array} data - ข้อมูลทั้งหมด
+         * @param {number} page - หน้าปัจจุบัน
+         * @returns {Array} - ข้อมูลที่อยู่ในหน้าปัจจุบัน
+         */
+        function paginateData(data, page) {
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            return data.slice(start, end);
         }
 
         /**
