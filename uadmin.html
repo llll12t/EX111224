@@ -172,6 +172,7 @@
                     tableData.sort((a, b) => {
                         const dateA = parseDate(a.Date);
                         const dateB = parseDate(b.Date);
+                        console.log(`Sorting: "${a.Date}" (${dateA}) vs "${b.Date}" (${dateB})`);
                         if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
                         return dateB - dateA; // เรียงจากใหม่ไปเก่า
                     });
@@ -195,10 +196,13 @@
             tableBody.innerHTML = '';
 
             data.forEach(row => {
+                const dateObject = parseDate(row.Date);
+                const formattedDate = formatDate(dateObject);
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="py-2 px-4 text-center border">${row.Name}</td>
-                    <td class="py-2 px-4 text-center border">${formatDate(row.Date)}</td> <!-- แสดงวันที่ -->
+                    <td class="py-2 px-4 text-center border">${formattedDate}</td> <!-- แสดงวันที่ -->
                     <td class="py-2 px-4 text-center border"><a class="text-green-700" href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td>
                     <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
                 `;
@@ -240,8 +244,10 @@
         /**
          * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
          */
-        function formatDate(dateString) {
-            const date = new Date(dateString);
+        function formatDate(date) {
+            if (!(date instanceof Date) || isNaN(date.getTime())) {
+                return '';
+            }
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
@@ -256,13 +262,19 @@
          * @returns {Date|null} - Date object หรือ null ถ้าแปลงไม่สำเร็จ
          */
         function parseDate(dateStr) {
-            const parts = dateStr.split(' ');
-            if (parts.length !== 2) return null;
+            const parts = dateStr.trim().split(' ');
+            if (parts.length !== 2) {
+                console.error(`Invalid date format (space separator): ${dateStr}`);
+                return null;
+            }
 
             const dateParts = parts[0].split('/');
             const timeParts = parts[1].split(':');
 
-            if (dateParts.length !== 3 || timeParts.length !== 2) return null;
+            if (dateParts.length !== 3 || timeParts.length !== 2) {
+                console.error(`Invalid date format (slashes or colons): ${dateStr}`);
+                return null;
+            }
 
             const day = parseInt(dateParts[0], 10);
             const month = parseInt(dateParts[1], 10) - 1; // เดือนใน JavaScript เริ่มต้นที่ 0
@@ -270,8 +282,20 @@
             const hours = parseInt(timeParts[0], 10);
             const minutes = parseInt(timeParts[1], 10);
 
+            // ตรวจสอบค่าที่แปลงแล้ว
+            if (isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hours) || isNaN(minutes)) {
+                console.error(`Invalid numerical values in date: ${dateStr}`);
+                return null;
+            }
+
             const date = new Date(year, month, day, hours, minutes);
-            return isNaN(date.getTime()) ? null : date;
+            if (isNaN(date.getTime())) {
+                console.error(`Invalid Date object created: ${dateStr}`);
+                return null;
+            }
+
+            console.log(`Parsed date for "${dateStr}":`, date);
+            return date;
         }
 
         /**
@@ -280,6 +304,8 @@
         function viewDetails(idkey) {
             const row = tableData.find(row => row.IDkey === idkey);
             if (row) {
+                const dateObject = parseDate(row.Date);
+                const formattedDate = formatDate(dateObject);
                 Swal.fire({
                     title: 'รายละเอียด',
                     html: `
@@ -290,7 +316,7 @@
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formattedDate}</td></tr>
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
                                 <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
@@ -416,6 +442,7 @@
             filteredData.sort((a, b) => {
                 const dateA = parseDate(a.Date);
                 const dateB = parseDate(b.Date);
+                console.log(`Sorting: "${a.Date}" (${dateA}) vs "${b.Date}" (${dateB})`);
                 if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
                 return dateB - dateA; // เรียงจากใหม่ไปเก่า
             });
