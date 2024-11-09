@@ -384,7 +384,7 @@
             });
 
             // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
-            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+            filteredData.sort((a, b) => new Date(b.formatDate(row.Date)) - new Date(a.formatDate(row.Date)));
 
             // คำนวณจำนวนหน้าทั้งหมด
             totalPages = Math.ceil(filteredData.length / rowsPerPage);
