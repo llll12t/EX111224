@@ -173,8 +173,6 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง
-                    tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
