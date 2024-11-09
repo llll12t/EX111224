@@ -373,14 +373,15 @@
             });
         }
 
-       /**
+        /**
          * ฟังก์ชันกรองข้อมูล
          */
         function applyFilters() {
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
 
-            const filteredData = tableData.filter(row => {
+            // Filter by name, status, and userId
+            filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
@@ -399,7 +400,6 @@
             const paginatedData = paginateData(filteredData, currentPage);
             displayTable(paginatedData);
         }
-
 
         /**
          * ฟังก์ชันยกเลิกการกรอง
