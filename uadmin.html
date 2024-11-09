@@ -200,11 +200,7 @@
                         <div class="flex flex-between">
                         <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
                         <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
-                        <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-green-700 ${row.Status.toLowerCase() === 'กำลังดำเนินการ' ? 'opacity-50 cursor-not-allowed' : ''}" 
-                                onclick="${row.Status.toLowerCase() === 'กำลังดำเนินการ' ? '' : `takeJob('${row.IDkey}')`}" 
-                                ${row.Status.toLowerCase() === 'กำลังดำเนินการ' ? 'disabled' : ''}>
-                            รับงาน
-                        </button>
+                        <button class="bg-green-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full" onclick="takeJob('${row.IDkey}')">ยืนยัน</button>
                         </div>
                     </td>
                 `;
@@ -212,17 +208,6 @@
                 tableBody.appendChild(actionRow);
             });
         }
-
-        // ตรวจสอบสถานะเพื่อปิดใช้งานปุ่มบันทึกถ้าเป็น "กำลังดำเนินการ"
-            const confirmButton = document.getElementById('edit-confirm-button');
-            if (row.Status.toLowerCase() === 'กำลังดำเนินการ') {
-                confirmButton.disabled = true;
-                confirmButton.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                confirmButton.disabled = false;
-                confirmButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-
 
         /**
          * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
