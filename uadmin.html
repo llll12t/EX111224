@@ -43,9 +43,11 @@
                     <option value="rejected">ปฏิเสธ</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                 </select>
-                <!-- เพิ่มตัวกรองวันที่ -->
-                <input type="date" id="start-date" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl" placeholder="วันที่เริ่มต้น">
-                <input type="date" id="end-date" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl" placeholder="วันที่สิ้นสุด">
+                <!-- เพิ่มตัวเลือกการเรียงลำดับวันที่ -->
+                <select id="sort-order" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl">
+                    <option value="newest">ใหม่สุด</option>
+                    <option value="oldest">เก่าสุด</option>
+                </select>
                 <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
                 <input type="hidden" id="userId" readonly>
                 <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
@@ -377,32 +379,22 @@
         function applyFilters() {
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
+            const sortOrder = document.getElementById('sort-order').value;
 
-            // Filter by name, status, userId, and date range
+            // Filter by name, status, and userId
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-
-                // เงื่อนไขการกรองตามวันที่
-                let matchesDate = true;
-                if (startDate) {
-                    matchesDate = new Date(row.Date) >= new Date(startDate);
-                }
-                if (endDate && matchesDate) {
-                    // เพิ่มเวลา 23:59:59 เพื่อครอบคลุมวันสิ้นสุดทั้งหมด
-                    const endDateWithTime = new Date(endDate);
-                    endDateWithTime.setHours(23, 59, 59, 999);
-                    matchesDate = new Date(row.Date) <= endDateWithTime;
-                }
-
-                return matchesName && matchesStatus && matchesUserId && matchesDate;
+                return matchesName && matchesStatus && matchesUserId;
             });
 
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
-            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+            // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
+            if (sortOrder === 'newest') {
+                filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+            } else if (sortOrder === 'oldest') {
+                filteredData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+            }
 
             // คำนวณจำนวนหน้าทั้งหมด
             totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -420,8 +412,7 @@
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
-            document.getElementById('start-date').value = '';
-            document.getElementById('end-date').value = '';
+            document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
             applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
