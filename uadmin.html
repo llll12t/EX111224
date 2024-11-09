@@ -22,10 +22,6 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
-    .sortable:hover {
-        cursor: pointer;
-        text-decoration: underline;
-    }
 </style>
 
 <body class="bg-gray-100 min-h-screen p-6">
@@ -47,6 +43,9 @@
                     <option value="rejected">ปฏิเสธ</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                 </select>
+                <!-- เพิ่มตัวกรองวันที่ -->
+                <input type="date" id="start-date" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl" placeholder="วันที่เริ่มต้น">
+                <input type="date" id="end-date" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl" placeholder="วันที่สิ้นสุด">
                 <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
                 <input type="hidden" id="userId" readonly>
                 <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
@@ -61,14 +60,7 @@
             <thead>
                 <tr class="text-slate-800 text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
-                    <th class="py-2 px-4 border flex items-center justify-center">
-                        <span class="sortable" onclick="sortByDate()">วันที่</span>
-                        <svg id="sort-icon" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 15l7-7 7 7"></path>
-                        </svg>
-                    </th> <!-- เพิ่มคอลัมน์วันที่ พร้อมปุ่มเรียงลำดับ -->
+                    <th class="py-2 px-4 border">วันที่</th> <!-- เพิ่มคอลัมน์วันที่ -->
                     <th class="py-2 px-4 border">สถานที่</th>
                     <th class="py-2 px-4 border">สถานะ</th>
                 </tr>
@@ -134,7 +126,6 @@
         let currentPage = 1;
         const rowsPerPage = 10;
         let totalPages = 1;
-        let sortOrder = 'desc'; // เริ่มต้นการเรียงลำดับจากใหม่ไปเก่า
 
         /**
          * ฟังก์ชันเริ่มต้น LIFF
@@ -180,7 +171,8 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    sortTableData(); // เรียงข้อมูลตามวันที่
+                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง
+                    tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -257,30 +249,6 @@
         }
 
         /**
-         * ฟังก์ชันแปลงวันที่จากรูปแบบ DD/MM/YYYY HH:mm เป็น Date object
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         * @returns {Date|null} - Date object หรือ null ถ้าแปลงไม่สำเร็จ
-         */
-        function parseDate(dateStr) {
-            const parts = dateStr.split(' ');
-            if (parts.length !== 2) return null;
-
-            const dateParts = parts[0].split('/');
-            const timeParts = parts[1].split(':');
-
-            if (dateParts.length !== 3 || timeParts.length !== 2) return null;
-
-            const day = parseInt(dateParts[0], 10);
-            const month = parseInt(dateParts[1], 10) - 1; // เดือนใน JavaScript เริ่มต้นที่ 0
-            const year = parseInt(dateParts[2], 10);
-            const hours = parseInt(timeParts[0], 10);
-            const minutes = parseInt(timeParts[1], 10);
-
-            const date = new Date(year, month, day, hours, minutes);
-            return isNaN(date.getTime()) ? null : date;
-        }
-
-        /**
          * ฟังก์ชันดูรายละเอียดข้อมูล
          */
         function viewDetails(idkey) {
@@ -409,17 +377,32 @@
         function applyFilters() {
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
 
-            // Filter by name, status, and userId
+            // Filter by name, status, userId, and date range
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus && matchesUserId;
+
+                // เงื่อนไขการกรองตามวันที่
+                let matchesDate = true;
+                if (startDate) {
+                    matchesDate = new Date(row.Date) >= new Date(startDate);
+                }
+                if (endDate && matchesDate) {
+                    // เพิ่มเวลา 23:59:59 เพื่อครอบคลุมวันสิ้นสุดทั้งหมด
+                    const endDateWithTime = new Date(endDate);
+                    endDateWithTime.setHours(23, 59, 59, 999);
+                    matchesDate = new Date(row.Date) <= endDateWithTime;
+                }
+
+                return matchesName && matchesStatus && matchesUserId && matchesDate;
             });
 
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง โดยใช้ parseDate
-            sortFilteredData();
+            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
+            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
             // คำนวณจำนวนหน้าทั้งหมด
             totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -437,6 +420,8 @@
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
             applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
@@ -484,541 +469,6 @@
             const start = (page - 1) * rowsPerPage;
             const end = start + rowsPerPage;
             return data.slice(start, end);
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่จากรูปแบบ DD/MM/YYYY HH:mm เป็น Date object
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         * @returns {Date|null} - Date object หรือ null ถ้าแปลงไม่สำเร็จ
-         */
-        function parseDate(dateStr) {
-            const parts = dateStr.split(' ');
-            if (parts.length !== 2) return null;
-
-            const dateParts = parts[0].split('/');
-            const timeParts = parts[1].split(':');
-
-            if (dateParts.length !== 3 || timeParts.length !== 2) return null;
-
-            const day = parseInt(dateParts[0], 10);
-            const month = parseInt(dateParts[1], 10) - 1; // เดือนใน JavaScript เริ่มต้นที่ 0
-            const year = parseInt(dateParts[2], 10);
-            const hours = parseInt(timeParts[0], 10);
-            const minutes = parseInt(timeParts[1], 10);
-
-            const date = new Date(year, month, day, hours, minutes);
-            return isNaN(date.getTime()) ? null : date;
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-         */
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
-        /**
-         * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
-         */
-        function translateStatus(status) {
-            switch(status.toLowerCase()) {
-                case 'approve': return 'อนุมัติ';
-                case 'pending': return 'รอดำเนินการ';
-                case 'rejected': return 'ปฏิเสธ';
-                case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
-                default: return status;
-            }
-        }
-
-        /**
-         * ฟังก์ชันดูรายละเอียดข้อมูล
-         */
-        function viewDetails(idkey) {
-            const row = tableData.find(row => row.IDkey === idkey);
-            if (row) {
-                Swal.fire({
-                    title: 'รายละเอียด',
-                    html: `
-                        <div style="text-align: left;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${translateStatus(row.Status)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
-                            </table>
-                        </div>
-                    `,
-                    confirmButtonText: 'ปิด'
-                });
-            }
-        }
-
-        /**
-         * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
-         */
-        function openEditModal(idkey) {
-            const row = tableData.find(row => row.IDkey === idkey);
-            if (row) {
-                document.getElementById('edit-idkey').value = row.IDkey;
-                document.getElementById('edit-status').value = row.Status;
-                document.getElementById('edit-responsible').value = row.Responsible;
-                document.getElementById('edit-admin-note').value = row.adminNote;
-                document.getElementById('edit-modal').classList.remove('hidden');
-            }
-        }
-
-        /**
-         * ฟังก์ชันปิดโมดอล
-         */
-        function closeModal() {
-            document.getElementById('edit-modal').classList.add('hidden');
-        }
-
-        /**
-         * ฟังก์ชันจัดการฟอร์มแก้ไขข้อมูล
-         */
-        document.getElementById('edit-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const idkey = document.getElementById('edit-idkey').value;
-            const status = document.getElementById('edit-status').value;
-            const responsible = document.getElementById('edit-responsible').value.trim();
-            const adminNote = document.getElementById('edit-admin-note').value.trim();
-
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                    closeModal();
-                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                } else {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                }
-            } catch (error) {
-                console.error('Error updating data:', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-            }
-        });
-
-        /**
-         * ฟังก์ชันรับงาน
-         */
-        async function takeJob(idkey) {
-            Swal.fire({
-                title: 'ยืนยันการรับงาน?',
-                text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, รับงาน',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
-                        });
-                        const resultData = await response.json();
-
-                        if (resultData.success) {
-                            Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
-                            fetchData(currentUserId);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
-                        }
-                    } catch (error) {
-                        console.error('Error updating data:', error);
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                    }
-                }
-            });
-        }
-
-        /**
-         * ฟังก์ชันกรองข้อมูล
-         */
-        function applyFilters() {
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-
-            // Filter by name, status, and userId
-            filteredData = tableData.filter(row => {
-                const matchesName = row.Name.toLowerCase().includes(filterName);
-                const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus && matchesUserId;
-            });
-
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง โดยใช้ parseDate
-            sortFilteredData();
-
-            // คำนวณจำนวนหน้าทั้งหมด
-            totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            currentPage = 1;
-            setupPagination();
-
-            // แสดงข้อมูลหน้าปัจจุบัน
-            const paginatedData = paginateData(filteredData, currentPage);
-            displayTable(paginatedData);
-        }
-
-        /**
-         * ฟังก์ชันยกเลิกการกรอง
-         */
-        function clearFilters() {
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-status').value = '';
-            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
-        }
-
-        /**
-         * ฟังก์ชันตั้งค่าการแบ่งหน้า
-         */
-        function setupPagination() {
-            const pageNumbersContainer = document.getElementById('page-numbers');
-            pageNumbersContainer.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.innerText = i;
-                pageButton.className = `px-3 py-1 rounded-lg ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`;
-                pageButton.onclick = () => changePage(i);
-                pageNumbersContainer.appendChild(pageButton);
-            }
-
-            // ปรับสถานะปุ่มก่อนหน้าและถัดไป
-            document.getElementById('prev-page').disabled = currentPage === 1;
-            document.getElementById('next-page').disabled = currentPage === totalPages;
-        }
-
-        /**
-         * ฟังก์ชันเปลี่ยนหน้า
-         * @param {number} page - หน้าที่ต้องการเปลี่ยนไป
-         */
-        function changePage(page) {
-            if (page < 1 || page > totalPages) return;
-            currentPage = page;
-            setupPagination();
-
-            // แสดงข้อมูลหน้าปัจจุบัน
-            const paginatedData = paginateData(filteredData, currentPage);
-            displayTable(paginatedData);
-        }
-
-        /**
-         * ฟังก์ชันแบ่งข้อมูลตามหน้า
-         * @param {Array} data - ข้อมูลทั้งหมด
-         * @param {number} page - หน้าปัจจุบัน
-         * @returns {Array} - ข้อมูลที่อยู่ในหน้าปัจจุบัน
-         */
-        function paginateData(data, page) {
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            return data.slice(start, end);
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่จากรูปแบบ DD/MM/YYYY HH:mm เป็น Date object
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         * @returns {Date|null} - Date object หรือ null ถ้าแปลงไม่สำเร็จ
-         */
-        function parseDate(dateStr) {
-            const parts = dateStr.split(' ');
-            if (parts.length !== 2) return null;
-
-            const dateParts = parts[0].split('/');
-            const timeParts = parts[1].split(':');
-
-            if (dateParts.length !== 3 || timeParts.length !== 2) return null;
-
-            const day = parseInt(dateParts[0], 10);
-            const month = parseInt(dateParts[1], 10) - 1; // เดือนใน JavaScript เริ่มต้นที่ 0
-            const year = parseInt(dateParts[2], 10);
-            const hours = parseInt(timeParts[0], 10);
-            const minutes = parseInt(timeParts[1], 10);
-
-            const date = new Date(year, month, day, hours, minutes);
-            return isNaN(date.getTime()) ? null : date;
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-         */
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
-        /**
-         * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
-         */
-        function translateStatus(status) {
-            switch(status.toLowerCase()) {
-                case 'approve': return 'อนุมัติ';
-                case 'pending': return 'รอดำเนินการ';
-                case 'rejected': return 'ปฏิเสธ';
-                case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
-                default: return status;
-            }
-        }
-
-        /**
-         * ฟังก์ชันดูรายละเอียดข้อมูล
-         */
-        function viewDetails(idkey) {
-            const row = tableData.find(row => row.IDkey === idkey);
-            if (row) {
-                Swal.fire({
-                    title: 'รายละเอียด',
-                    html: `
-                        <div style="text-align: left;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${translateStatus(row.Status)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
-                            </table>
-                        </div>
-                    `,
-                    confirmButtonText: 'ปิด'
-                });
-            }
-        }
-
-        /**
-         * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
-         */
-        function openEditModal(idkey) {
-            const row = tableData.find(row => row.IDkey === idkey);
-            if (row) {
-                document.getElementById('edit-idkey').value = row.IDkey;
-                document.getElementById('edit-status').value = row.Status;
-                document.getElementById('edit-responsible').value = row.Responsible;
-                document.getElementById('edit-admin-note').value = row.adminNote;
-                document.getElementById('edit-modal').classList.remove('hidden');
-            }
-        }
-
-        /**
-         * ฟังก์ชันปิดโมดอล
-         */
-        function closeModal() {
-            document.getElementById('edit-modal').classList.add('hidden');
-        }
-
-        /**
-         * ฟังก์ชันจัดการฟอร์มแก้ไขข้อมูล
-         */
-        document.getElementById('edit-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const idkey = document.getElementById('edit-idkey').value;
-            const status = document.getElementById('edit-status').value;
-            const responsible = document.getElementById('edit-responsible').value.trim();
-            const adminNote = document.getElementById('edit-admin-note').value.trim();
-
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                    closeModal();
-                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                } else {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                }
-            } catch (error) {
-                console.error('Error updating data:', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-            }
-        });
-
-        /**
-         * ฟังก์ชันรับงาน
-         */
-        async function takeJob(idkey) {
-            Swal.fire({
-                title: 'ยืนยันการรับงาน?',
-                text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, รับงาน',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
-                        });
-                        const resultData = await response.json();
-
-                        if (resultData.success) {
-                            Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
-                            fetchData(currentUserId);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
-                        }
-                    } catch (error) {
-                        console.error('Error updating data:', error);
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                    }
-                }
-            });
-        }
-
-        /**
-         * ฟังก์ชันกรองข้อมูล
-         */
-        function applyFilters() {
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-
-            // Filter by name, status, and userId
-            filteredData = tableData.filter(row => {
-                const matchesName = row.Name.toLowerCase().includes(filterName);
-                const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus && matchesUserId;
-            });
-
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง โดยใช้ parseDate
-            sortFilteredData();
-
-            // คำนวณจำนวนหน้าทั้งหมด
-            totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            currentPage = 1;
-            setupPagination();
-
-            // แสดงข้อมูลหน้าปัจจุบัน
-            const paginatedData = paginateData(filteredData, currentPage);
-            displayTable(paginatedData);
-        }
-
-        /**
-         * ฟังก์ชันยกเลิกการกรอง
-         */
-        function clearFilters() {
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-status').value = '';
-            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
-        }
-
-        /**
-         * ฟังก์ชันเรียงลำดับข้อมูลตามวันที่
-         */
-        function sortByDate() {
-            // สลับการเรียงลำดับ
-            sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-            sortTableData();
-
-            // อัปเดตไอคอนการเรียงลำดับ
-            updateSortIcon();
-
-            // รีเฟรชการแสดงผล
-            applyFilters();
-        }
-
-        /**
-         * ฟังก์ชันเรียงลำดับข้อมูลใน tableData ตาม sortOrder
-         */
-        function sortTableData() {
-            tableData.sort((a, b) => {
-                const dateA = parseDate(a.Date);
-                const dateB = parseDate(b.Date);
-                if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
-
-                if (sortOrder === 'desc') {
-                    return dateB - dateA; // เรียงจากใหม่ไปเก่า
-                } else {
-                    return dateA - dateB; // เรียงจากเก่าไปใหม่
-                }
-            });
-        }
-
-        /**
-         * ฟังก์ชันเรียงลำดับข้อมูลใน filteredData ตาม sortOrder
-         */
-        function sortFilteredData() {
-            filteredData.sort((a, b) => {
-                const dateA = parseDate(a.Date);
-                const dateB = parseDate(b.Date);
-                if (!dateA || !dateB) return 0; // ถ้าไม่สามารถแปลงวันที่ได้ ให้ไม่เปลี่ยนแปลงลำดับ
-
-                if (sortOrder === 'desc') {
-                    return dateB - dateA; // เรียงจากใหม่ไปเก่า
-                } else {
-                    return dateA - dateB; // เรียงจากเก่าไปใหม่
-                }
-            });
-        }
-
-        /**
-         * ฟังก์ชันอัปเดตไอคอนการเรียงลำดับ
-         */
-        function updateSortIcon() {
-            const sortIcon = document.getElementById('sort-icon');
-            if (sortOrder === 'desc') {
-                // แสดงลูกศรลงสำหรับเรียงจากใหม่ไปเก่า
-                sortIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M5 15l7-7 7 7"></path>
-                `;
-            } else {
-                // แสดงลูกศรขึ้นสำหรับเรียงจากเก่าไปใหม่
-                sortIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 9l-7 7-7-7"></path>
-                `;
-            }
         }
 
         /**
@@ -1026,7 +476,6 @@
          */
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
-            updateSortIcon(); // อัปเดตไอคอนการเรียงลำดับตาม sortOrder เริ่มต้น
             // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
         };
     </script>
