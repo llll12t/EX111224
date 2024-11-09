@@ -1,14 +1,24 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จัดการข้อมูลการสั่งซื้อ</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
 </head>
+
+<style>
+    .bg-green{
+        background:#078274;
+    }
+</style>
 
 <body class="bg-white min-h-screen p-6">
     <div class="max-w-xl mx-auto">
@@ -27,7 +37,11 @@
                     <option value="approve">อนุมัติ</option>
                     <option value="pending">รอดำเนินการ</option>
                     <option value="rejected">ปฏิเสธ</option>
+                    <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                 </select>
+                <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
+                <input type="text" id="userId" placeholder="userId" readonly
+                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-xl bg-gray-100">
                 <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
                     onclick="applyFilters()">กรองข้อมูล</button>
                 <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
@@ -87,30 +101,71 @@
     </div>
 
     <script>
-            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // Replace with your Web App URL
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
+        const LIFF_ID = '2006504113-0XkPGbvm'; // เปลี่ยนเป็น LIFF ID ของคุณ
 
-            let tableData = []; 
+        let tableData = []; 
+        let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
 
-            async function fetchData() {
-                document.getElementById('loading-message').style.display = 'block';
-                try {
-                    const response = await fetch(`${WEB_APP_URL}?sheet=Data`);  // Change to `sheet=Data`
-                    const result = await response.json();
-                    if (result.success) {
-                        tableData = result.data;
-                        applyFilters(); 
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                    }
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
-                } finally {
-                    document.getElementById('loading-message').style.display = 'none';
+        /**
+         * ฟังก์ชันเริ่มต้น LIFF
+         */
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login(); // ทำการล็อกอินถ้ายังไม่ได้ล็อกอิน
                 }
+            } catch (error) {
+                console.error('LIFF Initialization failed', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
             }
+        }
 
+        /**
+         * ฟังก์ชันดึงข้อมูลโปรไฟล์ผู้ใช้จาก LIFF
+         */
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                currentUserId = userId;
+                document.getElementById('userId').value = userId; // แสดง userId ใน input field
+                fetchData(userId); // ดึงและกรองข้อมูลตาม userId
+            } catch (error) {
+                console.error('Error getting profile data:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้' });
+            }
+        }
 
+        /**
+         * ฟังก์ชันดึงข้อมูลจาก Google Sheets
+         * @param {string} userId - userId ของผู้ใช้
+         */
+        async function fetchData(userId) {
+            document.getElementById('loading-message').style.display = 'block';
+            try {
+                const response = await fetch(`${WEB_APP_URL}?sheet=Data`);  // เปลี่ยนเป็น `sheet=Data`
+                const result = await response.json();
+                if (result.success) {
+                    tableData = result.data;
+                    applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
+                } else {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+            } finally {
+                document.getElementById('loading-message').style.display = 'none';
+            }
+        }
+
+        /**
+         * ฟังก์ชันแสดงข้อมูลในตาราง
+         */
         function displayTable(data) {
             const tableBody = document.querySelector('#data-table tbody');
             tableBody.innerHTML = '';
@@ -130,6 +185,9 @@
             });
         }
 
+        /**
+         * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
+         */
         function translateStatus(status) {
             switch(status.toLowerCase()) {
                 case 'approve': return 'อนุมัติ';
@@ -139,47 +197,56 @@
                 default: return status;
             }
         }
+
+        /**
+         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+         */
         function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-}
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
 
-function viewDetails(idkey) {
-    const row = tableData.find(row => row.IDkey === idkey);
-    if (row) {
-        Swal.fire({
-            title: 'รายละเอียด',
-            html: `
-                <div style="text-align: left;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${translateStatus(row.Status)}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
-                    </table>
-                </div>
-            `,
-            confirmButtonText: 'ปิด'
-        });
-    }
-}
+        /**
+         * ฟังก์ชันดูรายละเอียดข้อมูล
+         */
+        function viewDetails(idkey) {
+            const row = tableData.find(row => row.IDkey === idkey);
+            if (row) {
+                Swal.fire({
+                    title: 'รายละเอียด',
+                    html: `
+                        <div style="text-align: left;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${translateStatus(row.Status)}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
+                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
+                            </table>
+                        </div>
+                    `,
+                    confirmButtonText: 'ปิด'
+                });
+            }
+        }
 
-        
+        /**
+         * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
+         */
         function openEditModal(idkey) {
             const row = tableData.find(row => row.IDkey === idkey);
             if (row) {
@@ -191,10 +258,16 @@ function viewDetails(idkey) {
             }
         }
 
+        /**
+         * ฟังก์ชันปิดโมดอล
+         */
         function closeModal() {
             document.getElementById('edit-modal').classList.add('hidden');
         }
 
+        /**
+         * ฟังก์ชันจัดการฟอร์มแก้ไขข้อมูล
+         */
         document.getElementById('edit-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -214,7 +287,7 @@ function viewDetails(idkey) {
                 if (result.success) {
                     Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
                     closeModal();
-                    fetchData(); 
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
                 }
@@ -224,6 +297,9 @@ function viewDetails(idkey) {
             }
         });
 
+        /**
+         * ฟังก์ชันรับงาน
+         */
         async function takeJob(idkey) {
             Swal.fire({
                 title: 'ยืนยันการรับงาน?',
@@ -246,7 +322,7 @@ function viewDetails(idkey) {
 
                         if (resultData.success) {
                             Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
-                            fetchData();
+                            fetchData(currentUserId);
                         } else {
                             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
                         }
@@ -258,6 +334,9 @@ function viewDetails(idkey) {
             });
         }
 
+        /**
+         * ฟังก์ชันกรองข้อมูล
+         */
         function applyFilters() {
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
@@ -265,19 +344,30 @@ function viewDetails(idkey) {
             const filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                return matchesName && matchesStatus;
+                const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
+                return matchesName && matchesStatus && matchesUserId;
             });
 
             displayTable(filteredData);
         }
 
+        /**
+         * ฟังก์ชันยกเลิกการกรอง
+         */
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
-            displayTable(tableData);
+            // ไม่รีเซ็ต userId เพราะต้องการกรองข้อมูลตาม userId เสมอ
+            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
-        window.onload = fetchData;
+        /**
+         * ฟังก์ชันเริ่มต้นเมื่อโหลดหน้า
+         */
+        window.onload = function() {
+            initializeLiff(); // เริ่มต้น LIFF
+            // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
+        };
     </script>
 </body>
 </html>
