@@ -125,18 +125,6 @@
         let totalPages = 1;
 
         /**
-         * ฟังก์ชันแปลงวันที่จากรูปแบบ DD/MM/YYYY HH:mm เป็น Date object
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         * @returns {Date} - Date object ที่แปลงมา
-         */
-        function parseDate(dateStr) {
-            const [datePart, timePart] = dateStr.split(' ');
-            const [day, month, year] = datePart.split('/').map(Number);
-            const [hours, minutes] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hours, minutes);
-        }
-
-        /**
          * ฟังก์ชันเริ่มต้น LIFF
          */
         async function initializeLiff() {
@@ -180,8 +168,8 @@
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data;
-                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง โดยใช้ parseDate
-                    tableData.sort((a, b) => parseDate(b.Date) - parseDate(a.Date));
+                    // เรียงข้อมูลตามวันที่ล่าสุดก่อนที่จะกรอง
+                    tableData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
                     applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
@@ -197,7 +185,7 @@
         /**
          * ฟังก์ชันแสดงข้อมูลในตาราง
          */
-        function displayTable(data) {
+         function displayTable(data) {
             const tableBody = document.querySelector('#data-table tbody');
             tableBody.innerHTML = '';
 
@@ -247,8 +235,8 @@
         /**
          * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
          */
-        function formatDate(dateStr) {
-            const date = parseDate(dateStr);
+        function formatDate(dateString) {
+            const date = new Date(dateString);
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
@@ -395,8 +383,8 @@
                 return matchesName && matchesStatus && matchesUserId;
             });
 
-            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง โดยใช้ parseDate
-            filteredData.sort((a, b) => parseDate(b.Date) - parseDate(a.Date));
+            // เรียงข้อมูลตามวันที่ล่าสุดหลังจากกรอง
+            filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
             // คำนวณจำนวนหน้าทั้งหมด
             totalPages = Math.ceil(filteredData.length / rowsPerPage);
