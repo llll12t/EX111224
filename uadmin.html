@@ -27,18 +27,18 @@
 <body class="bg-gray-100 min-h-screen p-6">
     <div class="max-w-xl mx-auto">
         <!-- Header Section -->
-        <div class="bg-green text-white rounded-xl p-4 mb-4">
+        <div class="bg-green text-white rounded-lg p-4 mb-4">
             <h1 class="text-xl">จัดการข้อมูลการสั่งซื้อ</h1>
         </div>
 
         <!-- Filter Section -->
-        <div class="bg-green rounded-xl p-4 mb-4">
-            <div class="flex flex-wrap gap-4">
+        <div class="bg-green rounded-lg p-4 mb-4">
+            <div class="flex ">
                 <div class="p-2 flex-1">
-                    <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-xl">
+                    <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-lg">
                 </div>
                 <div class="p-2 flex-1">
-                    <select id="filter-status" class="w-full border px-2 py-1 rounded-xl">
+                    <select id="filter-status" class="w-full border px-2 py-1 rounded-lg">
                         <option value="">สถานะ</option>
                         <option value="รอดำเนินการ">รอดำเนินการ</option>
                         <option value="ปฏิเสธ">ปฏิเสธ</option>
@@ -48,27 +48,30 @@
                 </div>
                 <div class="p-2 flex-1">
                     <!-- เพิ่มตัวเลือกการเรียงลำดับวันที่ -->
-                    <select id="sort-order" class="w-full border px-2 py-1 rounded-xl">
+                    <select id="sort-order" class="w-full border px-2 py-1 rounded-lg">
                         <option value="newest">ใหม่สุด</option>
                         <option value="oldest">เก่าสุด</option>
                     </select>
                 </div>
+            </div> 
+            <div class="flex ">
+ 
                 <div class="p-2 flex-1 flex items-center">
-                    <input type="checkbox" id="hide-completed" class="mr-2">
-                    <label for="hide-completed" class="text-white">ซ่อนข้อมูลสถานะ "เสร็จสิ้น"</label>
+                    <input type="checkbox" id="hide-completed" checked class="mr-2">
+                    <label for="hide-completed" class="text-white">ซ่อน"เสร็จสิ้น"</label>
                 </div>
-            </div>
+          
             <div class="flex justify-end mt-4 space-x-2">
-                <button class="bg-green-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
-                    onclick="applyFilters()">กรองข้อมูล</button>
-                <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
-                    onclick="clearFilters()">ยกเลิกการกรอง</button>
-            </div>
+                <button class="bg-green-500 text-white py-1 px-6 rounded-lg hover:bg-blue-700"
+                    onclick="applyFilters()">กรอง</button>
+                <button class="bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700"
+                    onclick="clearFilters()">ยกเลิก</button>
+            </div>  </div>
         </div>
  
 
         <!-- Data Table -->
-        <table id="data-table" class="min-w-full text-xs bg-white rounded-xl">
+        <table id="data-table" class="min-w-full text-xs bg-white rounded-lg">
             <thead>
                 <tr class="text-green text-sm">
                     <th class="py-2 px-4 border">ชื่อ</th>
@@ -95,14 +98,14 @@
 
     <!-- Edit Modal -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-xl w-full max-w-md">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
             <form id="edit-form">
                 <input type="hidden" id="edit-idkey">
                 
                 <div class="mb-4">
                     <label for="edit-status" class="block mb-1">สถานะ</label>
-                    <select id="edit-status" class="w-full border px-2 py-1 rounded-xl">
+                    <select id="edit-status" class="w-full border px-2 py-1 rounded-lg">
                         <option value="approve">อนุมัติ</option>
                         <option value="pending">รอดำเนินการ</option>
                         <option value="rejected">ปฏิเสธ</option>
@@ -113,17 +116,17 @@
 
                 <div class="mb-4">
                     <label for="edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
-                    <input type="text" id="edit-responsible" class="w-full border px-2 py-1 rounded-xl" required>
+                    <input type="text" id="edit-responsible" class="w-full border px-2 py-1 rounded-lg" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
-                    <input type="text" id="edit-admin-note" class="w-full border px-2 py-1 rounded-xl" required>
+                    <input type="text" id="edit-admin-note" class="w-full border px-2 py-1 rounded-lg" required>
                 </div>
 
                 <div class="flex justify-end mt-4">
-                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-xl hover:bg-red-700 mr-2" onclick="closeModal()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700">บันทึก</button>
+                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 mr-2" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
