@@ -204,7 +204,7 @@
                         <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
                         <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
                         <button 
-                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
+                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700  w-full ${row.Status === 'กำลังดำเนินการ' ? 'disabled-button' : ''}" 
                                 onclick="${row.Status === 'กำลังดำเนินการ' ? '' : `takeJob('${row.IDkey}')`}" 
                                 ${row.Status === 'กำลังดำเนินการ' ? 'disabled' : ''}>
                                 ยืนยัน
