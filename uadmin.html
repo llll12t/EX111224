@@ -48,12 +48,6 @@
                     <option value="newest">ใหม่สุด</option>
                     <option value="oldest">เก่าสุด</option>
                 </select>
-                <!-- แสดง userId เป็น readonly สำหรับการตรวจสอบ -->
-                <input type="hidden" id="userId" readonly>
-                <button class="bg-blue-500 text-white py-1 px-3 rounded-xl hover:bg-blue-700"
-                    onclick="applyFilters()">กรองข้อมูล</button>
-                <button class="bg-gray-500 text-white py-1 px-3 rounded-xl hover:bg-gray-700"
-                    onclick="clearFilters()">ยกเลิกการกรอง</button>
             </div>
         </div>
 
@@ -465,7 +459,11 @@
          */
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
-            // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
+
+            // เพิ่ม Event Listeners สำหรับฟิลเตอร์
+            document.getElementById('filter-name').addEventListener('input', applyFilters);
+            document.getElementById('filter-status').addEventListener('change', applyFilters);
+            document.getElementById('sort-order').addEventListener('change', applyFilters);
         };
     </script>
 </body>
