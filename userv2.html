@@ -23,7 +23,7 @@
         <!-- Filter Section -->
         <div class="bg-green rounded-lg p-4 mb-4">
             <div class="flex flex-wrap gap-4">
-                <select id="filter-status" class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
+                <select id="filter-status" class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                     <option value="">ทุกสถานะ</option>
                     <option value="เริ่มงาน">เริ่มงาน</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
@@ -33,12 +33,12 @@
                     <option value="ปฏิเสธ">ปฏิเสธ</option>
                 </select>
                 <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
+                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                 <!-- Optional: แสดง userId ให้ผู้ใช้เห็น -->
                 <input type="hidden" id="userId" placeholder="userId" readonly
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg bg-gray-100">
+                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg bg-gray-100">
                 <input type="date" id="filter-date"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
+                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                 <div class="flex w-full sm:w-auto space-x-2">
                     <button class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
                         onclick="applyFilters()">กรองข้อมูล</button>
@@ -88,7 +88,7 @@
 
                 <div class="mb-4">
                     <label for="start-status" class="block mb-1">สถานะ</label>
-                    <select id="start-status" class="w-full border px-2 py-1 rounded-lg" required>
+                    <select id="start-status" class="w-full border p-2 rounded-lg" required>
                         <option value="เริ่มงาน"selected>เริ่มงาน</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                         <option value="เลื่อน">เลื่อน</option>
@@ -97,17 +97,17 @@
 
                 <div class="mb-4">
                     <label for="start-time-inside" class="block mb-1">เวลา</label>
-                    <input type="datetime-local" id="start-time-inside" class="w-full border px-2 py-1 rounded-lg" required>
+                    <input type="datetime-local" id="start-time-inside" class="w-full border p-2 rounded-lg" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="start-inside-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="start-inside-note" class="w-full border px-2 py-1 rounded-lg"></textarea>
+                    <textarea type="text" id="start-inside-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700" onclick="closeStartJobModal()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                    <button type="button" class="bg-red-500 text-white py-3 px-3 w-1/3 rounded-lg hover:bg-red-700" onclick="closeStartJobModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white py-3 w-2/3 px-3 rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -122,7 +122,7 @@
 
                 <div class="mb-4">
                     <label for="process-status" class="block mb-1">สถานะ</label>
-                    <select id="process-status" class="w-full border px-2 py-1 rounded-lg" required>
+                    <select id="process-status" class="w-full border p-2 rounded-lg" required>
                         <option value="เริ่มดำเนินการ"selected>ดำเนินการ</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                         <option value="เลื่อน">เลื่อน</option>
@@ -130,12 +130,12 @@
                 </div>
                 <div class="mb-4">
                     <label for="process-time-process" class="block mb-1">เวลา</label>
-                    <input type="datetime-local" id="process-time-process" class="w-full border px-2 py-1 rounded-lg" required>
+                    <input type="datetime-local" id="process-time-process" class="w-full border p-2 rounded-lg" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="process-process-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="process-process-note" class="w-full border px-2 py-1 rounded-lg"></textarea>
+                    <textarea type="text" id="process-process-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
@@ -155,7 +155,7 @@
 
                 <div class="mb-4">
                     <label for="complete-status" class="block mb-1">สถานะ</label>
-                    <select id="complete-status" class="w-full border px-2 py-1 rounded-md" required>
+                    <select id="complete-status" class="w-full border p-2 rounded-md" required>
                         <option value="ดำเนินการสำเร็จ"selected>ดำเนินการสำเร็จ</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                         <option value="เลื่อน">เลื่อน</option>
@@ -164,17 +164,17 @@
 
                 <div class="mb-4">
                     <label for="complete-time-compress" class="block mb-1">เวลา</label>
-                    <input type="datetime-local" id="complete-time-compress" class="w-full border px-2 py-1 rounded-lg" required>
+                    <input type="datetime-local" id="complete-time-compress" class="w-full border p-2 rounded-lg" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="complete-compress-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="complete-compress-note" class="w-full border px-2 py-1 rounded-lg"></textarea>
+                    <textarea type="text" id="complete-compress-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="mb-4">
                     <label for="complete-compress-photo" class="block mb-1">รูปภาพ (ไม่บังคับ)</label>
-                    <input type="file" id="complete-compress-photo" accept="image/*" class="w-full border px-2 py-1 rounded-lg">
+                    <input type="file" id="complete-compress-photo" accept="image/*" class="w-full border p-2 rounded-lg">
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
