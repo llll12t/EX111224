@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -12,12 +11,11 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script> <!-- Include the LIFF SDK -->
-
 </head>
 <style>
     .bg-green{
         background:#078274;
-    };
+    }
 </style>
 
 <body class="bg-slate-50 min-h-screen p-4 sm:p-6">
@@ -36,8 +34,9 @@
                 </select>
                 <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
-                  <input type="text" id="userId" placeholder="userId"
-                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
+                <!-- Optional: แสดง userId ให้ผู้ใช้เห็น -->
+                <input type="text" id="userId" placeholder="userId" readonly
+                    class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg bg-gray-100">
                 <input type="date" id="filter-date"
                     class="w-full sm:w-auto flex-1 border px-2 py-1 rounded-lg">
                 <div class="flex w-full sm:w-auto space-x-2">
@@ -156,7 +155,7 @@
 
                 <div class="mb-4">
                     <label for="complete-status" class="block mb-1">สถานะ</label>
-                    <select id="complete-status" class="w-full border px-2 py-1 rounded-md" value="ดำเนินการสำเร็จ" required>
+                    <select id="complete-status" class="w-full border px-2 py-1 rounded-md" required>
                         <option value="ดำเนินการสำเร็จ"selected>ดำเนินการสำเร็จ</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                         <option value="เลื่อน">เลื่อน</option>
@@ -190,123 +189,46 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
         const LIFF_ID = '2006504113-bBeyx8LX'; // Replace with your LIFF ID
 
+        let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
+        let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
+
         async function initializeLiff() {
-        try {
-            await liff.init({ liffId: `${LIFF_ID}` });
-            if (liff.isLoggedIn()) {
-            getUserProfile();
-            } else {
-            liff.login();
+            try {
+                await liff.init({ liffId: `${LIFF_ID}` });
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error('LIFF Initialization failed', error);
             }
-        } catch (error) {
-            console.error('LIFF Initialization failed', error);
-        }
         }
 
         async function getUserProfile() {
             try {
                 const profile = await liff.getProfile();
                 const userId = profile.userId;
-                applyFilter(userId); // ส่งค่า userId เพื่อกรองข้อมูลในตาราง
+                currentUserId = userId;
+                document.getElementById('userId').value = userId; // แสดง userId ใน input field (ถ้าต้องการ)
+                fetchData(userId); // ส่งค่า userId เพื่อดึงและกรองข้อมูล
             } catch (error) {
                 console.error('Error getting profile data:', error);
             }
         }
 
-        // ปรับฟังก์ชัน applyFilters ให้กรองตาม userId
-        function applyFilter(userId) {
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-            const filterDate = document.getElementById('filter-date').value;
-
-            let formattedFilterDate = '';
-            if (filterDate) {
-                const [year, month, day] = filterDate.split('-');
-                formattedFilterDate = `${day}/${month}/${year}`;
-            }
-
-            // กรองข้อมูลใน tableData
-            const filteredData = tableData.filter(row => {
-                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
-                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
-                const matchesUserId = row.useridresponsible  === userId; // เงื่อนไขกรองตาม userId
-
-                return matchesStatus && matchesName && matchesDate && matchesUserId;
-            });
-
-            displayTable(filteredData);
-        }
-
-
-        let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
-
-        /**
-         * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
-         */
-        function parseDateDDMMYYYYHHmm(dateStr) {
-            if (!dateStr) return null;
-            const parts = dateStr.split(' ');
-            if (parts.length !== 2) return null;
-            const [datePart, timePart] = parts;
-            const [day, month, year] = datePart.split('/').map(Number);
-            const [hours, minutes] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hours, minutes);
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
-         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         */
-        function formatDateToDDMMYYYYHHmm(dateStr) {
-            if (!dateStr) return '';
-            // ตรวจสอบว่าเป็น ISO string หรือ DD/MM/YYYY HH:mm
-            let date;
-            if (dateStr.includes('/') && dateStr.includes(':')) {
-                date = parseDateDDMMYYYYHHmm(dateStr);
-            } else {
-                date = new Date(dateStr);
-            }
-            if (!date || isNaN(date.getTime())) return '';
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
-        /**
-         * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
-         * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
-         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-         */
-        function formatDateForSubmit(datetimeLocal) {
-            if (!datetimeLocal) return '';
-            const date = new Date(datetimeLocal);
-            if (isNaN(date.getTime())) return '';
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
         /**
          * ฟังก์ชันดึงข้อมูลจาก Google Sheets
+         * @param {string} userId - userId ของผู้ใช้
          */
-        async function fetchData() {
+        async function fetchData(userId) {
             document.getElementById('loading-message').style.display = 'block';
             try {
                 const response = await fetch(`${WEB_APP_URL}?sheet=การดำเนินการ`);
                 const result = await response.json();
                 if (result.success) {
                     tableData = result.data; // เก็บข้อมูลในตัวแปร tableData
-                    applyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
+                    applyFilters(userId); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
                 }
@@ -322,36 +244,73 @@
          * ฟังก์ชันแสดงข้อมูลในตาราง
          */
         function displayTable(data) {
-        const tableBody = document.querySelector('#data-table tbody');
-        tableBody.innerHTML = '';
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = '';
 
-    data.forEach(row => {
-        // แถวข้อมูลหลัก
-        const dataRow = document.createElement('tr');
-        dataRow.innerHTML = `
-            <td class="py-2 px-4 text-center border">${row.status}</td>
-            <td class="py-2 px-4 text-center border">${row.Name || ''}</td>
-            <td class="py-2 px-4 text-center border"><button class="text-blue-700 py-1 px-2 mx-1" onclick="openViewDetailsModal('${row.idkey}')">รายละเอียด</button>
-            </td>
-        `;
-        
-        tableBody.appendChild(dataRow);
+            data.forEach(row => {
+                // แถวข้อมูลหลัก
+                const dataRow = document.createElement('tr');
+                dataRow.innerHTML = `
+                    <td class="py-2 px-4 text-center border">${row.status}</td>
+                    <td class="py-2 px-4 text-center border">${row.Name || ''}</td>
+                    <td class="py-2 px-4 text-center border"><button class="text-blue-700 py-1 px-2 mx-1" onclick="openViewDetailsModal('${row.idkey}')">รายละเอียด</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(dataRow);
 
-        // แถวปุ่ม Action แบบเต็มแถว
-        const actionRow = document.createElement('tr');
-        actionRow.innerHTML = `
-            <td colspan="3" class="py-2 px-4 border text-center">
-                <div class="flex flex-between">
-                    <button class="bg-green text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full " onclick="openStartJobModal('${row.idkey}')">เริ่มงาน</button>
-                    <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full " onclick="openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
-                    <button class="bg-purple-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full " onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
-                </div>
-            </td>
-        `;
+                // แถวปุ่ม Action แบบเต็มแถว
+                const actionRow = document.createElement('tr');
+                actionRow.innerHTML = `
+                    <td colspan="3" class="py-2 px-4 border text-center">
+                        <div class="flex flex-between">
+                            <button class="bg-green text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full " onclick="openStartJobModal('${row.idkey}')">เริ่มงาน</button>
+                            <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full " onclick="openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
+                            <button class="bg-purple-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full " onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
+                        </div>
+                    </td>
+                `;
 
-        tableBody.appendChild(actionRow);
-    });
-}
+                tableBody.appendChild(actionRow);
+            });
+        }
+
+        /**
+         * ฟังก์ชันจัดการฟอร์มกรองข้อมูล
+         * @param {string} userId - userId ของผู้ใช้
+         */
+        function applyFilters(userId) {
+            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+            const filterName = document.getElementById('filter-name').value.toLowerCase();
+            const filterDate = document.getElementById('filter-date').value;
+
+            let formattedFilterDate = '';
+            if (filterDate) {
+                const [year, month, day] = filterDate.split('-');
+                formattedFilterDate = `${day}/${month}/${year}`;
+            }
+
+            const filteredData = tableData.filter(row => {
+                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
+                const matchesUserId = row.useridresponsible === userId; // เงื่อนไขกรองตาม userId
+
+                return matchesStatus && matchesName && matchesDate && matchesUserId;
+            });
+
+            displayTable(filteredData);
+        }
+
+        /**
+         * ฟังก์ชันยกเลิกการกรอง
+         */
+        function clearFilters() {
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-name').value = '';
+            document.getElementById('filter-date').value = '';
+            applyFilters(currentUserId); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
+        }
 
         /**
          * ฟังก์ชันเปิด Modal สำหรับดูรายละเอียดข้อมูล
@@ -372,7 +331,7 @@
                     <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
                     <p><strong>lineผู้ดูแล:</strong> ${row.useridresponsible || ''}</p>
-                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
+                    <p><strong>ชื่อผู้ดูแล:</strong> ${row.responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.admin || ''}</p>
                     <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
                 `;
@@ -385,40 +344,6 @@
          */
         function closeViewDetailsModal() {
             document.getElementById('view-details-modal').classList.add('hidden');
-        }
-
-        /**
-         * ฟังก์ชันจัดการฟอร์มกรองข้อมูล
-         */
-        function applyFilters() {
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-            const filterDate = document.getElementById('filter-date').value;
-
-            let formattedFilterDate = '';
-            if (filterDate) {
-                const [year, month, day] = filterDate.split('-');
-                formattedFilterDate = `${day}/${month}/${year}`;
-            }
-
-            const filteredData = tableData.filter(row => {
-                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
-                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
-                return matchesStatus && matchesName && matchesDate;
-            });
-
-            displayTable(filteredData);
-        }
-
-        /**
-         * ฟังก์ชันยกเลิกการกรอง
-         */
-        function clearFilters() {
-            document.getElementById('filter-status').value = '';
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-date').value = '';
-            displayTable(tableData);
         }
 
         /**
@@ -451,7 +376,7 @@
                 if (result.success) {
                     Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
                     closeStartJobModal();
-                    fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
                 }
@@ -512,7 +437,7 @@
                 if (result.success) {
                     Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
                     closeProcessJobModal();
-                    fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
                 }
@@ -586,7 +511,7 @@
                 if (result.success) {
                     Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
                     closeCompleteJobModal();
-                    fetchData(); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
                 } else {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
                 }
@@ -656,10 +581,67 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
-      // ดึงข้อมูลเมื่อโหลดหน้า
+        /**
+         * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
+         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
+         */
+        function parseDateDDMMYYYYHHmm(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split(' ');
+            if (parts.length !== 2) return null;
+            const [datePart, timePart] = parts;
+            const [day, month, year] = datePart.split('/').map(Number);
+            const [hours, minutes] = timePart.split(':').map(Number);
+            return new Date(year, month - 1, day, hours, minutes);
+        }
+
+        /**
+         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
+         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         */
+        function formatDateToDDMMYYYYHHmm(dateStr) {
+            if (!dateStr) return '';
+            // ตรวจสอบว่าเป็น ISO string หรือ DD/MM/YYYY HH:mm
+            let date;
+            if (dateStr.includes('/') && dateStr.includes(':')) {
+                date = parseDateDDMMYYYYHHmm(dateStr);
+            } else {
+                date = new Date(dateStr);
+            }
+            if (!date || isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        /**
+         * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
+         * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
+         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         */
+        function formatDateForSubmit(datetimeLocal) {
+            if (!datetimeLocal) return '';
+            const date = new Date(datetimeLocal);
+            if (isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        /**
+         * ดึงข้อมูลเมื่อโหลดหน้า
+         */
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
-            fetchData(); // ดึงข้อมูลจาก Google Sheets
+            // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
         };
 
     </script>
