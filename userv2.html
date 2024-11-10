@@ -39,6 +39,13 @@
                     class="w-full sm:w-auto flex-1 border p-2 rounded-lg bg-gray-100">
                 <input type="date" id="filter-date"
                     class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
+                
+                <!-- เพิ่ม checkbox เพื่อซ่อนสถานะเสร็จสิ้น -->
+                <div class="flex items-center w-full sm:w-auto">
+                    <input type="checkbox" id="filter-hide-completed" class="mr-2">
+                    <label for="filter-hide-completed">ซ่อนสถานะ เสร็จสิ้น</label>
+                </div>
+                
                 <div class="flex w-full sm:w-auto space-x-2">
                     <button class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
                         onclick="applyFilters()">กรองข้อมูล</button>
@@ -283,6 +290,7 @@
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterDate = document.getElementById('filter-date').value;
+            const hideCompleted = document.getElementById('filter-hide-completed').checked;
 
             let formattedFilterDate = '';
             if (filterDate) {
@@ -295,8 +303,9 @@
                 const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
                 const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
                 const matchesUserId = row.useridresponsible === userId; // เงื่อนไขกรองตาม userId
+                const matchesHideCompleted = hideCompleted ? row.status !== 'เสร็จสิ้น' : true;
 
-                return matchesStatus && matchesName && matchesDate && matchesUserId;
+                return matchesStatus && matchesName && matchesDate && matchesUserId && matchesHideCompleted;
             });
 
             displayTable(filteredData);
@@ -309,6 +318,7 @@
             document.getElementById('filter-status').value = '';
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-date').value = '';
+            document.getElementById('filter-hide-completed').checked = false; // รีเซ็ต checkbox
             applyFilters(currentUserId); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
