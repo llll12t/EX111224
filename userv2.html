@@ -19,7 +19,7 @@
 </style>
 
 <body class="bg-slate-50 min-h-screen p-4 ">
-    <div class="bg-white max-w-md mx-auto min-h-screen">
+    <div class="bg-white max-w-4xl mx-auto min-h-screen p-4 rounded-lg shadow-md">
         <!-- Filter Section -->
         <div class="bg-green rounded-lg p-4 mb-4">
             <div class="flex flex-wrap gap-4">
@@ -47,7 +47,7 @@
                 </div>
                 
                 <div class="flex w-full sm:w-auto space-x-2">
-                    <button class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
+                    <button class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-700 w-full sm:w-auto"
                         onclick="applyFilters()">กรองข้อมูล</button>
                     <button class="bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 w-full sm:w-auto"
                         onclick="clearFilters()">ยกเลิกการกรอง</button>
@@ -68,6 +68,9 @@
                 <tbody class="text-sm"></tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="flex justify-center mt-4 space-x-1"></div>
 
         <!-- Loading Message -->
         <div id="loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
@@ -198,6 +201,9 @@
 
         let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
         let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
+        let filteredData = []; // ข้อมูลหลังการกรองและเรียงลำดับ
+        let currentPage = 1; // หน้าปัจจุบัน
+        const rowsPerPage = 10; // จำนวนแถวต่อหน้า
 
         async function initializeLiff() {
             try {
@@ -260,7 +266,8 @@
                 dataRow.innerHTML = `
                     <td class="py-2 px-4 text-center border">${row.status}</td>
                     <td class="py-2 px-4 text-center border">${row.Name || ''}</td>
-                    <td class="py-2 px-4 text-center border"><button class="text-blue-700 py-1 px-2 mx-1" onclick="openViewDetailsModal('${row.idkey}')">รายละเอียด</button>
+                    <td class="py-2 px-4 text-center border">
+                        <button class="text-blue-700 py-1 px-2 mx-1" onclick="openViewDetailsModal('${row.idkey}')">รายละเอียด</button>
                     </td>
                 `;
                 
@@ -270,10 +277,10 @@
                 const actionRow = document.createElement('tr');
                 actionRow.innerHTML = `
                     <td colspan="3" class="py-2 px-4 border text-center">
-                        <div class="flex flex-between">
-                            <button class="bg-green text-white py-2 px-2 mx-1 rounded-lg hover:bg-green-700 w-full " onclick="openStartJobModal('${row.idkey}')">เริ่มงาน</button>
-                            <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full " onclick="openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
-                            <button class="bg-purple-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full " onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
+                        <div class="flex flex-wrap justify-center">
+                            <button class="bg-green-500 text-white py-2 px-4 mx-1 rounded-lg hover:bg-green-700 w-32" onclick="openStartJobModal('${row.idkey}')">เริ่มงาน</button>
+                            <button class="bg-yellow-500 text-white py-2 px-4 mx-1 rounded-lg hover:bg-yellow-700 w-32" onclick="openProcessJobModal('${row.idkey}')">ดำเนินการ</button>
+                            <button class="bg-purple-500 text-white py-2 px-4 mx-1 rounded-lg hover:bg-purple-700 w-32" onclick="openCompleteJobModal('${row.idkey}')">เสร็จสิ้นงาน</button>
                         </div>
                     </td>
                 `;
@@ -298,7 +305,7 @@
                 formattedFilterDate = `${day}/${month}/${year}`;
             }
 
-            const filteredData = tableData.filter(row => {
+            filteredData = tableData.filter(row => {
                 const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
                 const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
                 const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
@@ -308,7 +315,95 @@
                 return matchesStatus && matchesName && matchesDate && matchesUserId && matchesHideCompleted;
             });
 
-            displayTable(filteredData);
+            // เรียงข้อมูลตามวันที่ล่าสุดก่อน
+            filteredData.sort((a, b) => {
+                const dateA = parseDateDDMMYYYYHHmm(a.Date);
+                const dateB = parseDateDDMMYYYYHHmm(b.Date);
+                return dateB - dateA; // เรียงจากมากไปน้อย
+            });
+
+            // ตั้งค่าเริ่มต้นของหน้า
+            currentPage = 1;
+
+            displayCurrentPage();
+            displayPagination();
+        }
+
+        /**
+         * ฟังก์ชันแสดงข้อมูลของหน้าปัจจุบัน
+         */
+        function displayCurrentPage() {
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            displayTable(pageData);
+        }
+
+        /**
+         * ฟังก์ชันแสดงปุ่มการแบ่งหน้า
+         */
+        function displayPagination() {
+            const paginationControls = document.getElementById('pagination-controls');
+            paginationControls.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (totalPages <= 1) return; // ไม่ต้องแสดงการแบ่งหน้าเมื่อมีหน้าเดียว
+
+            // ปุ่มหน้าแรก <<
+            const firstBtn = document.createElement('button');
+            firstBtn.innerHTML = '<<';
+            firstBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            firstBtn.disabled = currentPage === 1;
+            firstBtn.onclick = () => { currentPage = 1; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(firstBtn);
+
+            // ปุ่มก่อนหน้า <
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<';
+            prevBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(prevBtn);
+
+            // ปุ่มเลขหน้า 1 2 3 ...
+            const maxPageButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+            let endPage = startPage + maxPageButtons - 1;
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerHTML = i;
+                pageBtn.className = `px-3 py-1 border rounded-md ${i === currentPage ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-100'}`;
+                if (i === currentPage) {
+                    pageBtn.disabled = true;
+                }
+                pageBtn.onclick = () => { currentPage = i; displayCurrentPage(); displayPagination(); };
+                paginationControls.appendChild(pageBtn);
+            }
+
+            // ปุ่มถัดไป >
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '>';
+            nextBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(nextBtn);
+
+            // ปุ่มหน้าสุด >>
+            const lastBtn = document.createElement('button');
+            lastBtn.innerHTML = '>>';
+            lastBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            lastBtn.disabled = currentPage === totalPages;
+            lastBtn.onclick = () => { currentPage = totalPages; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(lastBtn);
         }
 
         /**
@@ -332,7 +427,7 @@
                 detailsContent.innerHTML = `
                     <p><strong>PO:</strong> ${row.idkey}</p>
                     <p><strong>สถานะ:</strong> ${row.status}</p>
-                    <p><strong>เวลาเเริ่มงาน:</strong> ${formatDateToDDMMYYYYHHmm(row.timeInside)}</p>
+                    <p><strong>เวลาเริ่มงาน:</strong> ${formatDateToDDMMYYYYHHmm(row.timeInside)}</p>
                     <p><strong>หมายเหตุ:</strong> ${row.insideNote || ''}</p>
                     <p><strong>เวลาดำเนินการ:</strong> ${formatDateToDDMMYYYYHHmm(row.timeProcess)}</p>
                     <p><strong>หมายเหตุ:</strong> ${row.processNote || ''}</p>
@@ -643,6 +738,83 @@
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        /**
+         * ฟังก์ชันแสดงข้อมูลของหน้าปัจจุบันและสร้างปุ่มการแบ่งหน้า
+         */
+        function displayCurrentPage() {
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            displayTable(pageData);
+        }
+
+        /**
+         * ฟังก์ชันแสดงปุ่มการแบ่งหน้า
+         */
+        function displayPagination() {
+            const paginationControls = document.getElementById('pagination-controls');
+            paginationControls.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (totalPages <= 1) return; // ไม่ต้องแสดงการแบ่งหน้าเมื่อมีหน้าเดียว
+
+            // ปุ่มหน้าแรก <<
+            const firstBtn = document.createElement('button');
+            firstBtn.innerHTML = '<<';
+            firstBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            firstBtn.disabled = currentPage === 1;
+            firstBtn.onclick = () => { currentPage = 1; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(firstBtn);
+
+            // ปุ่มก่อนหน้า <
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<';
+            prevBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(prevBtn);
+
+            // ปุ่มเลขหน้า 1 2 3 ...
+            const maxPageButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+            let endPage = startPage + maxPageButtons - 1;
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerHTML = i;
+                pageBtn.className = `px-3 py-1 border rounded-md ${i === currentPage ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-100'}`;
+                if (i === currentPage) {
+                    pageBtn.disabled = true;
+                }
+                pageBtn.onclick = () => { currentPage = i; displayCurrentPage(); displayPagination(); };
+                paginationControls.appendChild(pageBtn);
+            }
+
+            // ปุ่มถัดไป >
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '>';
+            nextBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(nextBtn);
+
+            // ปุ่มหน้าสุด >>
+            const lastBtn = document.createElement('button');
+            lastBtn.innerHTML = '>>';
+            lastBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
+            lastBtn.disabled = currentPage === totalPages;
+            lastBtn.onclick = () => { currentPage = totalPages; displayCurrentPage(); displayPagination(); };
+            paginationControls.appendChild(lastBtn);
         }
 
         /**
