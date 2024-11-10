@@ -308,7 +308,7 @@
             filteredData = tableData.filter(row => {
                 const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
                 const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
+                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.timestamp).startsWith(formattedFilterDate) : true;
                 const matchesUserId = row.useridresponsible === userId; // เงื่อนไขกรองตาม userId
                 const matchesHideCompleted = hideCompleted ? row.status !== 'เสร็จสิ้น' : true;
 
@@ -317,8 +317,8 @@
 
             // เรียงข้อมูลตามวันที่ล่าสุดก่อน
             filteredData.sort((a, b) => {
-                const dateA = parseDateDDMMYYYYHHmm(a.Date);
-                const dateB = parseDateDDMMYYYYHHmm(b.Date);
+                const dateA = parseDateDDMMYYYYHHmm(a.timestamp);
+                const dateB = parseDateDDMMYYYYHHmm(b.timestamp);
                 return dateB - dateA; // เรียงจากมากไปน้อย
             });
 
@@ -437,7 +437,7 @@
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
-                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
+                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.timestamp)}</p>
                 `;
                 document.getElementById('view-details-modal').classList.remove('hidden');
             }
@@ -466,7 +466,7 @@
                 return;
             }
 
-            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm:ss
             const formattedTimeInside = formatDateForSubmit(timeInside);
 
             try {
@@ -527,7 +527,7 @@
                 return;
             }
 
-            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm:ss
             const formattedTimeProcess = formatDateForSubmit(timeProcess);
 
             try {
@@ -596,7 +596,7 @@
                 return;
             }
 
-            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm:ss
             const formattedTimeCompress = formatDateForSubmit(timeCompress);
 
             try {
@@ -686,30 +686,30 @@
         }
 
         /**
-         * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY, HH:MM:SS เป็นวัตถุ Date
+         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY, HH:MM:SS
          * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
          */
         function parseDateDDMMYYYYHHmm(dateStr) {
             if (!dateStr) return null;
-            const parts = dateStr.split(' ');
+            const parts = dateStr.split(', ');
             if (parts.length !== 2) return null;
             const [datePart, timePart] = parts;
             const [day, month, year] = datePart.split('/').map(Number);
-            const [hours, minutes] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hours, minutes);
+            const [hours, minutes, seconds] = timePart.split(':').map(Number);
+            return new Date(year, month - 1, day, hours, minutes, seconds);
         }
 
         /**
-         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
-         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm:ss
+         * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY, HH:MM:SS หรือ ISO string
+         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm:ss
          */
         function formatDateToDDMMYYYYHHmm(dateStr) {
             if (!dateStr) return '';
-            // ตรวจสอบว่าเป็น ISO string หรือ DD/MM/YYYY HH:mm
+            // ตรวจสอบว่าเป็น DD/MM/YYYY, HH:MM:SS หรือ ISO string
             let date;
-            if (dateStr.includes('/') && dateStr.includes(':')) {
+            if (dateStr.includes('/') && dateStr.includes(':') && dateStr.includes(',')) {
                 date = parseDateDDMMYYYYHHmm(dateStr);
             } else {
                 date = new Date(dateStr);
@@ -720,13 +720,14 @@
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
 
         /**
-         * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
+         * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm:ss
          * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
-         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+         * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm:ss
          */
         function formatDateForSubmit(datetimeLocal) {
             if (!datetimeLocal) return '';
@@ -737,84 +738,8 @@
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
-        /**
-         * ฟังก์ชันแสดงข้อมูลของหน้าปัจจุบันและสร้างปุ่มการแบ่งหน้า
-         */
-        function displayCurrentPage() {
-            const tableBody = document.querySelector('#data-table tbody');
-            tableBody.innerHTML = '';
-
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            const pageData = filteredData.slice(startIndex, endIndex);
-
-            displayTable(pageData);
-        }
-
-        /**
-         * ฟังก์ชันแสดงปุ่มการแบ่งหน้า
-         */
-        function displayPagination() {
-            const paginationControls = document.getElementById('pagination-controls');
-            paginationControls.innerHTML = '';
-
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            if (totalPages <= 1) return; // ไม่ต้องแสดงการแบ่งหน้าเมื่อมีหน้าเดียว
-
-            // ปุ่มหน้าแรก <<
-            const firstBtn = document.createElement('button');
-            firstBtn.innerHTML = '<<';
-            firstBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
-            firstBtn.disabled = currentPage === 1;
-            firstBtn.onclick = () => { currentPage = 1; displayCurrentPage(); displayPagination(); };
-            paginationControls.appendChild(firstBtn);
-
-            // ปุ่มก่อนหน้า <
-            const prevBtn = document.createElement('button');
-            prevBtn.innerHTML = '<';
-            prevBtn.className = `px-3 py-1 border rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.onclick = () => { currentPage--; displayCurrentPage(); displayPagination(); };
-            paginationControls.appendChild(prevBtn);
-
-            // ปุ่มเลขหน้า 1 2 3 ...
-            const maxPageButtons = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-            let endPage = startPage + maxPageButtons - 1;
-            if (endPage > totalPages) {
-                endPage = totalPages;
-                startPage = Math.max(1, endPage - maxPageButtons + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.innerHTML = i;
-                pageBtn.className = `px-3 py-1 border rounded-md ${i === currentPage ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-100'}`;
-                if (i === currentPage) {
-                    pageBtn.disabled = true;
-                }
-                pageBtn.onclick = () => { currentPage = i; displayCurrentPage(); displayPagination(); };
-                paginationControls.appendChild(pageBtn);
-            }
-
-            // ปุ่มถัดไป >
-            const nextBtn = document.createElement('button');
-            nextBtn.innerHTML = '>';
-            nextBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.onclick = () => { currentPage++; displayCurrentPage(); displayPagination(); };
-            paginationControls.appendChild(nextBtn);
-
-            // ปุ่มหน้าสุด >>
-            const lastBtn = document.createElement('button');
-            lastBtn.innerHTML = '>>';
-            lastBtn.className = `px-3 py-1 border rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-100'}`;
-            lastBtn.disabled = currentPage === totalPages;
-            lastBtn.onclick = () => { currentPage = totalPages; displayCurrentPage(); displayPagination(); };
-            paginationControls.appendChild(lastBtn);
+            const seconds = '00'; // เนื่องจาก datetime-local ไม่รองรับวินาที
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
 
         /**
