@@ -176,6 +176,126 @@
             <div id="loading-message-tab2" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
         </div>
     </div>
+
+    <!-- View Details Modal for Tab 2 -->
+    <div id="view-details-modal-tab2" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+            <h2 class="text-xl mb-4">รายละเอียดข้อมูล</h2>
+            <div id="details-content-tab2" class="space-y-2">
+                <!-- ข้อมูลทั้งหมดจะแสดงที่นี่ -->
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+                <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700" onclick="tab2.closeViewDetailsModal()">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Job Modal for Tab 2 -->
+    <div id="start-job-modal-tab2" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+            <h2 class="text-xl mb-4">เริ่มงาน</h2>
+            <form id="start-job-form-tab2">
+                <input type="hidden" id="start-job-idkey-tab2">
+
+                <div class="mb-4">
+                    <label for="start-status-tab2" class="block mb-1">สถานะ</label>
+                    <select id="start-status-tab2" class="w-full border p-2 rounded-lg" required>
+                        <option value="เริ่มงาน" selected>เริ่มงาน</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="start-time-inside-tab2" class="block mb-1">เวลา</label>
+                    <input type="datetime-local" id="start-time-inside-tab2" class="w-full border p-2 rounded-lg" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="start-inside-note-tab2" class="block mb-1">หมายเหตุ</label>
+                    <textarea type="text" id="start-inside-note-tab2" class="w-full border p-2 rounded-lg"></textarea>
+                </div>
+
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="tab2.closeStartJobModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white p-3 w-2/3  rounded-lg hover:bg-blue-700">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Process Job Modal for Tab 2 -->
+    <div id="process-job-modal-tab2" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+            <h2 class="text-xl mb-4">ดำเนินการ</h2>
+            <form id="process-job-form-tab2">
+                <input type="hidden" id="process-job-idkey-tab2">
+
+                <div class="mb-4">
+                    <label for="process-status-tab2" class="block mb-1">สถานะ</label>
+                    <select id="process-status-tab2" class="w-full border p-2 rounded-lg" required>
+                        <option value="เริ่มดำเนินการ" selected>ดำเนินการ</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="process-time-process-tab2" class="block mb-1">เวลา</label>
+                    <input type="datetime-local" id="process-time-process-tab2" class="w-full border p-2 rounded-lg" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="process-process-note-tab2" class="block mb-1">หมายเหตุ</label>
+                    <textarea type="text" id="process-process-note-tab2" class="w-full border p-2 rounded-lg"></textarea>
+                </div>
+
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="tab2.closeProcessJobModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complete Job Modal for Tab 2 -->
+    <div id="complete-job-modal-tab2" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+            <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
+            <form id="complete-job-form-tab2" enctype="multipart/form-data">
+                <input type="hidden" id="complete-job-idkey-tab2">
+
+                <div class="mb-4">
+                    <label for="complete-status-tab2" class="block mb-1">สถานะ</label>
+                    <select id="complete-status-tab2" class="w-full border p-2 rounded-md" required>
+                        <option value="ดำเนินการสำเร็จ" selected>ดำเนินการสำเร็จ</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                        <option value="เลื่อน">เลื่อน</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="complete-time-compress-tab2" class="block mb-1">เวลา</label>
+                    <input type="datetime-local" id="complete-time-compress-tab2" class="w-full border p-2 rounded-lg" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="complete-compress-note-tab2" class="block mb-1">หมายเหตุ</label>
+                    <textarea type="text" id="complete-compress-note-tab2" class="w-full border p-2 rounded-lg"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="complete-compress-photo-tab2" class="block mb-1">รูปภาพ (ไม่บังคับ)</label>
+                    <input type="file" id="complete-compress-photo-tab2" accept="image/*" class="w-full border p-2 rounded-lg">
+                </div>
+
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="tab2.closeCompleteJobModal()">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Common scripts -->
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec';
@@ -188,9 +308,8 @@
                     liff.getProfile().then(profile => {
                         currentUserId = profile.userId;
                         console.log('User ID:', currentUserId);
-                        // Initialize both tabs
-                        tab1.initialize(currentUserId);
-                        tab2.initialize(currentUserId);
+                        // Initialize the first tab
+                        showTab(1);
                     }).catch(err => {
                         console.error('Error getting profile:', err);
                     });
@@ -209,12 +328,16 @@
                 document.getElementById('tab1-btn').classList.add('bg-green', 'text-white');
                 document.getElementById('tab2-btn').classList.remove('bg-green', 'text-white');
                 document.getElementById('tab2-btn').classList.add('bg-gray-300', 'text-black');
+                // Initialize tab1
+                tab1.initialize(currentUserId);
             } else if (tabNumber === 2) {
                 document.getElementById('tab1-content').classList.add('hidden');
                 document.getElementById('tab2-content').classList.remove('hidden');
                 document.getElementById('tab2-btn').classList.add('bg-green', 'text-white');
                 document.getElementById('tab1-btn').classList.remove('bg-green', 'text-white');
                 document.getElementById('tab1-btn').classList.add('bg-gray-300', 'text-black');
+                // Initialize tab2
+                tab2.initialize(currentUserId);
             }
         }
 
@@ -320,7 +443,19 @@
                             <div style="text-align: left;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
-                                    <!-- เพิ่มรายละเอียดอื่นๆ ตามที่ต้องการ -->
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเลข:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Number}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${formatDate(row.Date)}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${translateStatus(row.Status)}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
                                 </table>
                             </div>
                         `,
@@ -578,13 +713,276 @@
                 applyFilters();
             }
 
-            // เพิ่มฟังก์ชันอื่นๆ เช่น openViewDetailsModal, openStartJobModal, ฯลฯ โดยปรับปรุง IDs ให้ถูกต้อง
+            function openViewDetailsModal(idkey) {
+                const row = tableData.find(row => row.idkey === idkey);
+                if (row) {
+                    const detailsContent = document.getElementById('details-content-tab2');
+                    detailsContent.innerHTML = `
+                        <p><strong>PO:</strong> ${row.idkey}</p>
+                        <p><strong>สถานะ:</strong> ${row.status}</p>
+                        <p><strong>เวลาเริ่มงาน:</strong> ${formatDateToDDMMYYYYHHmm(row.timeInside)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.insideNote || ''}</p>
+                        <p><strong>เวลาดำเนินการ:</strong> ${formatDateToDDMMYYYYHHmm(row.timeProcess)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.processNote || ''}</p>
+                        <p><strong>เวลาเสร็จสิ้น:</strong> ${formatDateToDDMMYYYYHHmm(row.timeCompress)}</p>
+                        <p><strong>หมายเหตุ:</strong> ${row.compressNote || ''}</p>
+                        <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
+                        <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
+                        <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
+                        <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
+                        <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
+                    `;
+                    document.getElementById('view-details-modal-tab2').classList.remove('hidden');
+                }
+            }
+
+            function closeViewDetailsModal() {
+                document.getElementById('view-details-modal-tab2').classList.add('hidden');
+            }
+
+            function openStartJobModal(idkey) {
+                const row = tableData.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('start-job-idkey-tab2').value = row.idkey;
+                    document.getElementById('start-time-inside-tab2').value = getCurrentDateTimeGMT7();
+                    document.getElementById('start-inside-note-tab2').value = row.insideNote || '';
+                    document.getElementById('start-status-tab2').value = row.status || '';
+                    document.getElementById('start-job-modal-tab2').classList.remove('hidden');
+                }
+            }
+
+            function closeStartJobModal() {
+                document.getElementById('start-job-modal-tab2').classList.add('hidden');
+            }
+
+            function openProcessJobModal(idkey) {
+                const row = tableData.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('process-job-idkey-tab2').value = row.idkey;
+                    document.getElementById('process-time-process-tab2').value = getCurrentDateTimeGMT7();
+                    document.getElementById('process-process-note-tab2').value = row.processNote || '';
+                    document.getElementById('process-status-tab2').value = row.status || '';
+                    document.getElementById('process-job-modal-tab2').classList.remove('hidden');
+                }
+            }
+
+            function closeProcessJobModal() {
+                document.getElementById('process-job-modal-tab2').classList.add('hidden');
+            }
+
+            function openCompleteJobModal(idkey) {
+                const row = tableData.find(row => row.idkey === idkey);
+                if (row) {
+                    document.getElementById('complete-job-idkey-tab2').value = row.idkey;
+                    document.getElementById('complete-time-compress-tab2').value = getCurrentDateTimeGMT7();
+                    document.getElementById('complete-compress-note-tab2').value = row.compressNote || '';
+                    document.getElementById('complete-compress-photo-tab2').value = ''; // รีเซ็ตไฟล์
+                    document.getElementById('complete-status-tab2').value = row.status || '';
+                    document.getElementById('complete-job-modal-tab2').classList.remove('hidden');
+                }
+            }
+
+            function closeCompleteJobModal() {
+                document.getElementById('complete-job-modal-tab2').classList.add('hidden');
+            }
+
+            document.getElementById('start-job-form-tab2').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('start-job-idkey-tab2').value;
+                const status = document.getElementById('start-status-tab2').value;
+                const timeInside = document.getElementById('start-time-inside-tab2').value;
+                const insideNote = document.getElementById('start-inside-note-tab2').value.trim();
+
+                if (!idkey || !status || !timeInside) {
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                const formattedTimeInside = formatDateForSubmit(timeInside);
+
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeStartJobModal();
+                        fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            document.getElementById('process-job-form-tab2').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('process-job-idkey-tab2').value;
+                const status = document.getElementById('process-status-tab2').value;
+                const timeProcess = document.getElementById('process-time-process-tab2').value;
+                const processNote = document.getElementById('process-process-note-tab2').value.trim();
+
+                if (!idkey || !status || !timeProcess) {
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                const formattedTimeProcess = formatDateForSubmit(timeProcess);
+
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=processJob&idkey=${encodeURIComponent(idkey)}&timeProcess=${encodeURIComponent(formattedTimeProcess)}&processNote=${encodeURIComponent(processNote)}&status=${encodeURIComponent(status)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeProcessJobModal();
+                        fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            document.getElementById('complete-job-form-tab2').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const idkey = document.getElementById('complete-job-idkey-tab2').value;
+                const status = document.getElementById('complete-status-tab2').value;
+                const timeCompress = document.getElementById('complete-time-compress-tab2').value;
+                const compressNote = document.getElementById('complete-compress-note-tab2').value.trim();
+                const compressPhotoInput = document.getElementById('complete-compress-photo-tab2');
+                const compressPhotoFile = compressPhotoInput.files[0];
+                let compressPhotoData = '';
+
+                if (compressPhotoFile) {
+                    compressPhotoData = await readFileAsBase64(compressPhotoFile);
+                }
+
+                if (!idkey || !status || !timeCompress) {
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    return;
+                }
+
+                const formattedTimeCompress = formatDateForSubmit(timeCompress);
+
+                try {
+                    let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(formattedTimeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
+                    if (compressPhotoData) {
+                        bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
+                    }
+
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: bodyParams
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        closeCompleteJobModal();
+                        fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                }
+            });
+
+            function getCurrentDateTimeGMT7() {
+                const now = new Date();
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const gmt7Time = new Date(utc + (7 * 3600000));
+                const year = gmt7Time.getFullYear();
+                const month = String(gmt7Time.getMonth() + 1).padStart(2, '0');
+                const day = String(gmt7Time.getDate()).padStart(2, '0');
+                const hours = String(gmt7Time.getHours()).padStart(2, '0');
+                const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            function formatDateToDDMMYYYYHHmm(dateStr) {
+                if (!dateStr) return '';
+                let date;
+                if (dateStr.includes('/') && dateStr.includes(':')) {
+                    date = parseDateDDMMYYYYHHmm(dateStr);
+                } else {
+                    date = new Date(dateStr);
+                }
+                if (!date || isNaN(date.getTime())) return '';
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            function formatDateForSubmit(datetimeLocal) {
+                if (!datetimeLocal) return '';
+                const date = new Date(datetimeLocal);
+                if (isNaN(date.getTime())) return '';
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            function readFileAsBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const base64 = e.target.result.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.onerror = function (e) {
+                        reject(e);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function parseDateDDMMYYYYHHmm(dateStr) {
+                if (!dateStr) return null;
+                const parts = dateStr.split(' ');
+                if (parts.length !== 2) return null;
+                const [datePart, timePart] = parts;
+                const [day, month, year] = datePart.split('/').map(Number);
+                const [hours, minutes] = timePart.split(':').map(Number);
+                return new Date(year, month - 1, day, hours, minutes);
+            }
 
             return {
                 initialize: initialize,
                 applyFilters: applyFilters,
                 clearFilters: clearFilters,
-                // เพิ่มฟังก์ชันอื่นๆ ที่ต้องการให้เข้าถึงจากภายนอก
+                openViewDetailsModal: openViewDetailsModal,
+                closeViewDetailsModal: closeViewDetailsModal,
+                openStartJobModal: openStartJobModal,
+                closeStartJobModal: closeStartJobModal,
+                openProcessJobModal: openProcessJobModal,
+                closeProcessJobModal: closeProcessJobModal,
+                openCompleteJobModal: openCompleteJobModal,
+                closeCompleteJobModal: closeCompleteJobModal
             };
         })();
     </script>
