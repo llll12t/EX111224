@@ -336,6 +336,13 @@
             filteredData.sort((a, b) => {
                 const dateA = parseDateDDMMYYYYHHmm(a.timestamp);
                 const dateB = parseDateDDMMYYYYHHmm(b.timestamp);
+
+                // ตรวจสอบการแปลงวันที่
+                if (!dateA || !dateB) {
+                    console.warn(`Invalid date format for sorting. a.timestamp: ${a.timestamp}, b.timestamp: ${b.timestamp}`);
+                    return 0;
+                }
+
                 if (sortOrder === 'latest') {
                     return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
                 } else {
@@ -714,12 +721,19 @@
          */
         function parseDateDDMMYYYYHHmm(dateStr) {
             if (!dateStr) return null;
-            const parts = dateStr.split(' ');
+            const parts = dateStr.trim().split(' ');
             if (parts.length !== 2) return null;
             const [datePart, timePart] = parts;
             const [day, month, year] = datePart.split('/').map(Number);
             const [hours, minutes] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hours, minutes);
+            const date = new Date(year, month - 1, day, hours, minutes);
+
+            if (isNaN(date.getTime())) {
+                console.warn(`Invalid date encountered: ${dateStr}`);
+                return null;
+            }
+
+            return date;
         }
 
         /**
