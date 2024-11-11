@@ -21,7 +21,7 @@
 
 <body class="bg-slate-50 min-h-screen p-4 flex flex-col items-center">
     <!-- Filter Section -->
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mb-4">
+    <div class="w-full max-w-md mb-4">
         <div class="bg-green rounded-lg p-4 mb-4">
             <div class="flex flex-wrap gap-4">
                 <select id="filter-status" onchange="applyFilters()" class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
@@ -43,12 +43,12 @@
     </div>
 
     <!-- Task List Section -->
-    <div id="task-list" class="bg-white rounded-lg shadow-lg w-full max-w-md p-4">
+    <div id="task-list" class="bg-white  w-full max-w-md p-2">
         <!-- Cards will be injected here -->
     </div>
 
     <!-- Completed/Archived Tasks Section -->
-    <div id="completed-tasks" class="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mt-4">
+    <div id="completed-tasks" class="bg-white w-full max-w-md p-2 mt-4">
         <!-- Completed tasks will be injected here -->
     </div>
 
@@ -260,8 +260,8 @@
 
             // เรียงลำดับข้อมูลจากวันที่ล่าสุดไปยังเก่า
             filteredData.sort((a, b) => {
-                const dateA = parseDateDDMMYYYYHHmm(a.Date);
-                const dateB = parseDateDDMMYYYYHHmm(b.Date);
+                const dateA = parseDateDDMMYYYYHHmm(a.timestamp);
+                const dateB = parseDateDDMMYYYYHHmm(b.timestamp);
                 return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
             });
 
@@ -486,7 +486,7 @@
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
-                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
+                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.timestamp)}</p>
                 `;
                 document.getElementById('view-details-modal').classList.remove('hidden');
             }
