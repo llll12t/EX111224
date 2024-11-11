@@ -243,6 +243,36 @@
         }
 
         /**
+         * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล และเรียงลำดับข้อมูล
+         * @param {string} userId - userId ของผู้ใช้
+         */
+        function applyFilters(userId = currentUserId) {
+            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+            const filterName = document.getElementById('filter-name').value.toLowerCase();
+
+            const filteredData = tableData.filter(row => {
+                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+                const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
+
+                return matchesStatus && matchesName && matchesUserId;
+            });
+
+            // เรียงลำดับข้อมูลจากวันที่ล่าสุดไปยังเก่า
+            filteredData.sort((a, b) => {
+                const dateA = parseDateDDMMYYYYHHmm(a.Date);
+                const dateB = parseDateDDMMYYYYHHmm(b.Date);
+                return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
+            });
+
+            // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
+            currentPagePending = 1;
+            currentPageCompleted = 1;
+
+            displayTasks(filteredData);
+        }
+
+        /**
          * ฟังก์ชันแสดงข้อมูลในรูปแบบการ์ด พร้อมหัวข้อและการแบ่งหน้า
          */
         function displayTasks(data) {
@@ -436,29 +466,6 @@
 
                 completedTasks.appendChild(paginationDiv);
             }
-        }
-
-        /**
-         * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล
-         * @param {string} userId - userId ของผู้ใช้
-         */
-        function applyFilters(userId = currentUserId) {
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-
-            const filteredData = tableData.filter(row => {
-                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
-                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
-
-                return matchesStatus && matchesName && matchesUserId;
-            });
-
-            // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
-            currentPagePending = 1;
-            currentPageCompleted = 1;
-
-            displayTasks(filteredData);
         }
 
         /**
