@@ -300,16 +300,7 @@
             taskListHeading.textContent = 'งานที่ต้องทำ';
             taskList.appendChild(taskListHeading);
 
-            // สร้างหัวข้อเล็กๆ
-            const pendingHeader = document.createElement('div');
-            pendingHeader.className = 'flex justify-between bg-green rounded-lg font-bold mb-2';
-            pendingHeader.innerHTML = `
-                <span>สถานะ</span>
-                <span>ชื่อ</span>
-                <span>รายละเอียด</span>
-            `;
-            taskList.appendChild(pendingHeader);
-
+    
             // แสดงงานที่ต้องทำตามหน้าปัจจุบัน
             const startPending = (currentPagePending - 1) * itemsPerPage;
             const endPending = startPending + itemsPerPage;
@@ -318,7 +309,7 @@
             tasksToDisplay.forEach(row => {
                 // สร้าง card สำหรับแต่ละงาน
                 const card = document.createElement('div');
-                card.className = 'border-2  border-green-700 rounded p-4';
+                card.className = 'border-2 border-green-700 rounded p-2 mb-2';
 
                 // สร้าง header div
                 const header = document.createElement('div');
