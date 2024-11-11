@@ -24,7 +24,7 @@
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mb-4">
         <div class="bg-green rounded-lg p-4 mb-4">
             <div class="flex flex-wrap gap-4">
-                <select id="filter-status" class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
+                <select id="filter-status" onchange="applyFilters()" class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                     <option value="">ทุกสถานะ</option>
                     <option value="เริ่มงาน">เริ่มงาน</option>
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
@@ -34,18 +34,10 @@
                     <option value="ปฏิเสธ">ปฏิเสธ</option>
                 </select>
                 <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ"
-                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
+                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg" oninput="applyFilters()">
                 <!-- Optional: แสดง userId ให้ผู้ใช้เห็น -->
                 <input type="hidden" id="userId" placeholder="userId" readonly
                     class="w-full sm:w-auto flex-1 border p-2 rounded-lg bg-gray-100">
-                <input type="date" id="filter-date"
-                    class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
-                <div class="flex w-full sm:w-auto space-x-2">
-                    <button class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-                        onclick="applyFilters()">กรองข้อมูล</button>
-                    <button class="bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 w-full sm:w-auto"
-                        onclick="clearFilters()">ยกเลิกการกรอง</button>
-                </div>
             </div>
         </div>
     </div>
@@ -190,9 +182,10 @@
         </div>
     </div>
 
+    <!-- เริ่มต้นสคริปต์ JavaScript -->
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
-        const LIFF_ID = '2006504113-bBeyx8LX'; // Replace with your LIFF ID
+        const LIFF_ID = '2006504113-bBeyx8LX'; // เปลี่ยนเป็น LIFF ID ของคุณ
 
         let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
         let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
@@ -255,13 +248,13 @@
             taskList.innerHTML = '';
             completedTasks.innerHTML = '';
 
-            // Create heading for task list
+            // สร้างหัวข้อสำหรับงานที่ต้องทำ
             const taskListHeading = document.createElement('h3');
             taskListHeading.className = 'text-lg font-semibold mb-2';
             taskListHeading.textContent = 'งานที่ต้องทำ';
             taskList.appendChild(taskListHeading);
 
-            // Create heading for completed tasks
+            // สร้างหัวข้อสำหรับงานที่เสร็จสิ้นหรือถูกเลื่อน
             const completedTasksHeading = document.createElement('h3');
             completedTasksHeading.className = 'text-lg font-semibold mb-2';
             completedTasksHeading.textContent = 'เลื่อน/สำเร็จ';
@@ -269,7 +262,7 @@
 
             data.forEach(row => {
                 if (row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ') {
-                    // Completed or archived tasks
+                    // งานที่เสร็จสิ้นหรือถูกเลื่อน
                     const taskItem = document.createElement('div');
                     taskItem.className = 'flex justify-between py-2';
 
@@ -291,7 +284,7 @@
                     completedTasks.appendChild(taskItem);
 
                 } else {
-                    // Pending tasks
+                    // งานที่ยังไม่เสร็จสิ้น
                     const card = document.createElement('div');
                     card.className = 'bg-green-100 rounded-lg p-4 mb-4';
 
@@ -346,40 +339,22 @@
         }
 
         /**
-         * ฟังก์ชันจัดการฟอร์มกรองข้อมูล
+         * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล
          * @param {string} userId - userId ของผู้ใช้
          */
-        function applyFilters(userId) {
+        function applyFilters(userId = currentUserId) {
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const filterName = document.getElementById('filter-name').value.toLowerCase();
-            const filterDate = document.getElementById('filter-date').value;
-
-            let formattedFilterDate = '';
-            if (filterDate) {
-                const [year, month, day] = filterDate.split('-');
-                formattedFilterDate = `${day}/${month}/${year}`;
-            }
 
             const filteredData = tableData.filter(row => {
                 const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
                 const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesDate = filterDate ? formatDateToDDMMYYYYHHmm(row.Date).startsWith(formattedFilterDate) : true;
-                const matchesUserId = row.useridresponsible === userId; // เงื่อนไขกรองตาม userId
+                const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
 
-                return matchesStatus && matchesName && matchesDate && matchesUserId;
+                return matchesStatus && matchesName && matchesUserId;
             });
 
             displayTasks(filteredData);
-        }
-
-        /**
-         * ฟังก์ชันยกเลิกการกรอง
-         */
-        function clearFilters() {
-            document.getElementById('filter-status').value = '';
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-date').value = '';
-            applyFilters(currentUserId); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
         }
 
         /**
