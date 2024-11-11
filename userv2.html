@@ -288,51 +288,60 @@
             tasksToDisplay.forEach(row => {
                 // งานที่ยังไม่เสร็จสิ้น
                 const card = document.createElement('div');
-                card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2';
+card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2';
 
-                const statusSpan = document.createElement('span');
-                statusSpan.className = 'font-semibold';
-                statusSpan.textContent = row.status;
+// เพิ่ม div ใหม่เพื่อห่อหุ้มสถานะและชื่อ
+const infoDiv = document.createElement('div');
+infoDiv.className = 'flex flex-col'; // สามารถปรับเปลี่ยนคลาสตามต้องการ
 
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'font-semibold';
-                nameSpan.textContent = row.Name || '';
+const statusSpan = document.createElement('span');
+statusSpan.className = 'font-semibold';
+statusSpan.textContent = row.status;
 
-                const detailsButton = document.createElement('button');
-                detailsButton.className = 'text-blue-500';
-                detailsButton.textContent = 'เพิ่มเติม';
-                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+const nameSpan = document.createElement('span');
+nameSpan.className = 'font-semibold';
+nameSpan.textContent = row.Name || '';
 
-                card.appendChild(statusSpan);
-                card.appendChild(nameSpan);
-                card.appendChild(detailsButton);
+// ห่อหุ้ม statusSpan และ nameSpan ด้วย infoDiv
+infoDiv.appendChild(statusSpan);
+infoDiv.appendChild(nameSpan);
 
-                taskList.appendChild(card);
+const detailsButton = document.createElement('button');
+detailsButton.className = 'text-blue-500';
+detailsButton.textContent = 'เพิ่มเติม';
+detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-                // ปุ่มดำเนินการ
-                const actionButtons = document.createElement('div');
-                actionButtons.className = 'flex space-x-2 mt-2';
+// เพิ่ม infoDiv และ detailsButton เข้าไปใน card
+card.appendChild(infoDiv);
+card.appendChild(detailsButton);
 
-                const startButton = document.createElement('button');
-                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
-                startButton.textContent = 'เริ่มงาน';
-                startButton.onclick = () => openStartJobModal(row.idkey);
+taskList.appendChild(card);
 
-                const processButton = document.createElement('button');
-                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
-                processButton.textContent = 'ดำเนินงาน';
-                processButton.onclick = () => openProcessJobModal(row.idkey);
+// ปุ่มดำเนินการ
+const actionButtons = document.createElement('div');
+actionButtons.className = 'flex space-x-2 mt-2';
 
-                const completeButton = document.createElement('button');
-                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
-                completeButton.textContent = 'เสร็จสิ้น';
-                completeButton.onclick = () => openCompleteJobModal(row.idkey);
+const startButton = document.createElement('button');
+startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
+startButton.textContent = 'เริ่มงาน';
+startButton.onclick = () => openStartJobModal(row.idkey);
 
-                actionButtons.appendChild(startButton);
-                actionButtons.appendChild(processButton);
-                actionButtons.appendChild(completeButton);
+const processButton = document.createElement('button');
+processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
+processButton.textContent = 'ดำเนินงาน';
+processButton.onclick = () => openProcessJobModal(row.idkey);
 
-                taskList.appendChild(actionButtons);
+const completeButton = document.createElement('button');
+completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
+completeButton.textContent = 'เสร็จสิ้น';
+completeButton.onclick = () => openCompleteJobModal(row.idkey);
+
+actionButtons.appendChild(startButton);
+actionButtons.appendChild(processButton);
+actionButtons.appendChild(completeButton);
+
+taskList.appendChild(actionButtons);
+
             });
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
