@@ -190,6 +190,10 @@
         let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
         let tableData = []; // ตัวแปรเก็บข้อมูลทั้งหมด
 
+        let currentPagePending = 1; // หน้าปัจจุบันของงานที่ต้องทำ
+        let currentPageCompleted = 1; // หน้าปัจจุบันของงานที่เสร็จสิ้น
+        const itemsPerPage = 10; // จำนวนรายการต่อหน้า
+
         async function initializeLiff() {
             try {
                 await liff.init({ liffId: `${LIFF_ID}` });
@@ -239,7 +243,7 @@
         }
 
         /**
-         * ฟังก์ชันแสดงข้อมูลในรูปแบบการ์ด
+         * ฟังก์ชันแสดงข้อมูลในรูปแบบการ์ด พร้อมหัวข้อและการแบ่งหน้า
          */
         function displayTasks(data) {
             const taskList = document.getElementById('task-list');
@@ -248,94 +252,190 @@
             taskList.innerHTML = '';
             completedTasks.innerHTML = '';
 
+            // แยกข้อมูลเป็นงานที่ต้องทำและงานที่เสร็จสิ้น
+            const pendingTasks = data.filter(row => !(row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
+            const completedTaskData = data.filter(row => (row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
+
+            // คำนวณจำนวนหน้าสำหรับงานที่ต้องทำ
+            const totalPagesPending = Math.ceil(pendingTasks.length / itemsPerPage);
+            if (currentPagePending > totalPagesPending) currentPagePending = totalPagesPending || 1;
+
+            // คำนวณจำนวนหน้าสำหรับงานที่เสร็จสิ้น
+            const totalPagesCompleted = Math.ceil(completedTaskData.length / itemsPerPage);
+            if (currentPageCompleted > totalPagesCompleted) currentPageCompleted = totalPagesCompleted || 1;
+
             // สร้างหัวข้อสำหรับงานที่ต้องทำ
             const taskListHeading = document.createElement('h3');
             taskListHeading.className = 'text-lg font-semibold mb-2';
             taskListHeading.textContent = 'งานที่ต้องทำ';
             taskList.appendChild(taskListHeading);
 
+            // สร้างหัวข้อเล็กๆ
+            const pendingHeader = document.createElement('div');
+            pendingHeader.className = 'flex justify-between font-bold mb-2';
+            pendingHeader.innerHTML = `
+                <span>สถานะ</span>
+                <span>ชื่อ</span>
+                <span>รายละเอียด</span>
+            `;
+            taskList.appendChild(pendingHeader);
+
+            // แสดงงานที่ต้องทำตามหน้าปัจจุบัน
+            const startPending = (currentPagePending - 1) * itemsPerPage;
+            const endPending = startPending + itemsPerPage;
+            const tasksToDisplay = pendingTasks.slice(startPending, endPending);
+
+            tasksToDisplay.forEach(row => {
+                // งานที่ยังไม่เสร็จสิ้น
+                const card = document.createElement('div');
+                card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2';
+
+                const statusSpan = document.createElement('span');
+                statusSpan.className = 'font-semibold';
+                statusSpan.textContent = row.status;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'font-semibold';
+                nameSpan.textContent = row.Name || '';
+
+                const detailsButton = document.createElement('button');
+                detailsButton.className = 'text-blue-500';
+                detailsButton.textContent = 'เพิ่มเติม';
+                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+
+                card.appendChild(statusSpan);
+                card.appendChild(nameSpan);
+                card.appendChild(detailsButton);
+
+                taskList.appendChild(card);
+
+                // ปุ่มดำเนินการ
+                const actionButtons = document.createElement('div');
+                actionButtons.className = 'flex space-x-2 mt-2';
+
+                const startButton = document.createElement('button');
+                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
+                startButton.textContent = 'เริ่มงาน';
+                startButton.onclick = () => openStartJobModal(row.idkey);
+
+                const processButton = document.createElement('button');
+                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
+                processButton.textContent = 'ดำเนินงาน';
+                processButton.onclick = () => openProcessJobModal(row.idkey);
+
+                const completeButton = document.createElement('button');
+                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
+                completeButton.textContent = 'เสร็จสิ้น';
+                completeButton.onclick = () => openCompleteJobModal(row.idkey);
+
+                actionButtons.appendChild(startButton);
+                actionButtons.appendChild(processButton);
+                actionButtons.appendChild(completeButton);
+
+                taskList.appendChild(actionButtons);
+            });
+
+            // ปุ่มนำทางสำหรับงานที่ต้องทำ
+            if (totalPagesPending > 1) {
+                const paginationDiv = document.createElement('div');
+                paginationDiv.className = 'flex justify-center mt-4 space-x-2';
+
+                const prevButton = document.createElement('button');
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                prevButton.textContent = 'ก่อนหน้า';
+                prevButton.disabled = currentPagePending === 1;
+                prevButton.onclick = () => {
+                    currentPagePending--;
+                    displayTasks(data);
+                };
+
+                const nextButton = document.createElement('button');
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                nextButton.textContent = 'ถัดไป';
+                nextButton.disabled = currentPagePending === totalPagesPending;
+                nextButton.onclick = () => {
+                    currentPagePending++;
+                    displayTasks(data);
+                };
+
+                paginationDiv.appendChild(prevButton);
+                paginationDiv.appendChild(nextButton);
+
+                taskList.appendChild(paginationDiv);
+            }
+
             // สร้างหัวข้อสำหรับงานที่เสร็จสิ้นหรือถูกเลื่อน
             const completedTasksHeading = document.createElement('h3');
-            completedTasksHeading.className = 'text-lg font-semibold mb-2';
+            completedTasksHeading.className = 'text-lg font-semibold mb-2 mt-4';
             completedTasksHeading.textContent = 'เลื่อน/สำเร็จ';
             completedTasks.appendChild(completedTasksHeading);
 
-            data.forEach(row => {
-                if (row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ') {
-                    // งานที่เสร็จสิ้นหรือถูกเลื่อน
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'flex justify-between py-2';
+            // สร้างหัวข้อเล็กๆ
+            const completedHeader = document.createElement('div');
+            completedHeader.className = 'flex justify-between font-bold mb-2';
+            completedHeader.innerHTML = `
+                <span>สถานะ</span>
+                <span>ชื่อ</span>
+                <span>รายละเอียด</span>
+            `;
+            completedTasks.appendChild(completedHeader);
 
-                    const statusSpan = document.createElement('span');
-                    statusSpan.textContent = row.status;
+            // แสดงงานที่เสร็จสิ้นตามหน้าปัจจุบัน
+            const startCompleted = (currentPageCompleted - 1) * itemsPerPage;
+            const endCompleted = startCompleted + itemsPerPage;
+            const completedToDisplay = completedTaskData.slice(startCompleted, endCompleted);
 
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = row.Name || '';
+            completedToDisplay.forEach(row => {
+                // งานที่เสร็จสิ้นหรือถูกเลื่อน
+                const taskItem = document.createElement('div');
+                taskItem.className = 'flex justify-between py-2';
 
-                    const detailsButton = document.createElement('button');
-                    detailsButton.className = 'text-blue-500';
-                    detailsButton.textContent = 'เพิ่มเติม';
-                    detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+                const statusSpan = document.createElement('span');
+                statusSpan.textContent = row.status;
 
-                    taskItem.appendChild(statusSpan);
-                    taskItem.appendChild(nameSpan);
-                    taskItem.appendChild(detailsButton);
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = row.Name || '';
 
-                    completedTasks.appendChild(taskItem);
+                const detailsButton = document.createElement('button');
+                detailsButton.className = 'text-blue-500';
+                detailsButton.textContent = 'เพิ่มเติม';
+                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-                } else {
-                    // งานที่ยังไม่เสร็จสิ้น
-                    const card = document.createElement('div');
-                    card.className = 'bg-green-100 rounded-lg p-4 mb-4';
+                taskItem.appendChild(statusSpan);
+                taskItem.appendChild(nameSpan);
+                taskItem.appendChild(detailsButton);
 
-                    const header = document.createElement('div');
-                    header.className = 'flex items-center justify-between';
-
-                    const statusSpan = document.createElement('span');
-                    statusSpan.className = 'font-semibold';
-                    statusSpan.textContent = row.status;
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'font-semibold';
-                    nameSpan.textContent = row.Name || '';
-
-                    const detailsButton = document.createElement('button');
-                    detailsButton.className = 'text-blue-500';
-                    detailsButton.textContent = 'เพิ่มเติม';
-                    detailsButton.onclick = () => openViewDetailsModal(row.idkey);
-
-                    header.appendChild(statusSpan);
-                    header.appendChild(nameSpan);
-                    header.appendChild(detailsButton);
-
-                    const actionButtons = document.createElement('div');
-                    actionButtons.className = 'flex space-x-2 mt-2';
-
-                    const startButton = document.createElement('button');
-                    startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
-                    startButton.textContent = 'เริ่มงาน';
-                    startButton.onclick = () => openStartJobModal(row.idkey);
-
-                    const processButton = document.createElement('button');
-                    processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
-                    processButton.textContent = 'ดำเนินงาน';
-                    processButton.onclick = () => openProcessJobModal(row.idkey);
-
-                    const completeButton = document.createElement('button');
-                    completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
-                    completeButton.textContent = 'เสร็จสิ้น';
-                    completeButton.onclick = () => openCompleteJobModal(row.idkey);
-
-                    actionButtons.appendChild(startButton);
-                    actionButtons.appendChild(processButton);
-                    actionButtons.appendChild(completeButton);
-
-                    card.appendChild(header);
-                    card.appendChild(actionButtons);
-
-                    taskList.appendChild(card);
-                }
+                completedTasks.appendChild(taskItem);
             });
+
+            // ปุ่มนำทางสำหรับงานที่เสร็จสิ้น
+            if (totalPagesCompleted > 1) {
+                const paginationDiv = document.createElement('div');
+                paginationDiv.className = 'flex justify-center mt-4 space-x-2';
+
+                const prevButton = document.createElement('button');
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                prevButton.textContent = 'ก่อนหน้า';
+                prevButton.disabled = currentPageCompleted === 1;
+                prevButton.onclick = () => {
+                    currentPageCompleted--;
+                    displayTasks(data);
+                };
+
+                const nextButton = document.createElement('button');
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                nextButton.textContent = 'ถัดไป';
+                nextButton.disabled = currentPageCompleted === totalPagesCompleted;
+                nextButton.onclick = () => {
+                    currentPageCompleted++;
+                    displayTasks(data);
+                };
+
+                paginationDiv.appendChild(prevButton);
+                paginationDiv.appendChild(nextButton);
+
+                completedTasks.appendChild(paginationDiv);
+            }
         }
 
         /**
@@ -353,6 +453,10 @@
 
                 return matchesStatus && matchesName && matchesUserId;
             });
+
+            // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
+            currentPagePending = 1;
+            currentPageCompleted = 1;
 
             displayTasks(filteredData);
         }
