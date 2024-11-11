@@ -100,7 +100,7 @@
 
                 <div class="mb-4">
                     <label for="start-inside-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="start-inside-note" class="w-full border p-2 rounded-lg"></textarea>
+                    <textarea id="start-inside-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
@@ -123,7 +123,7 @@
                 <div class="mb-4">
                     <label for="process-status" class="block mb-1">สถานะ</label>
                     <select id="process-status" class="w-full border p-2 rounded-lg" required>
-                        <option value="เริ่มดำเนินการ" selected>ดำเนินการ</option>
+                        <option value="กำลังดำเนินการ" selected>กำลังดำเนินการ</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                         <option value="เลื่อน">เลื่อน</option>
                     </select>
@@ -135,7 +135,7 @@
 
                 <div class="mb-4">
                     <label for="process-process-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="process-process-note" class="w-full border p-2 rounded-lg"></textarea>
+                    <textarea id="process-process-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
@@ -171,7 +171,7 @@
 
                 <div class="mb-4">
                     <label for="complete-compress-note" class="block mb-1">หมายเหตุ</label>
-                    <textarea type="text" id="complete-compress-note" class="w-full border p-2 rounded-lg"></textarea>
+                    <textarea id="complete-compress-note" class="w-full border p-2 rounded-lg"></textarea>
                 </div>
 
                 <div class="mb-4">
@@ -415,9 +415,227 @@
             document.getElementById('view-details-modal').classList.add('hidden');
         }
 
-        // Rest of your code remains the same, including the modal functions and date formatting functions.
+        /**
+         * ฟังก์ชันเปิดโมดอลสำหรับเริ่มงาน
+         */
+        function openStartJobModal(idkey) {
+            const row = tableData.find(row => row.idkey === idkey);
+            if (row) {
+                document.getElementById('start-job-idkey').value = row.idkey;
+                document.getElementById('start-time-inside').value = getCurrentDateTimeGMT7();
+                document.getElementById('start-inside-note').value = row.insideNote || '';
+                document.getElementById('start-status').value = 'เริ่มงาน'; // ตั้งค่าสถานะเป็น 'เริ่มงาน'
+                document.getElementById('start-job-modal').classList.remove('hidden');
+            }
+        }
 
-        // ฟังก์ชันสำหรับแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
+        /**
+         * ฟังก์ชันปิดโมดอลสำหรับเริ่มงาน
+         */
+        function closeStartJobModal() {
+            document.getElementById('start-job-modal').classList.add('hidden');
+        }
+
+        /**
+         * ฟังก์ชันจัดการฟอร์มเริ่มงาน
+         */
+        document.getElementById('start-job-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const idkey = document.getElementById('start-job-idkey').value;
+            const status = document.getElementById('start-status').value;
+            const timeInside = document.getElementById('start-time-inside').value;
+            const insideNote = document.getElementById('start-inside-note').value.trim();
+
+            if (!idkey || !status || !timeInside) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                return;
+            }
+
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            const formattedTimeInside = formatDateForSubmit(timeInside);
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                    closeStartJobModal();
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                } else {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                }
+            } catch (error) {
+                console.error('Error updating data:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            }
+        });
+
+        /**
+         * ฟังก์ชันเปิดโมดอลสำหรับดำเนินการ
+         */
+        function openProcessJobModal(idkey) {
+            const row = tableData.find(row => row.idkey === idkey);
+            if (row) {
+                document.getElementById('process-job-idkey').value = row.idkey;
+                document.getElementById('process-time-process').value = getCurrentDateTimeGMT7();
+                document.getElementById('process-process-note').value = row.processNote || '';
+                document.getElementById('process-status').value = 'กำลังดำเนินการ'; // ตั้งค่าสถานะเป็น 'กำลังดำเนินการ'
+                document.getElementById('process-job-modal').classList.remove('hidden');
+            }
+        }
+
+        /**
+         * ฟังก์ชันปิดโมดอลสำหรับดำเนินการ
+         */
+        function closeProcessJobModal() {
+            document.getElementById('process-job-modal').classList.add('hidden');
+        }
+
+        /**
+         * ฟังก์ชันจัดการฟอร์มดำเนินการ
+         */
+        document.getElementById('process-job-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const idkey = document.getElementById('process-job-idkey').value;
+            const status = document.getElementById('process-status').value;
+            const timeProcess = document.getElementById('process-time-process').value;
+            const processNote = document.getElementById('process-process-note').value.trim();
+
+            if (!idkey || !status || !timeProcess) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                return;
+            }
+
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            const formattedTimeProcess = formatDateForSubmit(timeProcess);
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `method=processJob&idkey=${encodeURIComponent(idkey)}&timeProcess=${encodeURIComponent(formattedTimeProcess)}&processNote=${encodeURIComponent(processNote)}&status=${encodeURIComponent(status)}`
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                    closeProcessJobModal();
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                } else {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                }
+            } catch (error) {
+                console.error('Error updating data:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            }
+        });
+
+        /**
+         * ฟังก์ชันเปิดโมดอลสำหรับเสร็จสิ้นงาน
+         */
+        function openCompleteJobModal(idkey) {
+            const row = tableData.find(row => row.idkey === idkey);
+            if (row) {
+                document.getElementById('complete-job-idkey').value = row.idkey;
+                document.getElementById('complete-time-compress').value = getCurrentDateTimeGMT7();
+                document.getElementById('complete-compress-note').value = row.compressNote || '';
+                document.getElementById('complete-compress-photo').value = ''; // รีเซ็ตไฟล์
+                document.getElementById('complete-status').value = 'ดำเนินการสำเร็จ'; // ตั้งค่าสถานะเป็น 'ดำเนินการสำเร็จ'
+                document.getElementById('complete-job-modal').classList.remove('hidden');
+            }
+        }
+
+        /**
+         * ฟังก์ชันปิดโมดอลสำหรับเสร็จสิ้นงาน
+         */
+        function closeCompleteJobModal() {
+            document.getElementById('complete-job-modal').classList.add('hidden');
+        }
+
+        /**
+         * ฟังก์ชันจัดการฟอร์มเสร็จสิ้นงาน
+         */
+        document.getElementById('complete-job-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const idkey = document.getElementById('complete-job-idkey').value;
+            const status = document.getElementById('complete-status').value;
+            const timeCompress = document.getElementById('complete-time-compress').value;
+            const compressNote = document.getElementById('complete-compress-note').value.trim();
+            const compressPhotoInput = document.getElementById('complete-compress-photo');
+            const compressPhotoFile = compressPhotoInput.files[0];
+            let compressPhotoData = '';
+
+            if (compressPhotoFile) {
+                // อ่านไฟล์เป็น base64
+                compressPhotoData = await readFileAsBase64(compressPhotoFile);
+            }
+
+            if (!idkey || !status || !timeCompress) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                return;
+            }
+
+            // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+            const formattedTimeCompress = formatDateForSubmit(timeCompress);
+
+            try {
+                let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(formattedTimeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
+                if (compressPhotoData) {
+                    bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
+                }
+
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: bodyParams
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                    closeCompleteJobModal();
+                    fetchData(currentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                } else {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                }
+            } catch (error) {
+                console.error('Error updating data:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            }
+        });
+
+        /**
+         * ฟังก์ชันอ่านไฟล์เป็น base64
+         * @param {File} file 
+         * @returns {Promise<string>} - base64 string
+         */
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // แยกแค่ base64 string
+                    const base64 = e.target.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = function (e) {
+                    reject(e);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /**
+         * ฟังก์ชันสำหรับแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
+         * @returns {string} - วันที่ในรูปแบบ YYYY-MM-DDTHH:mm
+         */
         function getCurrentDateTimeGMT7() {
             const now = new Date();
             // แปลงเวลาเป็น UTC
@@ -494,9 +712,6 @@
             initializeLiff(); // เริ่มต้น LIFF
             // fetchData() ถูกเรียกภายใน getUserProfile() หลังจากได้ userId แล้ว
         };
-
-        // Rest of your JavaScript code for handling forms and modals remains the same.
-
     </script>
 </body>
 </html>
