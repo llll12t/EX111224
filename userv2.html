@@ -57,13 +57,13 @@
 
     <!-- View Details Modal -->
     <div id="view-details-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full border border-gray-300">
             <h2 class="text-xl mb-4">รายละเอียดข้อมูล</h2>
             <div id="details-content" class="space-y-2">
                 <!-- ข้อมูลทั้งหมดจะแสดงที่นี่ -->
             </div>
             <div class="flex justify-end mt-4 space-x-2">
-                <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700"
+                <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
                     onclick="closeViewDetailsModal()">ปิด</button>
             </div>
         </div>
@@ -71,7 +71,7 @@
 
     <!-- Start Job Modal -->
     <div id="start-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full border border-gray-300">
             <h2 class="text-xl mb-4">เริ่มงาน</h2>
             <form id="start-job-form">
                 <input type="hidden" id="start-job-idkey">
@@ -96,10 +96,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
                         onclick="closeStartJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3  rounded-lg hover:bg-blue-700">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -107,7 +107,7 @@
 
     <!-- Process Job Modal -->
     <div id="process-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full border border-gray-300">
             <h2 class="text-xl mb-4">ดำเนินการ</h2>
             <form id="process-job-form">
                 <input type="hidden" id="process-job-idkey">
@@ -131,10 +131,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
                         onclick="closeProcessJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -142,7 +142,7 @@
 
     <!-- Complete Job Modal -->
     <div id="complete-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full border border-gray-300">
             <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
             <form id="complete-job-form" enctype="multipart/form-data">
                 <input type="hidden" id="complete-job-idkey">
@@ -173,10 +173,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
                         onclick="closeCompleteJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -243,6 +243,36 @@
         }
 
         /**
+         * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล และเรียงลำดับข้อมูล
+         * @param {string} userId - userId ของผู้ใช้
+         */
+        function applyFilters(userId = currentUserId) {
+            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+            const filterName = document.getElementById('filter-name').value.toLowerCase();
+
+            const filteredData = tableData.filter(row => {
+                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+                const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
+
+                return matchesStatus && matchesName && matchesUserId;
+            });
+
+            // เรียงลำดับข้อมูลจากวันที่ล่าสุดไปยังเก่า
+            filteredData.sort((a, b) => {
+                const dateA = parseDateDDMMYYYYHHmm(a.Date);
+                const dateB = parseDateDDMMYYYYHHmm(b.Date);
+                return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
+            });
+
+            // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
+            currentPagePending = 1;
+            currentPageCompleted = 1;
+
+            displayTasks(filteredData);
+        }
+
+        /**
          * ฟังก์ชันแสดงข้อมูลในรูปแบบการ์ด พร้อมหัวข้อและการแบ่งหน้า
          */
         function displayTasks(data) {
@@ -272,7 +302,7 @@
 
             // สร้างหัวข้อเล็กๆ
             const pendingHeader = document.createElement('div');
-            pendingHeader.className = 'flex justify-between font-bold mb-2';
+            pendingHeader.className = 'flex justify-between font-bold mb-2 border-b border-gray-300 pb-2';
             pendingHeader.innerHTML = `
                 <span>สถานะ</span>
                 <span>ชื่อ</span>
@@ -288,60 +318,51 @@
             tasksToDisplay.forEach(row => {
                 // งานที่ยังไม่เสร็จสิ้น
                 const card = document.createElement('div');
-card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2';
+                card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2 border border-gray-300';
 
-// เพิ่ม div ใหม่เพื่อห่อหุ้มสถานะและชื่อ
-const infoDiv = document.createElement('div');
-infoDiv.className = 'flex flex-col'; // สามารถปรับเปลี่ยนคลาสตามต้องการ
+                const statusSpan = document.createElement('span');
+                statusSpan.className = 'font-semibold';
+                statusSpan.textContent = row.status;
 
-const statusSpan = document.createElement('span');
-statusSpan.className = 'font-semibold';
-statusSpan.textContent = row.status;
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'font-semibold';
+                nameSpan.textContent = row.Name || '';
 
-const nameSpan = document.createElement('span');
-nameSpan.className = 'font-semibold';
-nameSpan.textContent = row.Name || '';
+                const detailsButton = document.createElement('button');
+                detailsButton.className = 'text-blue-500 hover:text-blue-700 border border-transparent hover:border-gray-300 px-2';
+                detailsButton.textContent = 'เพิ่มเติม';
+                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-// ห่อหุ้ม statusSpan และ nameSpan ด้วย infoDiv
-infoDiv.appendChild(statusSpan);
-infoDiv.appendChild(nameSpan);
+                card.appendChild(statusSpan);
+                card.appendChild(nameSpan);
+                card.appendChild(detailsButton);
 
-const detailsButton = document.createElement('button');
-detailsButton.className = 'text-blue-500';
-detailsButton.textContent = 'เพิ่มเติม';
-detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+                taskList.appendChild(card);
 
-// เพิ่ม infoDiv และ detailsButton เข้าไปใน card
-card.appendChild(infoDiv);
-card.appendChild(detailsButton);
+                // ปุ่มดำเนินการ
+                const actionButtons = document.createElement('div');
+                actionButtons.className = 'flex space-x-2 mt-2';
 
-taskList.appendChild(card);
+                const startButton = document.createElement('button');
+                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg hover:bg-green-700 border border-transparent hover:border-gray-300';
+                startButton.textContent = 'เริ่มงาน';
+                startButton.onclick = () => openStartJobModal(row.idkey);
 
-// ปุ่มดำเนินการ
-const actionButtons = document.createElement('div');
-actionButtons.className = 'flex space-x-2 mt-2';
+                const processButton = document.createElement('button');
+                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg hover:bg-yellow-700 border border-transparent hover:border-gray-300';
+                processButton.textContent = 'ดำเนินงาน';
+                processButton.onclick = () => openProcessJobModal(row.idkey);
 
-const startButton = document.createElement('button');
-startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
-startButton.textContent = 'เริ่มงาน';
-startButton.onclick = () => openStartJobModal(row.idkey);
+                const completeButton = document.createElement('button');
+                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300';
+                completeButton.textContent = 'เสร็จสิ้น';
+                completeButton.onclick = () => openCompleteJobModal(row.idkey);
 
-const processButton = document.createElement('button');
-processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
-processButton.textContent = 'ดำเนินงาน';
-processButton.onclick = () => openProcessJobModal(row.idkey);
+                actionButtons.appendChild(startButton);
+                actionButtons.appendChild(processButton);
+                actionButtons.appendChild(completeButton);
 
-const completeButton = document.createElement('button');
-completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
-completeButton.textContent = 'เสร็จสิ้น';
-completeButton.onclick = () => openCompleteJobModal(row.idkey);
-
-actionButtons.appendChild(startButton);
-actionButtons.appendChild(processButton);
-actionButtons.appendChild(completeButton);
-
-taskList.appendChild(actionButtons);
-
+                taskList.appendChild(actionButtons);
             });
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
@@ -350,7 +371,7 @@ taskList.appendChild(actionButtons);
                 paginationDiv.className = 'flex justify-center mt-4 space-x-2';
 
                 const prevButton = document.createElement('button');
-                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
                 prevButton.textContent = 'ก่อนหน้า';
                 prevButton.disabled = currentPagePending === 1;
                 prevButton.onclick = () => {
@@ -359,7 +380,7 @@ taskList.appendChild(actionButtons);
                 };
 
                 const nextButton = document.createElement('button');
-                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
                 nextButton.textContent = 'ถัดไป';
                 nextButton.disabled = currentPagePending === totalPagesPending;
                 nextButton.onclick = () => {
@@ -381,7 +402,7 @@ taskList.appendChild(actionButtons);
 
             // สร้างหัวข้อเล็กๆ
             const completedHeader = document.createElement('div');
-            completedHeader.className = 'flex justify-between font-bold mb-2';
+            completedHeader.className = 'flex justify-between font-bold mb-2 border-b border-gray-300 pb-2';
             completedHeader.innerHTML = `
                 <span>สถานะ</span>
                 <span>ชื่อ</span>
@@ -397,7 +418,7 @@ taskList.appendChild(actionButtons);
             completedToDisplay.forEach(row => {
                 // งานที่เสร็จสิ้นหรือถูกเลื่อน
                 const taskItem = document.createElement('div');
-                taskItem.className = 'flex justify-between py-2';
+                taskItem.className = 'flex justify-between py-2 border border-gray-300 rounded-lg mb-2';
 
                 const statusSpan = document.createElement('span');
                 statusSpan.textContent = row.status;
@@ -406,7 +427,7 @@ taskList.appendChild(actionButtons);
                 nameSpan.textContent = row.Name || '';
 
                 const detailsButton = document.createElement('button');
-                detailsButton.className = 'text-blue-500';
+                detailsButton.className = 'text-blue-500 hover:text-blue-700 border border-transparent hover:border-gray-300 px-2';
                 detailsButton.textContent = 'เพิ่มเติม';
                 detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
@@ -423,7 +444,7 @@ taskList.appendChild(actionButtons);
                 paginationDiv.className = 'flex justify-center mt-4 space-x-2';
 
                 const prevButton = document.createElement('button');
-                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
                 prevButton.textContent = 'ก่อนหน้า';
                 prevButton.disabled = currentPageCompleted === 1;
                 prevButton.onclick = () => {
@@ -432,7 +453,7 @@ taskList.appendChild(actionButtons);
                 };
 
                 const nextButton = document.createElement('button');
-                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
                 nextButton.textContent = 'ถัดไป';
                 nextButton.disabled = currentPageCompleted === totalPagesCompleted;
                 nextButton.onclick = () => {
@@ -445,36 +466,6 @@ taskList.appendChild(actionButtons);
 
                 completedTasks.appendChild(paginationDiv);
             }
-        }
-
-       /**
-         * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล และเรียงลำดับข้อมูล
-         * @param {string} userId - userId ของผู้ใช้
-         */
-         function applyFilters(userId = currentUserId) {
-            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
-            const filterName = document.getElementById('filter-name').value.toLowerCase();
-
-            const filteredData = tableData.filter(row => {
-                const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
-                const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
-
-                return matchesStatus && matchesName && matchesUserId;
-            });
-
-            // เรียงลำดับข้อมูลจากวันที่ล่าสุดไปยังเก่า
-            filteredData.sort((a, b) => {
-                const dateA = parseDateDDMMYYYYHHmm(a.timestamp);
-                const dateB = parseDateDDMMYYYYHHmm(b.timestamp);
-                return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
-            });
-
-            // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
-            currentPagePending = 1;
-            currentPageCompleted = 1;
-
-            displayTasks(filteredData);
         }
 
         /**
@@ -497,7 +488,7 @@ taskList.appendChild(actionButtons);
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
-                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.timestamp)}</p>
+                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
                 `;
                 document.getElementById('view-details-modal').classList.remove('hidden');
             }
