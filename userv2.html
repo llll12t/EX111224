@@ -315,46 +315,6 @@
             const endPending = startPending + itemsPerPage;
             const tasksToDisplay = pendingTasks.slice(startPending, endPending);
 
-            function displayTasks(data) {
-            const taskList = document.getElementById('task-list');
-            const completedTasks = document.getElementById('completed-tasks');
-
-            taskList.innerHTML = '';
-            completedTasks.innerHTML = '';
-
-            // แยกข้อมูลเป็นงานที่ต้องทำและงานที่เสร็จสิ้น
-            const pendingTasks = data.filter(row => !(row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
-            const completedTaskData = data.filter(row => (row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
-
-            // คำนวณจำนวนหน้าสำหรับงานที่ต้องทำ
-            const totalPagesPending = Math.ceil(pendingTasks.length / itemsPerPage);
-            if (currentPagePending > totalPagesPending) currentPagePending = totalPagesPending || 1;
-
-            // คำนวณจำนวนหน้าสำหรับงานที่เสร็จสิ้น
-            const totalPagesCompleted = Math.ceil(completedTaskData.length / itemsPerPage);
-            if (currentPageCompleted > totalPagesCompleted) currentPageCompleted = totalPagesCompleted || 1;
-
-            // สร้างหัวข้อสำหรับงานที่ต้องทำ
-            const taskListHeading = document.createElement('h3');
-            taskListHeading.className = 'text-lg font-semibold mb-2';
-            taskListHeading.textContent = 'งานที่ต้องทำ';
-            taskList.appendChild(taskListHeading);
-
-            // สร้างหัวข้อเล็กๆ
-            const pendingHeader = document.createElement('div');
-            pendingHeader.className = 'flex justify-between font-bold mb-2 border-b border-gray-300 pb-2';
-            pendingHeader.innerHTML = `
-                <span>สถานะ</span>
-                <span>ชื่อ</span>
-                <span>รายละเอียด</span>
-            `;
-            taskList.appendChild(pendingHeader);
-
-            // แสดงงานที่ต้องทำตามหน้าปัจจุบัน
-            const startPending = (currentPagePending - 1) * itemsPerPage;
-            const endPending = startPending + itemsPerPage;
-            const tasksToDisplay = pendingTasks.slice(startPending, endPending);
-
             tasksToDisplay.forEach(row => {
                 // งานที่ยังไม่เสร็จสิ้น
                 const card = document.createElement('div');
@@ -380,9 +340,9 @@
                 taskList.appendChild(card);
 
                 // ปุ่มดำเนินการ
-                const actionButtonsContainer = document.createElement('div');
-                actionButtonsContainer.className = 'flex space-x-2 mt-2 border border-gray-300 p-2 rounded-lg';
-                
+                const actionButtons = document.createElement('div');
+                actionButtons.className = 'flex space-x-2 mt-2 border border-gray-300 p-2 rounded-lg';
+
                 const startButton = document.createElement('button');
                 startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg hover:bg-green-700 border border-transparent hover:border-gray-300';
                 startButton.textContent = 'เริ่มงาน';
@@ -398,13 +358,12 @@
                 completeButton.textContent = 'เสร็จสิ้น';
                 completeButton.onclick = () => openCompleteJobModal(row.idkey);
 
-                actionButtonsContainer.appendChild(startButton);
-                actionButtonsContainer.appendChild(processButton);
-                actionButtonsContainer.appendChild(completeButton);
+                actionButtons.appendChild(startButton);
+                actionButtons.appendChild(processButton);
+                actionButtons.appendChild(completeButton);
 
-                taskList.appendChild(actionButtonsContainer);
+                taskList.appendChild(actionButtons);
             });
-       
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
             if (totalPagesPending > 1) {
