@@ -57,13 +57,13 @@
 
     <!-- View Details Modal -->
     <div id="view-details-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full border border-gray-300">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
             <h2 class="text-xl mb-4">รายละเอียดข้อมูล</h2>
             <div id="details-content" class="space-y-2">
                 <!-- ข้อมูลทั้งหมดจะแสดงที่นี่ -->
             </div>
             <div class="flex justify-end mt-4 space-x-2">
-                <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
+                <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700"
                     onclick="closeViewDetailsModal()">ปิด</button>
             </div>
         </div>
@@ -71,7 +71,7 @@
 
     <!-- Start Job Modal -->
     <div id="start-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full border border-gray-300">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
             <h2 class="text-xl mb-4">เริ่มงาน</h2>
             <form id="start-job-form">
                 <input type="hidden" id="start-job-idkey">
@@ -96,10 +96,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
                         onclick="closeStartJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3  rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -107,7 +107,7 @@
 
     <!-- Process Job Modal -->
     <div id="process-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full border border-gray-300">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
             <h2 class="text-xl mb-4">ดำเนินการ</h2>
             <form id="process-job-form">
                 <input type="hidden" id="process-job-idkey">
@@ -131,10 +131,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
                         onclick="closeProcessJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -142,7 +142,7 @@
 
     <!-- Complete Job Modal -->
     <div id="complete-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full border border-gray-300">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
             <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
             <form id="complete-job-form" enctype="multipart/form-data">
                 <input type="hidden" id="complete-job-idkey">
@@ -173,10 +173,10 @@
                 </div>
 
                 <div class="flex justify-end mt-4 space-x-2">
-                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700 border border-transparent hover:border-gray-300"
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
                         onclick="closeCompleteJobModal()">ยกเลิก</button>
                     <button type="submit"
-                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300">บันทึก</button>
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -302,7 +302,7 @@
 
             // สร้างหัวข้อเล็กๆ
             const pendingHeader = document.createElement('div');
-            pendingHeader.className = 'flex justify-between font-bold mb-2 border-b border-gray-300 pb-2';
+            pendingHeader.className = 'flex justify-between font-bold mb-2';
             pendingHeader.innerHTML = `
                 <span>สถานะ</span>
                 <span>ชื่อ</span>
@@ -318,7 +318,7 @@
             tasksToDisplay.forEach(row => {
                 // งานที่ยังไม่เสร็จสิ้น
                 const card = document.createElement('div');
-                card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2 border border-gray-300';
+                card.className = 'flex justify-between items-center bg-green-100 rounded-lg p-2 mb-2';
 
                 const statusSpan = document.createElement('span');
                 statusSpan.className = 'font-semibold';
@@ -329,7 +329,7 @@
                 nameSpan.textContent = row.Name || '';
 
                 const detailsButton = document.createElement('button');
-                detailsButton.className = 'text-blue-500 hover:text-blue-700 border border-transparent hover:border-gray-300 px-2';
+                detailsButton.className = 'text-blue-500';
                 detailsButton.textContent = 'เพิ่มเติม';
                 detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
@@ -341,20 +341,20 @@
 
                 // ปุ่มดำเนินการ
                 const actionButtons = document.createElement('div');
-                actionButtons.className = 'flex space-x-2 mt-2 border border-gray-300 p-2 rounded-lg';
+                actionButtons.className = 'flex space-x-2 mt-2';
 
                 const startButton = document.createElement('button');
-                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg hover:bg-green-700 border border-transparent hover:border-gray-300';
+                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
                 startButton.textContent = 'เริ่มงาน';
                 startButton.onclick = () => openStartJobModal(row.idkey);
 
                 const processButton = document.createElement('button');
-                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg hover:bg-yellow-700 border border-transparent hover:border-gray-300';
+                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
                 processButton.textContent = 'ดำเนินงาน';
                 processButton.onclick = () => openProcessJobModal(row.idkey);
 
                 const completeButton = document.createElement('button');
-                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-700 border border-transparent hover:border-gray-300';
+                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
                 completeButton.textContent = 'เสร็จสิ้น';
                 completeButton.onclick = () => openCompleteJobModal(row.idkey);
 
@@ -371,7 +371,7 @@
                 paginationDiv.className = 'flex justify-center mt-4 space-x-2';
 
                 const prevButton = document.createElement('button');
-                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
                 prevButton.textContent = 'ก่อนหน้า';
                 prevButton.disabled = currentPagePending === 1;
                 prevButton.onclick = () => {
@@ -380,7 +380,7 @@
                 };
 
                 const nextButton = document.createElement('button');
-                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
                 nextButton.textContent = 'ถัดไป';
                 nextButton.disabled = currentPagePending === totalPagesPending;
                 nextButton.onclick = () => {
@@ -402,7 +402,7 @@
 
             // สร้างหัวข้อเล็กๆ
             const completedHeader = document.createElement('div');
-            completedHeader.className = 'flex justify-between font-bold mb-2 border-b border-gray-300 pb-2';
+            completedHeader.className = 'flex justify-between font-bold mb-2';
             completedHeader.innerHTML = `
                 <span>สถานะ</span>
                 <span>ชื่อ</span>
@@ -418,7 +418,7 @@
             completedToDisplay.forEach(row => {
                 // งานที่เสร็จสิ้นหรือถูกเลื่อน
                 const taskItem = document.createElement('div');
-                taskItem.className = 'flex justify-between py-2 border border-gray-300 rounded-lg mb-2';
+                taskItem.className = 'flex justify-between py-2';
 
                 const statusSpan = document.createElement('span');
                 statusSpan.textContent = row.status;
@@ -427,7 +427,7 @@
                 nameSpan.textContent = row.Name || '';
 
                 const detailsButton = document.createElement('button');
-                detailsButton.className = 'text-blue-500 hover:text-blue-700 border border-transparent hover:border-gray-300 px-2';
+                detailsButton.className = 'text-blue-500';
                 detailsButton.textContent = 'เพิ่มเติม';
                 detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
@@ -444,7 +444,7 @@
                 paginationDiv.className = 'flex justify-center mt-4 space-x-2';
 
                 const prevButton = document.createElement('button');
-                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
+                prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
                 prevButton.textContent = 'ก่อนหน้า';
                 prevButton.disabled = currentPageCompleted === 1;
                 prevButton.onclick = () => {
@@ -453,7 +453,7 @@
                 };
 
                 const nextButton = document.createElement('button');
-                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-300';
+                nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
                 nextButton.textContent = 'ถัดไป';
                 nextButton.disabled = currentPageCompleted === totalPagesCompleted;
                 nextButton.onclick = () => {
