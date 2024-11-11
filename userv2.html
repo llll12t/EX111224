@@ -488,7 +488,7 @@
                     <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
                     <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
                     <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
-                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.Date)}</p>
+                    <p><strong>บันทึกเวลา:</strong> ${formatDateToDDMMYYYYHHmm(row.timestamp)}</p>
                 `;
                 document.getElementById('view-details-modal').classList.remove('hidden');
             }
