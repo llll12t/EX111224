@@ -123,9 +123,11 @@
                     <input type="text" id="edit-admin-note" class="w-full border px-2 py-1 rounded-lg" required>
                 </div>
 
-                <div class="flex justify-end mt-4">
-                    <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 mr-2" onclick="closeModal()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
+                        onclick="closeCompleteJobModal()">ยกเลิก</button>
+                    <button type="submit"
+                        class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
                 </div>
             </form>
         </div>
@@ -224,7 +226,7 @@
                             <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
                             <button 
                                 class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled-button' : ''}" 
-                                onclick="${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? '' : `takeJob(this, '${row.IDkey}')`}" 
+                                onclick="${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? '' : `takeJob('${row.IDkey}')`}" 
                                 ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled' : ''}>
                                 ยืนยัน
                             </button>
@@ -367,7 +369,7 @@
         /**
          * ฟังก์ชันรับงาน
          */
-        async function takeJob(button, idkey) {
+        async function takeJob(idkey) {
             if (isSubmitting) {
                 // หากกำลังส่งข้อมูลอยู่แล้ว ไม่ทำอะไร
                 return;
@@ -394,11 +396,6 @@
                         }
                     });
 
-                    // ปิดใช้งานปุ่มยืนยันทันทีหลังจากยืนยัน
-                    button.disabled = true;
-                    button.classList.add('disabled-button');
-                    button.textContent = 'กำลังอัพเดท...';
-
                     try {
                         const response = await fetch(WEB_APP_URL, {
                             method: 'POST',
@@ -412,18 +409,10 @@
                             fetchData(currentUserId);
                         } else {
                             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
-                            // หากเกิดข้อผิดพลาด ให้เปิดใช้งานปุ่มกลับ
-                            button.disabled = false;
-                            button.classList.remove('disabled-button');
-                            button.textContent = 'ยืนยัน';
                         }
                     } catch (error) {
                         console.error('Error updating data:', error);
                         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                        // หากเกิดข้อผิดพลาด ให้เปิดใช้งานปุ่มกลับ
-                        button.disabled = false;
-                        button.classList.remove('disabled-button');
-                        button.textContent = 'ยืนยัน';
                     } finally {
                         isSubmitting = false; // รีเซ็ตตัวแปรหลังจากส่งข้อมูลเสร็จสิ้น
                     }
