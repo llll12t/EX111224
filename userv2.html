@@ -319,89 +319,85 @@
             const tasksToDisplay = pendingTasks.slice(startPending, endPending);
 
             tasksToDisplay.forEach(row => {
-                // สร้าง card สำหรับแต่ละงาน
-                const card = document.createElement('div');
-                card.className = 'border-green rounded-lg p-2 mb-2';
+    // สร้าง card สำหรับแต่ละงาน
+    const card = document.createElement('div');
+    card.className = 'border-green rounded-lg p-4 mb-4';
 
-                // สร้าง header div
-                const header = document.createElement('div');
-                header.className = 'flex flex-col sm:flex-row justify-between border-b rounded-lg p-2 mb-2';
+    // สร้าง header div ใช้ grid เพื่อจัดคอลัมน์
+    const header = document.createElement('div');
+    header.className = 'grid grid-cols-3 gap-4 border-b pb-2 mb-4';
 
-                // สร้าง container สำหรับสถานะ
-                const statusContainer = document.createElement('div');
-                statusContainer.className = 'flex items-center mb-2 sm:mb-0'; // ปรับการจัดวางในขนาดหน้าจอเล็ก
+    // สร้าง container สำหรับสถานะ
+    const statusContainer = document.createElement('div');
+    statusContainer.className = 'flex items-center';
 
-                const statusLabel = document.createElement('span');
-                statusLabel.textContent = 'สถานะ: ';
-                statusLabel.className = 'font-semibold mr-1'; // เพิ่มระยะห่างด้านขวา
+    const statusLabel = document.createElement('span');
+    statusLabel.textContent = 'สถานะ: ';
+    statusLabel.className = 'font-semibold mr-2';
 
-                const statusSpan = document.createElement('span');
-                statusSpan.textContent = row.status;
-                statusSpan.className = 'font-normal'; // สามารถปรับสไตล์ได้ตามต้องการ
+    const statusSpan = document.createElement('span');
+    statusSpan.textContent = row.status;
+    statusSpan.className = 'font-normal';
 
-                statusContainer.appendChild(statusLabel);
-                statusContainer.appendChild(statusSpan);
+    statusContainer.appendChild(statusLabel);
+    statusContainer.appendChild(statusSpan);
 
-                // สร้าง container สำหรับชื่อ
-                const nameContainer = document.createElement('div');
-                nameContainer.className = 'flex items-center mb-2 sm:mb-0'; // ปรับการจัดวางในขนาดหน้าจอเล็ก
+    // สร้าง container สำหรับชื่อ
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'flex items-center';
 
-                const nameLabel = document.createElement('span');
-                nameLabel.textContent = 'ชื่อ: ';
-                nameLabel.className = 'font-semibold mr-1'; // เพิ่มระยะห่างด้านขวา
+    const nameLabel = document.createElement('span');
+    nameLabel.textContent = 'ชื่อ: ';
+    nameLabel.className = 'font-semibold mr-2';
 
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = row.Name || '';
-                nameSpan.className = 'font-normal'; // สามารถปรับสไตล์ได้ตามต้องการ
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = row.Name || '';
+    nameSpan.className = 'font-normal';
 
-                nameContainer.appendChild(nameLabel);
-                nameContainer.appendChild(nameSpan);
+    nameContainer.appendChild(nameLabel);
+    nameContainer.appendChild(nameSpan);
 
-                // สร้างปุ่มรายละเอียด
-                const detailsButton = document.createElement('button');
-                detailsButton.className = 'text-blue-500';
-                detailsButton.textContent = 'เพิ่มเติม';
-                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+    // สร้างปุ่มเพิ่มเติม
+    const detailsButton = document.createElement('button');
+    detailsButton.className = 'text-blue-500 underline';
+    detailsButton.textContent = 'เพิ่มเติม';
+    detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-                // นำ container ทั้งหมดมาใส่ใน header
-                const infoContainer = document.createElement('div');
-                infoContainer.className = 'flex flex-col sm:flex-row sm:items-center'; // จัดวางให้เป็นแนวนอนในหน้าจอขนาดกลางขึ้นไป
-                infoContainer.appendChild(statusContainer);
-                infoContainer.appendChild(nameContainer);
+    // นำทุกอย่างมาใส่ใน header
+    header.appendChild(statusContainer);
+    header.appendChild(nameContainer);
+    header.appendChild(detailsButton);
 
-                header.appendChild(infoContainer);
-                header.appendChild(detailsButton);
+    // สร้าง actionButtons div ใช้ grid เพื่อจัดปุ่มเป็นคอลัมน์
+    const actionButtons = document.createElement('div');
+    actionButtons.className = 'grid grid-cols-3 gap-4 mt-4';
 
-                // สร้าง actionButtons div
-                const actionButtons = document.createElement('div');
-                actionButtons.className = 'flex justify-between mt-2';
+    const startButton = document.createElement('button');
+    startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
+    startButton.textContent = 'เริ่มงาน';
+    startButton.onclick = () => openStartJobModal(row.idkey);
 
-                const startButton = document.createElement('button');
-                startButton.className = 'bg-green-500 text-white py-1 px-4 rounded-lg';
-                startButton.textContent = 'เริ่มงาน';
-                startButton.onclick = () => openStartJobModal(row.idkey);
+    const processButton = document.createElement('button');
+    processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
+    processButton.textContent = 'ดำเนินงาน';
+    processButton.onclick = () => openProcessJobModal(row.idkey);
 
-                const processButton = document.createElement('button');
-                processButton.className = 'bg-yellow-500 text-white py-1 px-4 rounded-lg';
-                processButton.textContent = 'ดำเนินงาน';
-                processButton.onclick = () => openProcessJobModal(row.idkey);
+    const completeButton = document.createElement('button');
+    completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
+    completeButton.textContent = 'เสร็จสิ้น';
+    completeButton.onclick = () => openCompleteJobModal(row.idkey);
 
-                const completeButton = document.createElement('button');
-                completeButton.className = 'bg-blue-500 text-white py-1 px-4 rounded-lg';
-                completeButton.textContent = 'เสร็จสิ้น';
-                completeButton.onclick = () => openCompleteJobModal(row.idkey);
+    actionButtons.appendChild(startButton);
+    actionButtons.appendChild(processButton);
+    actionButtons.appendChild(completeButton);
 
-                actionButtons.appendChild(startButton);
-                actionButtons.appendChild(processButton);
-                actionButtons.appendChild(completeButton);
+    // นำ header และ actionButtons มาใส่ใน card
+    card.appendChild(header);
+    card.appendChild(actionButtons);
 
-                // นำ header และ actionButtons มาใส่ใน card
-                card.appendChild(header);
-                card.appendChild(actionButtons);
-
-                // นำ card ไปใส่ใน taskList
-                taskList.appendChild(card);
-            });
+    // นำ card ไปใส่ใน taskList
+    taskList.appendChild(card);
+});
 
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
