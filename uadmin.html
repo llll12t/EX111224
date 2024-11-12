@@ -55,7 +55,7 @@
                 </div>
             </div> 
             <div class="flex ">
- 
+
                 <div class="p-2 flex-1 flex items-center">
                     <input type="checkbox" id="hide-completed" checked class="mr-2">
                     <label for="hide-completed" class="text-white">ซ่อน"เสร็จสิ้น"</label>
@@ -141,6 +141,7 @@
         let currentPage = 1;
         const rowsPerPage = 10;
         let totalPages = 1;
+        let isSubmitting = false; // ตัวแปรเพื่อป้องกันการส่งข้อมูลซ้ำใน takeJob
 
         /**
          * ฟังก์ชันเริ่มต้น LIFF
@@ -223,7 +224,7 @@
                             <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
                             <button 
                                 class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled-button' : ''}" 
-                                onclick="${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? '' : `takeJob('${row.IDkey}')`}" 
+                                onclick="${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? '' : `takeJob(this, '${row.IDkey}')`}" 
                                 ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled' : ''}>
                                 ยืนยัน
                             </button>
@@ -322,10 +323,22 @@
         document.getElementById('edit-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            const submitButton = this.querySelector("button[type=submit]");
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังอัพเดท...';
+
             const idkey = document.getElementById('edit-idkey').value;
             const status = document.getElementById('edit-status').value;
             const responsible = document.getElementById('edit-responsible').value.trim();
             const adminNote = document.getElementById('edit-admin-note').value.trim();
+
+            if (!idkey || !status || !responsible || !adminNote) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                return;
+            }
 
             try {
                 const response = await fetch(WEB_APP_URL, {
@@ -345,13 +358,22 @@
             } catch (error) {
                 console.error('Error updating data:', error);
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
         /**
          * ฟังก์ชันรับงาน
          */
-        async function takeJob(idkey) {
+        async function takeJob(button, idkey) {
+            if (isSubmitting) {
+                // หากกำลังส่งข้อมูลอยู่แล้ว ไม่ทำอะไร
+                return;
+            }
+            isSubmitting = true; // ตั้งค่าว่ากำลังส่งข้อมูลอยู่
+
             Swal.fire({
                 title: 'ยืนยันการรับงาน?',
                 text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
@@ -363,6 +385,20 @@
                 cancelButtonText: 'ยกเลิก'
             }).then(async (result) => {
                 if (result.isConfirmed) {
+                    // ปิด SweetAlert2 เพื่อแสดงข้อความกำลังอัพเดท
+                    Swal.fire({
+                        title: 'กำลังอัพเดท...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // ปิดใช้งานปุ่มยืนยันทันทีหลังจากยืนยัน
+                    button.disabled = true;
+                    button.classList.add('disabled-button');
+                    button.textContent = 'กำลังอัพเดท...';
+
                     try {
                         const response = await fetch(WEB_APP_URL, {
                             method: 'POST',
@@ -376,11 +412,23 @@
                             fetchData(currentUserId);
                         } else {
                             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
+                            // หากเกิดข้อผิดพลาด ให้เปิดใช้งานปุ่มกลับ
+                            button.disabled = false;
+                            button.classList.remove('disabled-button');
+                            button.textContent = 'ยืนยัน';
                         }
                     } catch (error) {
                         console.error('Error updating data:', error);
                         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                        // หากเกิดข้อผิดพลาด ให้เปิดใช้งานปุ่มกลับ
+                        button.disabled = false;
+                        button.classList.remove('disabled-button');
+                        button.textContent = 'ยืนยัน';
+                    } finally {
+                        isSubmitting = false; // รีเซ็ตตัวแปรหลังจากส่งข้อมูลเสร็จสิ้น
                     }
+                } else {
+                    isSubmitting = false; // รีเซ็ตตัวแปรถ้าผู้ใช้ยกเลิก
                 }
             });
         }
