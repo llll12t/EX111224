@@ -18,8 +18,9 @@
     .bg-green {
         background: #078274;
     }
+
     .border-green {
-        border:2px solid #078274;
+        border: 2px solid #078274;
         border-radius: 10px;
     }
 </style>
@@ -318,96 +319,96 @@
             const endPending = startPending + itemsPerPage;
             const tasksToDisplay = pendingTasks.slice(startPending, endPending);
 
-          tasksToDisplay.forEach(row => {
-    // สร้าง card สำหรับแต่ละงาน
-    const card = document.createElement('div');
-    card.className = 'border-green rounded-lg p-4 mb-4';
+            tasksToDisplay.forEach(row => {
+                // สร้าง card สำหรับแต่ละงาน
+                const card = document.createElement('div');
+                card.className = 'border-green rounded-lg p-4 mb-4';
 
-    // สร้าง header div ใช้ grid เพื่อจัดคอลัมน์
-    const header = document.createElement('div');
-    header.className = 'grid grid-cols-3 gap-4 border-b pb-2';
+                // สร้าง header div ใช้ grid เพื่อจัดคอลัมน์
+                const header = document.createElement('div');
+                header.className = 'grid grid-cols-3 gap-4 border-b pb-2';
 
-    // สร้าง container สำหรับสถานะ
-    const statusContainer = document.createElement('div');
-    statusContainer.className = 'flex flex-col items-start';
+                // สร้าง container สำหรับสถานะ
+                const statusContainer = document.createElement('div');
+                statusContainer.className = 'flex flex-col items-start';
 
-    const statusLabel = document.createElement('span');
-    statusLabel.textContent = 'สถานะ';
-    statusLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
+                const statusLabel = document.createElement('span');
+                statusLabel.textContent = 'สถานะ';
+                statusLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
 
-    const statusSpan = document.createElement('span');
-    statusSpan.textContent = row.status;
-    statusSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
+                const statusSpan = document.createElement('span');
+                statusSpan.textContent = row.status;
+                statusSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
 
-    statusContainer.appendChild(statusLabel);
-    statusContainer.appendChild(statusSpan);
+                statusContainer.appendChild(statusLabel);
+                statusContainer.appendChild(statusSpan);
 
-    // สร้าง container สำหรับชื่อ
-    const nameContainer = document.createElement('div');
-    nameContainer.className = 'flex flex-col items-start';
+                // สร้าง container สำหรับชื่อ
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'flex flex-col items-start';
 
-    const nameLabel = document.createElement('span');
-    nameLabel.textContent = 'ชื่อ';
-    nameLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = 'ชื่อ';
+                nameLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
 
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = row.Name || '';
-    nameSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = row.Name || '';
+                nameSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
 
-    nameContainer.appendChild(nameLabel);
-    nameContainer.appendChild(nameSpan);
+                nameContainer.appendChild(nameLabel);
+                nameContainer.appendChild(nameSpan);
 
-    // สร้าง container สำหรับรายละเอียด
-    const detailsContainer = document.createElement('div');
-    detailsContainer.className = 'flex flex-col items-start';
+                // สร้าง container สำหรับรายละเอียด
+                const detailsContainer = document.createElement('div');
+                detailsContainer.className = 'flex flex-col items-start';
 
-    const detailsLabel = document.createElement('span');
-    detailsLabel.textContent = 'รายละเอียด';
-    detailsLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
+                const detailsLabel = document.createElement('span');
+                detailsLabel.textContent = 'รายละเอียด';
+                detailsLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
 
-    const detailsButton = document.createElement('button');
-    detailsButton.className = 'text-blue-500 underline';
-    detailsButton.textContent = 'เพิ่มเติม';
-    detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+                const detailsButton = document.createElement('button');
+                detailsButton.className = 'text-blue-500 underline';
+                detailsButton.textContent = 'เพิ่มเติม';
+                detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-    detailsContainer.appendChild(detailsLabel);
-    detailsContainer.appendChild(detailsButton);
+                detailsContainer.appendChild(detailsLabel);
+                detailsContainer.appendChild(detailsButton);
 
-    // นำทุกอย่างมาใส่ใน header
-    header.appendChild(statusContainer);
-    header.appendChild(nameContainer);
-    header.appendChild(detailsContainer);
+                // นำทุกอย่างมาใส่ใน header
+                header.appendChild(statusContainer);
+                header.appendChild(nameContainer);
+                header.appendChild(detailsContainer);
 
-    // สร้าง actionButtons div ใช้ grid เพื่อจัดปุ่มเป็นคอลัมน์
-    const actionButtons = document.createElement('div');
-    actionButtons.className = 'grid grid-cols-3 gap-4 mt-2';
+                // สร้าง actionButtons div ใช้ grid เพื่อจัดปุ่มเป็นคอลัมน์
+                const actionButtons = document.createElement('div');
+                actionButtons.className = 'grid grid-cols-3 gap-4 mt-2';
 
-    const startButton = document.createElement('button');
-    startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
-    startButton.textContent = 'เริ่มงาน';
-    startButton.onclick = () => openStartJobModal(row.idkey);
+                const startButton = document.createElement('button');
+                startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
+                startButton.textContent = 'เริ่มงาน';
+                startButton.onclick = () => openStartJobModal(row.idkey);
 
-    const processButton = document.createElement('button');
-    processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
-    processButton.textContent = 'ดำเนินงาน';
-    processButton.onclick = () => openProcessJobModal(row.idkey);
+                const processButton = document.createElement('button');
+                processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
+                processButton.textContent = 'ดำเนินงาน';
+                processButton.onclick = () => openProcessJobModal(row.idkey);
 
-    const completeButton = document.createElement('button');
-    completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
-    completeButton.textContent = 'เสร็จสิ้น';
-    completeButton.onclick = () => openCompleteJobModal(row.idkey);
+                const completeButton = document.createElement('button');
+                completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
+                completeButton.textContent = 'เสร็จสิ้น';
+                completeButton.onclick = () => openCompleteJobModal(row.idkey);
 
-    actionButtons.appendChild(startButton);
-    actionButtons.appendChild(processButton);
-    actionButtons.appendChild(completeButton);
+                actionButtons.appendChild(startButton);
+                actionButtons.appendChild(processButton);
+                actionButtons.appendChild(completeButton);
 
-    // นำ header และ actionButtons มาใส่ใน card
-    card.appendChild(header);
-    card.appendChild(actionButtons);
+                // นำ header และ actionButtons มาใส่ใน card
+                card.appendChild(header);
+                card.appendChild(actionButtons);
 
-    // นำ card ไปใส่ใน taskList
-    taskList.appendChild(card);
-});
+                // นำ card ไปใส่ใน taskList
+                taskList.appendChild(card);
+            });
 
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
@@ -573,6 +574,11 @@
         document.getElementById('start-job-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            const submitButton = this.querySelector("button[type=submit]");
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังอัพเดท...';
+
             const idkey = document.getElementById('start-job-idkey').value;
             const status = document.getElementById('start-status').value;
             const timeInside = document.getElementById('start-time-inside').value;
@@ -580,6 +586,8 @@
 
             if (!idkey || !status || !timeInside) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
                 Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
                 return;
             }
 
@@ -604,6 +612,9 @@
             } catch (error) {
                 console.error('Error updating data:', error);
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
@@ -634,6 +645,11 @@
         document.getElementById('process-job-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            const submitButton = this.querySelector("button[type=submit]");
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังอัพเดท...';
+
             const idkey = document.getElementById('process-job-idkey').value;
             const status = document.getElementById('process-status').value;
             const timeProcess = document.getElementById('process-time-process').value;
@@ -641,6 +657,8 @@
 
             if (!idkey || !status || !timeProcess) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
                 Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
                 return;
             }
 
@@ -665,6 +683,9 @@
             } catch (error) {
                 console.error('Error updating data:', error);
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
@@ -696,6 +717,11 @@
         document.getElementById('complete-job-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            const submitButton = this.querySelector("button[type=submit]");
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังอัพเดท...';
+
             const idkey = document.getElementById('complete-job-idkey').value;
             const status = document.getElementById('complete-status').value;
             const timeCompress = document.getElementById('complete-time-compress').value;
@@ -711,6 +737,8 @@
 
             if (!idkey || !status || !timeCompress) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
                 Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
                 return;
             }
 
@@ -740,6 +768,9 @@
             } catch (error) {
                 console.error('Error updating data:', error);
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
