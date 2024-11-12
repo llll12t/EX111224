@@ -325,23 +325,51 @@
 
                 // สร้าง header div
                 const header = document.createElement('div');
-                header.className = 'flex justify-between border-b rounded-lg p-2 mb-2';
+                header.className = 'flex flex-col sm:flex-row justify-between border-b rounded-lg p-2 mb-2';
+
+                // สร้าง container สำหรับสถานะ
+                const statusContainer = document.createElement('div');
+                statusContainer.className = 'flex items-center mb-2 sm:mb-0'; // ปรับการจัดวางในขนาดหน้าจอเล็ก
+
+                const statusLabel = document.createElement('span');
+                statusLabel.textContent = 'สถานะ: ';
+                statusLabel.className = 'font-semibold mr-1'; // เพิ่มระยะห่างด้านขวา
 
                 const statusSpan = document.createElement('span');
-                statusSpan.className = 'font-semibold';
                 statusSpan.textContent = row.status;
+                statusSpan.className = 'font-normal'; // สามารถปรับสไตล์ได้ตามต้องการ
+
+                statusContainer.appendChild(statusLabel);
+                statusContainer.appendChild(statusSpan);
+
+                // สร้าง container สำหรับชื่อ
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'flex items-center mb-2 sm:mb-0'; // ปรับการจัดวางในขนาดหน้าจอเล็ก
+
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = 'ชื่อ: ';
+                nameLabel.className = 'font-semibold mr-1'; // เพิ่มระยะห่างด้านขวา
 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = 'font-semibold';
                 nameSpan.textContent = row.Name || '';
+                nameSpan.className = 'font-normal'; // สามารถปรับสไตล์ได้ตามต้องการ
 
+                nameContainer.appendChild(nameLabel);
+                nameContainer.appendChild(nameSpan);
+
+                // สร้างปุ่มรายละเอียด
                 const detailsButton = document.createElement('button');
                 detailsButton.className = 'text-blue-500';
                 detailsButton.textContent = 'เพิ่มเติม';
                 detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
-                header.appendChild(statusSpan);
-                header.appendChild(nameSpan);
+                // นำ container ทั้งหมดมาใส่ใน header
+                const infoContainer = document.createElement('div');
+                infoContainer.className = 'flex flex-col sm:flex-row sm:items-center'; // จัดวางให้เป็นแนวนอนในหน้าจอขนาดกลางขึ้นไป
+                infoContainer.appendChild(statusContainer);
+                infoContainer.appendChild(nameContainer);
+
+                header.appendChild(infoContainer);
                 header.appendChild(detailsButton);
 
                 // สร้าง actionButtons div
@@ -374,6 +402,7 @@
                 // นำ card ไปใส่ใน taskList
                 taskList.appendChild(card);
             });
+
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
             if (totalPagesPending > 1) {
