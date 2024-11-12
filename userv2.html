@@ -318,48 +318,48 @@
             const endPending = startPending + itemsPerPage;
             const tasksToDisplay = pendingTasks.slice(startPending, endPending);
 
-            tasksToDisplay.forEach(row => {
+           tasksToDisplay.forEach(row => {
     // สร้าง card สำหรับแต่ละงาน
     const card = document.createElement('div');
     card.className = 'border-green rounded-lg p-4 mb-4';
 
     // สร้าง header div ใช้ grid เพื่อจัดคอลัมน์
     const header = document.createElement('div');
-    header.className = 'grid grid-cols-3 gap-4 border-b pb-2 mb-4';
+    header.className = 'grid grid-cols-3 gap-4 border-b pb-4 mb-4';
 
     // สร้าง container สำหรับสถานะ
     const statusContainer = document.createElement('div');
-    statusContainer.className = 'flex items-center';
+    statusContainer.className = 'flex flex-col items-start';
 
     const statusLabel = document.createElement('span');
-    statusLabel.textContent = 'สถานะ: ';
-    statusLabel.className = 'font-semibold mr-2';
+    statusLabel.textContent = 'สถานะ';
+    statusLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
 
     const statusSpan = document.createElement('span');
     statusSpan.textContent = row.status;
-    statusSpan.className = 'font-normal';
+    statusSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
 
     statusContainer.appendChild(statusLabel);
     statusContainer.appendChild(statusSpan);
 
     // สร้าง container สำหรับชื่อ
     const nameContainer = document.createElement('div');
-    nameContainer.className = 'flex items-center';
+    nameContainer.className = 'flex flex-col items-start';
 
     const nameLabel = document.createElement('span');
-    nameLabel.textContent = 'ชื่อ: ';
-    nameLabel.className = 'font-semibold mr-2';
+    nameLabel.textContent = 'ชื่อ';
+    nameLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
 
     const nameSpan = document.createElement('span');
     nameSpan.textContent = row.Name || '';
-    nameSpan.className = 'font-normal';
+    nameSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
 
     nameContainer.appendChild(nameLabel);
     nameContainer.appendChild(nameSpan);
 
     // สร้างปุ่มเพิ่มเติม
     const detailsButton = document.createElement('button');
-    detailsButton.className = 'text-blue-500 underline';
+    detailsButton.className = 'text-blue-500 underline self-start';
     detailsButton.textContent = 'เพิ่มเติม';
     detailsButton.onclick = () => openViewDetailsModal(row.idkey);
 
@@ -398,7 +398,6 @@
     // นำ card ไปใส่ใน taskList
     taskList.appendChild(card);
 });
-
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
             if (totalPagesPending > 1) {
