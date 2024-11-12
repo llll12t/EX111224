@@ -318,7 +318,7 @@
             const endPending = startPending + itemsPerPage;
             const tasksToDisplay = pendingTasks.slice(startPending, endPending);
 
-           tasksToDisplay.forEach(row => {
+          tasksToDisplay.forEach(row => {
     // สร้าง card สำหรับแต่ละงาน
     const card = document.createElement('div');
     card.className = 'border-green rounded-lg p-4 mb-4';
@@ -357,16 +357,26 @@
     nameContainer.appendChild(nameLabel);
     nameContainer.appendChild(nameSpan);
 
-    // สร้างปุ่มเพิ่มเติม
+    // สร้าง container สำหรับรายละเอียด
+    const detailsContainer = document.createElement('div');
+    detailsContainer.className = 'flex flex-col items-start';
+
+    const detailsLabel = document.createElement('span');
+    detailsLabel.textContent = 'รายละเอียด';
+    detailsLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
+
     const detailsButton = document.createElement('button');
-    detailsButton.className = 'text-blue-500 underline self-start';
+    detailsButton.className = 'text-blue-500 underline';
     detailsButton.textContent = 'เพิ่มเติม';
     detailsButton.onclick = () => openViewDetailsModal(row.idkey);
+
+    detailsContainer.appendChild(detailsLabel);
+    detailsContainer.appendChild(detailsButton);
 
     // นำทุกอย่างมาใส่ใน header
     header.appendChild(statusContainer);
     header.appendChild(nameContainer);
-    header.appendChild(detailsButton);
+    header.appendChild(detailsContainer);
 
     // สร้าง actionButtons div ใช้ grid เพื่อจัดปุ่มเป็นคอลัมน์
     const actionButtons = document.createElement('div');
@@ -398,6 +408,7 @@
     // นำ card ไปใส่ใน taskList
     taskList.appendChild(card);
 });
+
 
             // ปุ่มนำทางสำหรับงานที่ต้องทำ
             if (totalPagesPending > 1) {
