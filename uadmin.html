@@ -15,7 +15,7 @@
 </head>
 
 <style>
-    .bg-green {
+    .bg-green-custom {
         background: #078274;
     }
     .disabled-button {
@@ -27,12 +27,12 @@
 <body class="bg-gray-100 min-h-screen p-6">
     <div class="max-w-4xl mx-auto">
         <!-- Header Section -->
-        <div class="bg-green text-white rounded-lg p-4 mb-4">
+        <div class="bg-green-custom text-white rounded-lg p-4 mb-4">
             <h1 class="text-xl">จัดการข้อมูลการสั่งซื้อ</h1>
         </div>
 
         <!-- Filter Section -->
-        <div class="bg-green rounded-lg p-4 mb-4">
+        <div class="bg-green-custom rounded-lg p-4 mb-4">
             <div class="flex flex-wrap -mx-2">
                 <div class="p-2 w-full sm:w-1/2 md:w-1/3">
                     <input type="text" id="filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-lg">
@@ -66,11 +66,27 @@
             </div>
         </div>
 
-        <!-- Card Container -->
-        <div id="card-container" class="grid grid-cols-1 gap-4">
+        <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
+        <div id="card-container" class="grid grid-cols-1 gap-4 mb-8">
             <!-- Card จะถูกแทรกที่นี่ -->
         </div>
-        
+
+        <!-- ตารางสำหรับงานที่เสร็จสิ้น -->
+        <div id="completed-tasks-section" class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">งานที่ดำเนินการสำเร็จ</h2>
+            <table id="completed-table" class="min-w-full text-xs bg-white rounded-lg">
+                <thead>
+                    <tr class="text-green-custom text-sm">
+                         <th class="py-2 px-4 border">วันที่</th>
+                         <th class="py-2 px-4 border">ชื่อ</th>
+                         <th class="py-2 px-4 border">สถานะ</th>
+                         <th class="py-2 px-4 border">การดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm"></tbody>
+            </table>
+        </div>
+
         <!-- Loading Message -->
         <div id="loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
 
@@ -128,6 +144,7 @@
 
         let tableData = []; 
         let filteredData = [];
+        let completedData = [];
         let currentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
         let currentPage = 1;
         const rowsPerPage = 10;
@@ -266,6 +283,33 @@
 
                 // เพิ่ม card ลงใน container
                 cardContainer.appendChild(card);
+            });
+        }
+
+        /**
+         * ฟังก์ชันแสดงข้อมูลในรูปแบบตารางสำหรับงานที่เสร็จสิ้น
+         */
+        function displayCompletedTable(data) {
+            const tableBody = document.querySelector('#completed-table tbody');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการสำเร็จ</td></tr>';
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 px-4 border text-center">${formatDate(row.Date)}</td>
+                    <td class="py-2 px-4 border text-center">${row.Name}</td>
+                    <td class="py-2 px-4 border text-center">${translateStatus(row.Status)}</td>
+                    <td class="py-2 px-4 border text-center">
+                        <button class="bg-purple-700 text-white py-1 px-3 rounded-lg hover:bg-purple-800 transition" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
+                        <button class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
             });
         }
 
@@ -471,21 +515,30 @@
                 return matchesName && matchesStatus && matchesUserId && notCompleted;
             });
 
+            // แยกข้อมูลเป็นสองกลุ่ม: กำลังดำเนินการและเสร็จสิ้น
+            const pendingTasks = filteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+            const completedTasks = tableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
+
             // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
             if (sortOrder === 'newest') {
-                filteredData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                completedTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
             } else if (sortOrder === 'oldest') {
-                filteredData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+                pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+                completedTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
             }
 
-            // คำนวณจำนวนหน้าทั้งหมด
-            totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            // คำนวณจำนวนหน้าทั้งหมดสำหรับการแบ่งหน้า
+            totalPages = Math.ceil(pendingTasks.length / rowsPerPage);
             currentPage = 1;
             setupPagination();
 
-            // แสดงข้อมูลหน้าปัจจุบัน
-            const paginatedData = paginateData(filteredData, currentPage);
+            // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+            const paginatedData = paginateData(pendingTasks, currentPage);
             displayCards(paginatedData);
+
+            // แสดงข้อมูลตารางสำหรับงานที่เสร็จสิ้น
+            displayCompletedTable(completedTasks);
         }
 
         /**
@@ -528,8 +581,9 @@
             currentPage = page;
             setupPagination();
 
-            // แสดงข้อมูลหน้าปัจจุบัน
-            const paginatedData = paginateData(filteredData, currentPage);
+            // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+            const pendingTasks = filteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+            const paginatedData = paginateData(pendingTasks, currentPage);
             displayCards(paginatedData);
         }
 
