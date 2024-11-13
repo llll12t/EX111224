@@ -205,77 +205,38 @@
         /**
          * ฟังก์ชันแสดงข้อมูลในตาราง
          */
-       function displayCards(data) {
-    const cardContainer = document.querySelector('#card-container'); // เปลี่ยนจาก table body เป็น container สำหรับ card
-    cardContainer.innerHTML = ''; // ล้างเนื้อหาเดิม
+     function displayTable(data) {
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = '';
 
-    if (data.length === 0) {
-        cardContainer.innerHTML = '<p class="text-center text-gray-500">ไม่มีข้อมูลที่จะแสดง</p>';
-        return;
-    }
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 px-4 text-center border">${formatDate(row.Date)}</td> <!-- แสดงวันที่ -->
+                    <td class="py-2 px-4 text-center border">${row.Name}</td>
+                    <td class="py-2 px-4 text-center border">${translateStatus(row.Status)}</td>
+                `;
+                tableBody.appendChild(tr);
+                // แถวปุ่ม Action แบบเต็มแถว
+                const actionRow = document.createElement('tr');
+                actionRow.innerHTML = `
+                    <td colspan="4" class="py-2 px-4 border text-center">
+                        <div class="flex flex-between">
+                            <button class="bg-purple-700 text-white py-2 px-2 mx-1 rounded-lg hover:bg-purple-700 w-full" onclick="viewDetails('${row.IDkey}')">รายละเอียด</button>
+                            <button class="bg-yellow-500 text-white py-2 px-2 mx-1 rounded-lg hover:bg-yellow-700 w-full" onclick="openEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                            <button 
+                                class="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-700 w-full ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled-button' : ''}" 
+                                onclick="${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? '' : `takeJob('${row.IDkey}')`}" 
+                                ${row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น' ? 'disabled' : ''}>
+                                ยืนยัน
+                            </button>
+                        </div>
+                    </td>
+                `;
 
-    data.forEach(row => {
-        // สร้าง card container
-        const card = document.createElement('div');
-        card.className = 'border border-gray-300 rounded-lg p-4 mb-4 shadow-md';
-
-        // สร้างส่วนหัวของ card (Date)
-        const date = document.createElement('div');
-        date.className = 'text-sm text-gray-600 mb-2';
-        date.textContent = `วันที่: ${formatDate(row.Date)}`;
-
-        // สร้างส่วนชื่อ
-        const name = document.createElement('div');
-        name.className = 'text-lg font-semibold mb-2';
-        name.textContent = `ชื่อ: ${row.Name}`;
-
-        // สร้างส่วนสถานะ
-        const status = document.createElement('div');
-        status.className = 'text-md text-gray-700 mb-4';
-        status.textContent = `สถานะ: ${translateStatus(row.Status)}`;
-
-        // สร้างส่วนปุ่ม Action
-        const actionDiv = document.createElement('div');
-        actionDiv.className = 'flex flex-wrap gap-2';
-
-        // ปุ่มรายละเอียด
-        const detailsButton = document.createElement('button');
-        detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full sm:w-auto';
-        detailsButton.textContent = 'รายละเอียด';
-        detailsButton.onclick = () => viewDetails(row.IDkey);
-
-        // ปุ่มแจ้งเรื่อง
-        const editButton = document.createElement('button');
-        editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full sm:w-auto';
-        editButton.textContent = 'แจ้งเรื่อง';
-        editButton.onclick = () => openEditModal(row.IDkey);
-
-        // ปุ่มยืนยัน
-        const confirmButton = document.createElement('button');
-        const isDisabled = row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น';
-        confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full sm:w-auto ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`;
-        confirmButton.textContent = 'ยืนยัน';
-        if (!isDisabled) {
-            confirmButton.onclick = () => takeJob(row.IDkey);
+                tableBody.appendChild(actionRow);
+            });
         }
-        confirmButton.disabled = isDisabled;
-
-        // เพิ่มปุ่มทั้งหมดเข้าไปใน actionDiv
-        actionDiv.appendChild(detailsButton);
-        actionDiv.appendChild(editButton);
-        actionDiv.appendChild(confirmButton);
-
-        // นำส่วนต่างๆ มารวมกันใน card
-        card.appendChild(date);
-        card.appendChild(name);
-        card.appendChild(status);
-        card.appendChild(actionDiv);
-
-        // เพิ่ม card ลงใน container
-        cardContainer.appendChild(card);
-    });
-}
-
         /**
          * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
          */
