@@ -231,23 +231,43 @@
 
                 // วันที่
                 const dateDiv = document.createElement('div');
-                dateDiv.className = 'text-sm text-gray-600';
-                dateDiv.textContent = `วันที่: ${formatDate(row.Date)}`;
+                dateDiv.className = 'text-xs text-gray-500';
+                dateDiv.textContent = 'วันที่';
+                const dateValue = document.createElement('div');
+                dateValue.className = 'text-sm text-gray-800';
+                dateValue.textContent = formatDate(row.Date);
 
                 // ชื่อ
                 const nameDiv = document.createElement('div');
-                nameDiv.className = 'text-lg font-semibold';
-                nameDiv.textContent = `ชื่อ: ${row.Name}`;
+                nameDiv.className = 'text-xs text-gray-500';
+                nameDiv.textContent = 'ชื่อ';
+                const nameValue = document.createElement('div');
+                nameValue.className = 'text-sm text-gray-800';
+                nameValue.textContent = row.Name;
 
                 // สถานะ
                 const statusDiv = document.createElement('div');
-                statusDiv.className = 'text-md text-gray-700';
-                statusDiv.textContent = `สถานะ: ${translateStatus(row.Status)}`;
+                statusDiv.className = 'text-xs text-gray-500';
+                statusDiv.textContent = 'สถานะ';
+                const statusValue = document.createElement('div');
+                statusValue.className = 'text-sm text-gray-800';
+                statusValue.textContent = translateStatus(row.Status);
 
                 // เพิ่มส่วนต่างๆ ลงใน topRow
-                topRow.appendChild(dateDiv);
-                topRow.appendChild(nameDiv);
-                topRow.appendChild(statusDiv);
+                const dateContainer = document.createElement('div');
+                dateContainer.appendChild(dateDiv);
+                dateContainer.appendChild(dateValue);
+                topRow.appendChild(dateContainer);
+
+                const nameContainer = document.createElement('div');
+                nameContainer.appendChild(nameDiv);
+                nameContainer.appendChild(nameValue);
+                topRow.appendChild(nameContainer);
+
+                const statusContainer = document.createElement('div');
+                statusContainer.appendChild(statusDiv);
+                statusContainer.appendChild(statusValue);
+                topRow.appendChild(statusContainer);
 
                 // สร้าง grid สำหรับแถวที่ 2 (ปุ่มต่างๆ)
                 const bottomRow = document.createElement('div');
