@@ -54,16 +54,7 @@
                     </select>
                 </div>
             </div> 
-            <div class="flex items-center mt-2">
-                <input type="checkbox" id="hide-completed" checked class="mr-2">
-                <label for="hide-completed" class="text-white">ซ่อน "เสร็จสิ้น"</label>
-            </div>
-            <div class="flex justify-end mt-4 space-x-2">
-                <button class="bg-green-500 text-white py-1 px-6 rounded-lg hover:bg-blue-700"
-                    onclick="applyFilters()">กรอง</button>
-                <button class="bg-gray-500 text-white py-1 px-3 rounded-lg hover:bg-gray-700"
-                    onclick="clearFilters()">ยกเลิก</button>
-            </div>
+            <!-- ลบส่วน Checkbox และปุ่ม "กรอง" กับ "ยกเลิก" ออก -->
         </div>
 
         <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
@@ -531,15 +522,13 @@
             const filterName = document.getElementById('filter-name').value.toLowerCase();
             const filterStatus = document.getElementById('filter-status').value.toLowerCase();
             const sortOrder = document.getElementById('sort-order').value;
-            const hideCompleted = document.getElementById('hide-completed').checked;
 
-            // Filter by name, status, userId และสถานะเสร็จสิ้น
+            // Filter by name, status, and userId
             filteredData = tableData.filter(row => {
                 const matchesName = row.Name.toLowerCase().includes(filterName);
                 const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
                 const matchesUserId = row.UserIDresponsible === currentUserId; // เงื่อนไขกรองตาม userId
-                const notCompleted = hideCompleted ? row.Status.toLowerCase() !== 'เสร็จสิ้น' : true;
-                return matchesName && matchesStatus && matchesUserId && notCompleted;
+                return matchesName && matchesStatus && matchesUserId;
             });
 
             // แยกข้อมูลเป็นสองกลุ่ม: กำลังดำเนินการและเสร็จสิ้น
@@ -570,14 +559,15 @@
 
         /**
          * ฟังก์ชันยกเลิกการกรอง
+         * ถูกลบออกเพราะปุ่ม "ยกเลิก" ถูกลบแล้ว
          */
-        function clearFilters() {
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-status').value = '';
-            document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
-            document.getElementById('hide-completed').checked = false; // รีเซ็ต checkbox
-            applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
-        }
+        // function clearFilters() {
+        //     document.getElementById('filter-name').value = '';
+        //     document.getElementById('filter-status').value = '';
+        //     document.getElementById('sort-order').value = 'newest'; // กำหนดค่าเริ่มต้นเป็นใหม่สุด
+        //     // document.getElementById('hide-completed').checked = false; // รีเซ็ต checkbox ถูกลบแล้ว
+        //     applyFilters(); // กรองข้อมูลใหม่โดยใช้ userId ปัจจุบัน
+        // }
 
         /**
          * ฟังก์ชันตั้งค่าการแบ่งหน้า
@@ -632,11 +622,11 @@
         window.onload = function() {
             initializeLiff(); // เริ่มต้น LIFF
 
-            // เพิ่ม Event Listeners สำหรับฟิลเตอร์
+            // เพิ่ม Event Listeners สำหรับฟิลเตอร์ที่ยังเหลืออยู่
             document.getElementById('filter-name').addEventListener('input', applyFilters);
             document.getElementById('filter-status').addEventListener('change', applyFilters);
             document.getElementById('sort-order').addEventListener('change', applyFilters);
-            document.getElementById('hide-completed').addEventListener('change', applyFilters);
+            // document.getElementById('hide-completed').addEventListener('change', applyFilters); // ลบ Event Listener ออกเพราะ Checkbox ถูกลบแล้ว
         };
     </script>
 </body>
