@@ -225,42 +225,51 @@
                 const card = document.createElement('div');
                 card.className = 'border border-gray-300 rounded-lg p-4 mb-4 shadow-md bg-white';
 
-                // สร้างส่วนหัวของ card (Date)
-                const date = document.createElement('div');
-                date.className = 'text-sm text-gray-600 mb-2';
-                date.textContent = `วันที่: ${formatDate(row.Date)}`;
+                // สร้าง grid สำหรับแถวที่ 1 (วันที่, ชื่อ, สถานะ)
+                const topRow = document.createElement('div');
+                topRow.className = 'grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4';
 
-                // สร้างส่วนชื่อ
-                const name = document.createElement('div');
-                name.className = 'text-lg font-semibold mb-2';
-                name.textContent = `ชื่อ: ${row.Name}`;
+                // วันที่
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'text-sm text-gray-600';
+                dateDiv.textContent = `วันที่: ${formatDate(row.Date)}`;
 
-                // สร้างส่วนสถานะ
-                const status = document.createElement('div');
-                status.className = 'text-md text-gray-700 mb-4';
-                status.textContent = `สถานะ: ${translateStatus(row.Status)}`;
+                // ชื่อ
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'text-lg font-semibold';
+                nameDiv.textContent = `ชื่อ: ${row.Name}`;
 
-                // สร้างส่วนปุ่ม Action
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'flex flex-wrap gap-2';
+                // สถานะ
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'text-md text-gray-700';
+                statusDiv.textContent = `สถานะ: ${translateStatus(row.Status)}`;
+
+                // เพิ่มส่วนต่างๆ ลงใน topRow
+                topRow.appendChild(dateDiv);
+                topRow.appendChild(nameDiv);
+                topRow.appendChild(statusDiv);
+
+                // สร้าง grid สำหรับแถวที่ 2 (ปุ่มต่างๆ)
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'grid grid-cols-1 sm:grid-cols-3 gap-4';
 
                 // ปุ่มรายละเอียด
                 const detailsButton = document.createElement('button');
-                detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full sm:w-auto';
+                detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full';
                 detailsButton.textContent = 'รายละเอียด';
                 detailsButton.onclick = () => viewDetails(row.IDkey);
                 detailsButton.setAttribute('aria-label', `ดูรายละเอียดของงาน ${row.Name}`);
 
                 // ปุ่มแจ้งเรื่อง
                 const editButton = document.createElement('button');
-                editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full sm:w-auto';
+                editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full';
                 editButton.textContent = 'แจ้งเรื่อง';
                 editButton.onclick = () => openEditModal(row.IDkey);
 
                 // ปุ่มยืนยัน
                 const confirmButton = document.createElement('button');
                 const isDisabled = row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น';
-                confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full sm:w-auto ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+                confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
                 confirmButton.textContent = 'ยืนยัน';
                 if (!isDisabled) {
                     confirmButton.onclick = () => takeJob(row.IDkey);
@@ -270,16 +279,14 @@
                     confirmButton.classList.add('disabled-button');
                 }
 
-                // เพิ่มปุ่มทั้งหมดเข้าไปใน actionDiv
-                actionDiv.appendChild(detailsButton);
-                actionDiv.appendChild(editButton);
-                actionDiv.appendChild(confirmButton);
+                // เพิ่มปุ่มทั้งหมดลงใน bottomRow
+                bottomRow.appendChild(detailsButton);
+                bottomRow.appendChild(editButton);
+                bottomRow.appendChild(confirmButton);
 
-                // นำส่วนต่างๆ มารวมกันใน card
-                card.appendChild(date);
-                card.appendChild(name);
-                card.appendChild(status);
-                card.appendChild(actionDiv);
+                // นำ topRow และ bottomRow มารวมกันใน card
+                card.appendChild(topRow);
+                card.appendChild(bottomRow);
 
                 // เพิ่ม card ลงใน container
                 cardContainer.appendChild(card);
