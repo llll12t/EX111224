@@ -14,7 +14,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
     <style>
         .bg-green-custom {
-            background: #078274;
+            background: #FFFFFF;
         }
         .disabled-button {
             opacity: 0.5;
@@ -48,8 +48,8 @@
     <div class="max-w-5xl mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
-            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
-            <button id="tab-operation" class="py-2 px-4 border-b-2 inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
+            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
+            <button id="tab-operation" class="py-2 px-4 border-b-2 rounded-lg inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
         </div>
 
 
@@ -82,7 +82,7 @@
                 </div>
 
                 <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
-                <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-8">
+                <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-4">
                     <!-- Card จะถูกแทรกที่นี่ -->
                 </div>
 
@@ -159,7 +159,7 @@
             <div class="">
                 <!-- Filter Section -->
                 <div class="w-full max-w-md mb-4">
-                    <div class="bg-green rounded-lg p-4 mb-4">
+                    <div class="bg-green-custom rounded-lg p-4 mb-4">
                         <div class="flex flex-wrap gap-4">
                             <select id="operation-filter-status" onchange="operationApplyFilters()"
                                 class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
