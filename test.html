@@ -30,20 +30,33 @@
         .bg-inactive-tab {
             background: transparent; /* หรือสีที่คุณต้องการสำหรับแท็บที่ไม่ถูกเลือก */
         }
+         /* เพิ่มสีพื้นหลังสำหรับแท็บที่ถูกเลือก */
+         .active-tab {
+            background-color: #078274; /* สีเขียวที่ต้องการ */
+            border-color: #078274; /* สีขอบเขียว */
+            color: white;
+        }
+        /* สีพื้นหลังสำหรับแท็บที่ไม่ถูกเลือก */
+        .inactive-tab {
+            background-color: #f3f4f6; /* สีเทาอ่อน */
+            border-color: transparent;
+            color: #4b5563; /* สีเทาเข้ม */
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
     <div class="max-w-5xl mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
-            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 border-green-custom text-green-custom bg-green-custom focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
-            <button id="tab-operation" class="py-2 px-4 border-b-2 border-transparent text-gray-600 hover:text-green-custom bg-inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
+            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
+            <button id="tab-operation" class="py-2 px-4 border-b-2 inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
         </div>
+
 
         <!-- Tab Content -->
         <div id="tab-order-content">
             <!-- Content from HTML1 -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="">
                 <!-- Filter Section -->
                 <div class="bg-green-custom rounded-lg p-4 mb-4">
                     <div class="flex flex-wrap -mx-2">
@@ -143,7 +156,7 @@
 
         <div id="tab-operation-content" class="hidden">
             <!-- Content from HTML2 -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="">
                 <!-- Filter Section -->
                 <div class="w-full max-w-md mb-4">
                     <div class="bg-green rounded-lg p-4 mb-4">
@@ -319,24 +332,54 @@
     <!-- Scripts -->
     <script>
         /* Tab Switching Logic */
-        document.getElementById('tab-order').addEventListener('click', function() {
-            document.getElementById('tab-order-content').classList.remove('hidden');
-            document.getElementById('tab-operation-content').classList.add('hidden');
-            
-            this.classList.add('border-green-custom', 'text-green-custom', 'bg-green-custom');
-            document.getElementById('tab-operation').classList.remove('border-green-custom', 'text-green-custom', 'bg-green-custom');
-            document.getElementById('tab-operation').classList.add('border-transparent', 'text-gray-600', 'bg-inactive-tab');
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabOrder = document.getElementById('tab-order');
+            const tabOperation = document.getElementById('tab-operation');
+            const tabOrderContent = document.getElementById('tab-order-content');
+            const tabOperationContent = document.getElementById('tab-operation-content');
 
-        document.getElementById('tab-operation').addEventListener('click', function() {
-            document.getElementById('tab-operation-content').classList.remove('hidden');
-            document.getElementById('tab-order-content').classList.add('hidden');
-            
-            this.classList.add('border-green-custom', 'text-green-custom', 'bg-green-custom');
-            document.getElementById('tab-order').classList.remove('border-green-custom', 'text-green-custom', 'bg-green-custom');
-            document.getElementById('tab-order').classList.add('border-transparent', 'text-gray-600', 'bg-inactive-tab');
-        });
+            // ฟังก์ชันเพื่อเปิดใช้งานแท็บ
+            function activateTab(tab) {
+                if (tab === 'order') {
+                    // เปลี่ยนคลาสแท็บ
+                    tabOrder.classList.add('active-tab');
+                    tabOrder.classList.remove('inactive-tab');
+                    tabOperation.classList.add('inactive-tab');
+                    tabOperation.classList.remove('active-tab');
 
+                    // แสดงเนื้อหาของแท็บที่ถูกเลือกและซ่อนแท็บอื่นๆ
+                    tabOrderContent.classList.remove('hidden');
+                    tabOperationContent.classList.add('hidden');
+
+                    // โหลดข้อมูลการสั่งซื้อ (ถ้าจำเป็น)
+                    loadOrderData();
+                } else if (tab === 'operation') {
+                    // เปลี่ยนคลาสแท็บ
+                    tabOperation.classList.add('active-tab');
+                    tabOperation.classList.remove('inactive-tab');
+                    tabOrder.classList.add('inactive-tab');
+                    tabOrder.classList.remove('active-tab');
+
+                    // แสดงเนื้อหาของแท็บที่ถูกเลือกและซ่อนแท็บอื่นๆ
+                    tabOperationContent.classList.remove('hidden');
+                    tabOrderContent.classList.add('hidden');
+
+                    // โหลดข้อมูลการดำเนินการ (ถ้าจำเป็น)
+                    loadOperationData();
+                }
+            }
+
+            // เพิ่ม Event Listeners สำหรับปุ่มแท็บ
+            tabOrder.addEventListener('click', function() {
+                activateTab('order');
+            });
+
+            tabOperation.addEventListener('click', function() {
+                activateTab('operation');
+            });
+
+            // โหลดข้อมูลแท็บเริ่มต้น
+            activateTab('order');
         /* -------------------- HTML1 Scripts (Order Management) -------------------- */
         (function() {
             const WEB_APP_URL_ORDER = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
