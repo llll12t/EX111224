@@ -30,8 +30,8 @@
         .bg-inactive-tab {
             background: transparent; /* หรือสีที่คุณต้องการสำหรับแท็บที่ไม่ถูกเลือก */
         }
-         /* เพิ่มสีพื้นหลังสำหรับแท็บที่ถูกเลือก */
-         .active-tab {
+        /* เพิ่มสีพื้นหลังสำหรับแท็บที่ถูกเลือก */
+        .active-tab {
             background-color: #078274; /* สีเขียวที่ต้องการ */
             border-color: #078274; /* สีขอบเขียว */
             color: white;
@@ -535,18 +535,15 @@
                     editButton.textContent = 'แจ้งเรื่อง';
                     editButton.onclick = () => orderOpenEditModal(row.IDkey);
 
-                    // ปุ่มยืนยัน
+                    // ปุ่มยืนยัน (รับงาน)
                     const confirmButton = document.createElement('button');
-                    const isDisabled = row.Status === 'กำลังดำเนินการ' || row.Status === 'เสร็จสิ้น';
+                    const isDisabled = ['เริ่มงาน', 'กำลังดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
                     confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
                     confirmButton.textContent = 'ยืนยัน';
                     if (!isDisabled) {
                         confirmButton.onclick = () => orderTakeJob(row.IDkey);
                     }
                     confirmButton.disabled = isDisabled;
-                    if (isDisabled) {
-                        confirmButton.classList.add('disabled-button');
-                    }
 
                     // เพิ่มปุ่มทั้งหมดลงใน bottomRow
                     bottomRow.appendChild(detailsButton);
@@ -1102,6 +1099,33 @@
                     completeButton.textContent = 'เสร็จสิ้น';
                     completeButton.onclick = () => operationOpenCompleteJobModal(row.idkey);
 
+                    // ตรวจสอบสถานะเพื่อปิดใช้งานปุ่มตามเงื่อนไข
+                    switch(row.status) {
+                        case 'รอดำเนินการ':
+                            // เปิดใช้งานทุกปุ่ม
+                            break;
+                        case 'เริ่มงาน':
+                            processButton.disabled = true;
+                            processButton.classList.add('disabled-button');
+                            break;
+                        case 'กำลังดำเนินการ':
+                            startButton.disabled = true;
+                            processButton.disabled = true;
+                            startButton.classList.add('disabled-button');
+                            processButton.classList.add('disabled-button');
+                            break;
+                        case 'เสร็จสิ้น':
+                            startButton.disabled = true;
+                            processButton.disabled = true;
+                            completeButton.disabled = true;
+                            startButton.classList.add('disabled-button');
+                            processButton.classList.add('disabled-button');
+                            completeButton.classList.add('disabled-button');
+                            break;
+                        default:
+                            break;
+                    }
+
                     actionButtons.appendChild(startButton);
                     actionButtons.appendChild(processButton);
                     actionButtons.appendChild(completeButton);
@@ -1577,273 +1601,6 @@
                     case 'ดำเนินการสำเร็จ': return 'ดำเนินการสำเร็จ';
                     default: return status;
                 }
-            }
-
-            /**
-             * ฟังก์ชันจัดการฟิลเตอร์ข้อมูล และเรียงลำดับข้อมูล
-             */
-            function operationApplyFilters(userId = operationCurrentUserId) {
-                const filterStatus = document.getElementById('operation-filter-status').value.toLowerCase();
-                const filterName = document.getElementById('operation-filter-name').value.toLowerCase();
-
-                const filteredData = operationTableData.filter(row => {
-                    const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
-                    const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
-                    const matchesUserId = row.useridresponsible === userId; // กรองตาม userId
-
-                    return matchesStatus && matchesName && matchesUserId;
-                });
-
-                // เรียงลำดับข้อมูลจากวันที่ล่าสุดไปยังเก่า
-                filteredData.sort((a, b) => {
-                    const dateA = operationParseDateDDMMYYYYHHmm(a.timestamp);
-                    const dateB = operationParseDateDDMMYYYYHHmm(b.timestamp);
-                    return dateB - dateA; // เรียงจากมากไปน้อย (ล่าสุดก่อน)
-                });
-
-                // รีเซ็ตหน้าปัจจุบันเมื่อมีการกรองใหม่
-                currentPagePendingOperation = 1;
-                currentPageCompletedOperation = 1;
-
-                operationDisplayTasks(filteredData);
-            }
-
-            /**
-             * ฟังก์ชันแสดงข้อมูลในรูปแบบการ์ด พร้อมหัวข้อและการแบ่งหน้า
-             */
-            function operationDisplayTasks(data) {
-                const taskList = document.getElementById('operation-task-list');
-                const completedTasks = document.getElementById('operation-completed-tasks');
-
-                taskList.innerHTML = '';
-                completedTasks.innerHTML = '';
-
-                // แยกข้อมูลเป็นงานที่ต้องทำและงานที่เสร็จสิ้น
-                const pendingTasks = data.filter(row => !(row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
-                const completedTaskData = data.filter(row => (row.status === 'ดำเนินการสำเร็จ' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
-
-                // คำนวณจำนวนหน้าสำหรับงานที่ต้องทำ
-                const totalPagesPending = Math.ceil(pendingTasks.length / operationItemsPerPage);
-                if (currentPagePendingOperation > totalPagesPending) currentPagePendingOperation = totalPagesPending || 1;
-
-                // คำนวณจำนวนหน้าสำหรับงานที่เสร็จสิ้น
-                const totalPagesCompleted = Math.ceil(completedTaskData.length / operationItemsPerPage);
-                if (currentPageCompletedOperation > totalPagesCompleted) currentPageCompletedOperation = totalPagesCompleted || 1;
-
-                // สร้างหัวข้อสำหรับงานที่ต้องทำ
-                const taskListHeading = document.createElement('h3');
-                taskListHeading.className = 'text-lg font-semibold mb-2';
-                taskListHeading.textContent = 'งานที่ต้องทำ';
-                taskList.appendChild(taskListHeading);
-
-
-                // แสดงงานที่ต้องทำตามหน้าปัจจุบัน
-                const startPending = (currentPagePendingOperation - 1) * operationItemsPerPage;
-                const endPending = startPending + operationItemsPerPage;
-                const tasksToDisplay = pendingTasks.slice(startPending, endPending);
-
-                tasksToDisplay.forEach(row => {
-                    // สร้าง card สำหรับแต่ละงาน
-                    const card = document.createElement('div');
-                    card.className = 'border-green rounded-lg p-4 mb-4';
-
-                    // สร้าง header div ใช้ grid เพื่อจัดคอลัมน์
-                    const header = document.createElement('div');
-                    header.className = 'grid grid-cols-3 gap-4 border-b pb-2';
-
-                    // สร้าง container สำหรับสถานะ
-                    const statusContainer = document.createElement('div');
-                    statusContainer.className = 'flex flex-col items-start';
-
-                    const statusLabel = document.createElement('span');
-                    statusLabel.textContent = 'สถานะ';
-                    statusLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
-
-                    const statusSpan = document.createElement('span');
-                    statusSpan.textContent = row.status;
-                    statusSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
-
-                    statusContainer.appendChild(statusLabel);
-                    statusContainer.appendChild(statusSpan);
-
-                    // สร้าง container สำหรับชื่อ
-                    const nameContainer = document.createElement('div');
-                    nameContainer.className = 'flex flex-col items-start';
-
-                    const nameLabel = document.createElement('span');
-                    nameLabel.textContent = 'ชื่อ';
-                    nameLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = row.Name || '';
-                    nameSpan.className = 'font-normal text-base'; // ข้อความขนาดปกติ
-
-                    nameContainer.appendChild(nameLabel);
-                    nameContainer.appendChild(nameSpan);
-
-                    // สร้าง container สำหรับรายละเอียด
-                    const detailsContainer = document.createElement('div');
-                    detailsContainer.className = 'flex flex-col items-start';
-
-                    const detailsLabel = document.createElement('span');
-                    detailsLabel.textContent = 'รายละเอียด';
-                    detailsLabel.className = 'text-sm text-gray-600 mb-1'; // ข้อความขนาดเล็กและสีเทา
-
-                    const detailsButton = document.createElement('button');
-                    detailsButton.className = 'text-blue-500 underline';
-                    detailsButton.textContent = 'เพิ่มเติม';
-                    detailsButton.onclick = () => operationOpenViewDetailsModal(row.idkey);
-
-                    detailsContainer.appendChild(detailsLabel);
-                    detailsContainer.appendChild(detailsButton);
-
-                    // นำทุกอย่างมาใส่ใน header
-                    header.appendChild(statusContainer);
-                    header.appendChild(nameContainer);
-                    header.appendChild(detailsContainer);
-
-                    // สร้าง actionButtons div ใช้ grid เพื่อจัดปุ่มเป็นคอลัมน์
-                    const actionButtons = document.createElement('div');
-                    actionButtons.className = 'grid grid-cols-3 gap-4 mt-2';
-
-                    const startButton = document.createElement('button');
-                    startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
-                    startButton.textContent = 'เริ่มงาน';
-                    startButton.onclick = () => operationOpenStartJobModal(row.idkey);
-
-                    const processButton = document.createElement('button');
-                    processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
-                    processButton.textContent = 'ดำเนินงาน';
-                    processButton.onclick = () => operationOpenProcessJobModal(row.idkey);
-
-                    const completeButton = document.createElement('button');
-                    completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
-                    completeButton.textContent = 'เสร็จสิ้น';
-                    completeButton.onclick = () => operationOpenCompleteJobModal(row.idkey);
-
-                    actionButtons.appendChild(startButton);
-                    actionButtons.appendChild(processButton);
-                    actionButtons.appendChild(completeButton);
-
-                    // นำ header และ actionButtons มาใส่ใน card
-                    card.appendChild(header);
-                    card.appendChild(actionButtons);
-
-                    // นำ card ไปใส่ใน taskList
-                    taskList.appendChild(card);
-                });
-
-
-                // ปุ่มนำทางสำหรับงานที่ต้องทำ
-                if (totalPagesPending > 1) {
-                    const paginationDiv = operationDisplayPagination(totalPagesPending, currentPagePendingOperation, 'pending');
-                    taskList.appendChild(paginationDiv);
-                }
-
-                // สร้างหัวข้อสำหรับงานที่เสร็จสิ้นหรือถูกเลื่อน
-                const completedTasksHeading = document.createElement('h3');
-                completedTasksHeading.className = 'text-lg font-semibold mb-2 mt-4';
-                completedTasksHeading.textContent = 'เลื่อน/สำเร็จ';
-                completedTasks.appendChild(completedTasksHeading);
-
-                // สร้างหัวข้อเล็กๆ
-                const completedHeader = document.createElement('div');
-                completedHeader.className = 'flex justify-between font-bold mb-2';
-                completedHeader.innerHTML = `
-                    <span>สถานะ</span>
-                    <span>ชื่อ</span>
-                    <span>รายละเอียด</span>
-                `;
-                completedTasks.appendChild(completedHeader);
-
-                // แสดงงานที่เสร็จสิ้นตามหน้าปัจจุบัน
-                const startCompleted = (currentPageCompletedOperation - 1) * operationItemsPerPage;
-                const endCompleted = startCompleted + operationItemsPerPage;
-                const completedToDisplay = completedTaskData.slice(startCompleted, endCompleted);
-
-                completedToDisplay.forEach(row => {
-                    // งานที่เสร็จสิ้นหรือถูกเลื่อน
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'flex justify-between py-2';
-
-                    const statusSpan = document.createElement('span');
-                    statusSpan.textContent = row.status;
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = row.Name || '';
-
-                    const detailsButton = document.createElement('button');
-                    detailsButton.className = 'text-blue-500';
-                    detailsButton.textContent = 'เพิ่มเติม';
-                    detailsButton.onclick = () => operationOpenViewDetailsModal(row.idkey);
-
-                    taskItem.appendChild(statusSpan);
-                    taskItem.appendChild(nameSpan);
-                    taskItem.appendChild(detailsButton);
-
-                    completedTasks.appendChild(taskItem);
-                });
-
-                // ปุ่มนำทางสำหรับงานที่เสร็จสิ้น
-                if (totalPagesCompleted > 1) {
-                    const paginationDiv = operationDisplayPagination(totalPagesCompleted, currentPageCompletedOperation, 'completed');
-                    completedTasks.appendChild(paginationDiv);
-                }
-            }
-
-            /**
-             * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
-             * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-             */
-            function operationFormatDateToDDMMYYYYHHmm(dateStr) {
-                if (!dateStr) return '';
-                // ตรวจสอบว่าเป็น ISO string หรือ DD/MM/YYYY HH:mm
-                let date;
-                if (dateStr.includes('/') && dateStr.includes(':')) {
-                    date = operationParseDateDDMMYYYYHHmm(dateStr);
-                } else {
-                    date = new Date(dateStr);
-                }
-                if (!date || isNaN(date.getTime())) return '';
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-            }
-
-            /**
-             * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
-             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-             * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
-             */
-            function operationParseDateDDMMYYYYHHmm(dateStr) {
-                if (!dateStr) return null;
-                const parts = dateStr.split(' ');
-                if (parts.length !== 2) return null;
-                const [datePart, timePart] = parts;
-                const [day, month, year] = datePart.split('/').map(Number);
-                const [hours, minutes] = timePart.split(':').map(Number);
-                return new Date(year, month - 1, day, hours, minutes);
-            }
-
-            /**
-             * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
-             * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
-             * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-             */
-            function operationFormatDateForSubmit(datetimeLocal) {
-                if (!datetimeLocal) return '';
-                const date = new Date(datetimeLocal);
-                if (isNaN(date.getTime())) return '';
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
             }
 
             /**
