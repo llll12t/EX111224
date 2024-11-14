@@ -35,16 +35,16 @@
         <div class="mb-4">
             <ul class="flex border-b">
                 <li class="-mb-px mr-1">
-                    <a href="#tab1" class="bg-white inline-block py-2 px-4 text-green-500 font-semibold" onclick="openTab(event, 'tab1')">จัดการข้อมูลการสั่งซื้อ</a>
+                    <a href="#tab1" id="tab1-link" class="bg-white inline-block py-2 px-4 text-green-500 font-semibold" onclick="openTab(event, 'tab1')">จัดการข้อมูลการสั่งซื้อ</a>
                 </li>
                 <li class="mr-1">
-                    <a href="#tab2" class="bg-white inline-block py-2 px-4 text-green-500 font-semibold" onclick="openTab(event, 'tab2')">จัดการข้อมูลการดำเนินการ</a>
+                    <a href="#tab2" id="tab2-link" class="bg-white inline-block py-2 px-4 text-green-500 font-semibold" onclick="openTab(event, 'tab2')">จัดการข้อมูลการดำเนินการ</a>
                 </li>
             </ul>
         </div>
 
         <!-- Tab Content -->
-        <div id="tab1" class="tab-content">
+        <div id="tab1" class="tab-content hidden">
             <!-- เนื้อหาจากโค้ดที่ 1 -->
             <div class="bg-green-custom rounded-lg p-4 mb-4">
                 <!-- Filter Section -->
@@ -146,8 +146,7 @@
             <!-- รวมสคริปต์เฉพาะสำหรับแท็บที่ 1 -->
             <script>
                 // สคริปต์จากโค้ดที่ 1
-                // เปลี่ยนชื่อฟังก์ชันและตัวแปรให้ไม่ซ้ำกับโค้ดที่ 2
-
+                // ใช้ WEB_APP_URL และ LIFF_ID เดียวกัน
                 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec';
                 const LIFF_ID = '2006504113-lVYLV6Xe';
 
@@ -160,10 +159,13 @@
                 let totalPages1 = 1;
                 let isSubmitting1 = false; // ตัวแปรเพื่อป้องกันการส่งข้อมูลซ้ำใน takeJob
 
+                let isInitialized1 = false; // ตัวแปรตรวจสอบว่าแท็บถูกโหลดแล้วหรือยัง
+
                 /**
-                 * ฟังก์ชันเริ่มต้น LIFF
+                 * ฟังก์ชันเริ่มต้น LIFF และโหลดข้อมูล
                  */
                 async function initializeLiff1() {
+                    if (isInitialized1) return; // ถ้าโหลดแล้ว ไม่ต้องทำซ้ำ
                     try {
                         await liff.init({ liffId: LIFF_ID });
                         if (liff.isLoggedIn()) {
@@ -171,6 +173,7 @@
                         } else {
                             liff.login(); // ทำการล็อกอินถ้ายังไม่ได้ล็อกอิน
                         }
+                        isInitialized1 = true;
                     } catch (error) {
                         console.error('LIFF Initialization failed', error);
                         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
@@ -623,16 +626,17 @@
                 }
 
                 /**
-                 * ฟังก์ชันเริ่มต้นเมื่อโหลดหน้า
+                 * ฟังก์ชันเริ่มต้นเมื่อโหลดหน้า (ไม่ได้ใช้)
+                 * เราจะเรียกใช้งานฟังก์ชันเริ่มต้นเมื่อสลับแท็บแทน
                  */
-                window.onload = function() {
-                    initializeLiff1(); // เริ่มต้น LIFF สำหรับแท็บที่ 1
+                // window.onload = function() {
+                //     initializeLiff1(); // เริ่มต้น LIFF สำหรับแท็บที่ 1
 
-                    // เพิ่ม Event Listeners สำหรับฟิลเตอร์ที่ยังเหลืออยู่
-                    document.getElementById('filter-name-1').addEventListener('input', applyFilters1);
-                    document.getElementById('filter-status-1').addEventListener('change', applyFilters1);
-                    document.getElementById('sort-order-1').addEventListener('change', applyFilters1);
-                };
+                //     // เพิ่ม Event Listeners สำหรับฟิลเตอร์ที่ยังเหลืออยู่
+                //     document.getElementById('filter-name-1').addEventListener('input', applyFilters1);
+                //     document.getElementById('filter-status-1').addEventListener('change', applyFilters1);
+                //     document.getElementById('sort-order-1').addEventListener('change', applyFilters1);
+                // };
             </script>
         </div>
 
@@ -802,8 +806,7 @@
             <!-- รวมสคริปต์เฉพาะสำหรับแท็บที่ 2 -->
             <script>
                 // สคริปต์จากโค้ดที่ 2
-                // เปลี่ยนชื่อฟังก์ชันและตัวแปรให้ไม่ซ้ำกับโค้ดที่ 1
-
+                // ใช้ WEB_APP_URL และ LIFF_ID เดียวกัน
                 let tableData2 = []; 
                 let filteredData2 = [];
                 let completedData2 = [];
@@ -813,10 +816,13 @@
                 let totalPages2 = 1;
                 let isSubmitting2 = false; // ตัวแปรเพื่อป้องกันการส่งข้อมูลซ้ำใน takeJob
 
+                let isInitialized2 = false; // ตัวแปรตรวจสอบว่าแท็บถูกโหลดแล้วหรือยัง
+
                 /**
-                 * ฟังก์ชันเริ่มต้น LIFF
+                 * ฟังก์ชันเริ่มต้น LIFF และโหลดข้อมูล
                  */
                 async function initializeLiff2() {
+                    if (isInitialized2) return; // ถ้าโหลดแล้ว ไม่ต้องทำซ้ำ
                     try {
                         await liff.init({ liffId: LIFF_ID }); // ใช้ LIFF ID เดียวกัน
                         if (liff.isLoggedIn()) {
@@ -824,6 +830,7 @@
                         } else {
                             liff.login(); // ทำการล็อกอินถ้ายังไม่ได้ล็อกอิน
                         }
+                        isInitialized2 = true;
                     } catch (error) {
                         console.error('LIFF Initialization failed', error);
                         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
@@ -916,11 +923,6 @@
                     // คำนวณจำนวนหน้าสำหรับงานที่ต้องทำ
                     totalPages2 = Math.ceil(pendingTasks.length / rowsPerPage2);
                     if (currentPage2 > totalPages2) currentPage2 = totalPages2 || 1;
-
-                    // คำนวณจำนวนหน้าสำหรับงานที่เสร็จสิ้น
-                    const totalPagesCompleted2 = Math.ceil(completedTaskData.length / rowsPerPage2);
-                    let currentPageCompleted2 = 1;
-                    if (currentPageCompleted2 > totalPagesCompleted2) currentPageCompleted2 = totalPagesCompleted2 || 1;
 
                     // สร้างหัวข้อสำหรับงานที่ต้องทำ
                     const taskListHeading = document.createElement('h3');
@@ -1463,21 +1465,6 @@
                 }
 
                 /**
-                 * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
-                 */
-                function formatDateForSubmit2(datetimeLocal) {
-                    if (!datetimeLocal) return '';
-                    const date = new Date(datetimeLocal);
-                    if (isNaN(date.getTime())) return '';
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear();
-                    const hours = String(date.getHours()).padStart(2, '0');
-                    const minutes = String(date.getMinutes()).padStart(2, '0');
-                    return `${day}/${month}/${year} ${hours}:${minutes}`;
-                }
-
-                /**
                  * ฟังก์ชันแสดงข้อมูลในรูปแบบตารางสำหรับงานที่เสร็จสิ้น
                  */
                 function displayCompletedTable2(data) {
@@ -1704,33 +1691,47 @@
                 }
             </script>
         </div>
-    </div>
 
-    <!-- JavaScript สำหรับการสลับแท็บ -->
-    <script>
-        function openTab(evt, tabId) {
-            // ซ่อนเนื้อหาของทุกแท็บ
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => content.classList.add('hidden'));
+        <!-- JavaScript สำหรับการสลับแท็บ -->
+        <script>
+            // ตัวแปรเพื่อตรวจสอบว่าแต่ละแท็บถูกโหลดแล้วหรือยัง
+            let isTab1Loaded = false;
+            let isTab2Loaded = false;
 
-            // ลบคลาส active จากทุกลิงก์แท็บ
-            const tabLinks = document.querySelectorAll('ul li a');
-            tabLinks.forEach(link => link.classList.remove('text-blue-500'));
+            function openTab(evt, tabId) {
+                // ซ่อนเนื้อหาของทุกแท็บ
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(content => content.classList.add('hidden'));
 
-            // แสดงเนื้อหาของแท็บที่เลือก
-            document.getElementById(tabId).classList.remove('hidden');
+                // ลบคลาส active จากทุกลิงก์แท็บ
+                const tabLinks = document.querySelectorAll('ul li a');
+                tabLinks.forEach(link => link.classList.remove('text-blue-500'));
 
-            // เพิ่มคลาส active ให้กับลิงก์แท็บที่เลือก
-            evt.currentTarget.classList.add('text-blue-500');
-        }
+                // แสดงเนื้อหาของแท็บที่เลือก
+                document.getElementById(tabId).classList.remove('hidden');
 
-        // เปิดแท็บแรกเมื่อโหลดหน้า
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstTab = document.querySelector('ul li a');
-            if (firstTab) {
-                firstTab.click();
+                // เพิ่มคลาส active ให้กับลิงก์แท็บที่เลือก
+                evt.currentTarget.classList.add('text-blue-500');
+
+                // โหลดข้อมูลเมื่อสลับไปยังแท็บที่ยังไม่ถูกโหลด
+                if (tabId === 'tab1' && !isTab1Loaded) {
+                    initializeLiff1();
+                    isTab1Loaded = true;
+                }
+
+                if (tabId === 'tab2' && !isTab2Loaded) {
+                    initializeLiff2();
+                    isTab2Loaded = true;
+                }
             }
-        });
-    </script>
-</body>
+
+            // เปิดแท็บแรกเมื่อโหลดหน้า
+            document.addEventListener('DOMContentLoaded', function() {
+                const firstTab = document.querySelector('ul li a');
+                if (firstTab) {
+                    firstTab.click();
+                }
+            });
+        </script>
+    </body>
 </html>
