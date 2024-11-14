@@ -27,14 +27,17 @@
             border: 2px solid #078274;
             border-radius: 10px;
         }
+        .bg-inactive-tab {
+            background: transparent; /* หรือสีที่คุณต้องการสำหรับแท็บที่ไม่ถูกเลือก */
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
     <div class="max-w-5xl mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
-            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 border-green-custom text-green-custom focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
-            <button id="tab-operation" class="py-2 px-4 border-b-2 border-transparent text-gray-600 hover:text-green-custom focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
+            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 border-green-custom text-green-custom bg-green-custom focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
+            <button id="tab-operation" class="py-2 px-4 border-b-2 border-transparent text-gray-600 hover:text-green-custom bg-inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
         </div>
 
         <!-- Tab Content -->
@@ -319,15 +322,19 @@
         document.getElementById('tab-order').addEventListener('click', function() {
             document.getElementById('tab-order-content').classList.remove('hidden');
             document.getElementById('tab-operation-content').classList.add('hidden');
-            this.classList.add('border-green-custom', 'text-green-custom');
-            document.getElementById('tab-operation').classList.remove('border-green-custom', 'text-green-custom');
+            
+            this.classList.add('border-green-custom', 'text-green-custom', 'bg-green-custom');
+            document.getElementById('tab-operation').classList.remove('border-green-custom', 'text-green-custom', 'bg-green-custom');
+            document.getElementById('tab-operation').classList.add('border-transparent', 'text-gray-600', 'bg-inactive-tab');
         });
 
         document.getElementById('tab-operation').addEventListener('click', function() {
             document.getElementById('tab-operation-content').classList.remove('hidden');
             document.getElementById('tab-order-content').classList.add('hidden');
-            this.classList.add('border-green-custom', 'text-green-custom');
-            document.getElementById('tab-order').classList.remove('border-green-custom', 'text-green-custom');
+            
+            this.classList.add('border-green-custom', 'text-green-custom', 'bg-green-custom');
+            document.getElementById('tab-order').classList.remove('border-green-custom', 'text-green-custom', 'bg-green-custom');
+            document.getElementById('tab-order').classList.add('border-transparent', 'text-gray-600', 'bg-inactive-tab');
         });
 
         /* -------------------- HTML1 Scripts (Order Management) -------------------- */
@@ -1061,30 +1068,7 @@
 
                 // ปุ่มนำทางสำหรับงานที่ต้องทำ
                 if (totalPagesPending > 1) {
-                    const paginationDiv = document.createElement('div');
-                    paginationDiv.className = 'flex justify-center mt-4 space-x-2';
-
-                    const prevButton = document.createElement('button');
-                    prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
-                    prevButton.textContent = 'ก่อนหน้า';
-                    prevButton.disabled = currentPagePendingOperation === 1;
-                    prevButton.onclick = () => {
-                        currentPagePendingOperation--;
-                        operationDisplayTasks(data);
-                    };
-
-                    const nextButton = document.createElement('button');
-                    nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
-                    nextButton.textContent = 'ถัดไป';
-                    nextButton.disabled = currentPagePendingOperation === totalPagesPending;
-                    nextButton.onclick = () => {
-                        currentPagePendingOperation++;
-                        operationDisplayTasks(data);
-                    };
-
-                    paginationDiv.appendChild(prevButton);
-                    paginationDiv.appendChild(nextButton);
-
+                    const paginationDiv = operationDisplayPagination(totalPagesPending, currentPagePendingOperation, 'pending');
                     taskList.appendChild(paginationDiv);
                 }
 
@@ -1134,30 +1118,7 @@
 
                 // ปุ่มนำทางสำหรับงานที่เสร็จสิ้น
                 if (totalPagesCompleted > 1) {
-                    const paginationDiv = document.createElement('div');
-                    paginationDiv.className = 'flex justify-center mt-4 space-x-2';
-
-                    const prevButton = document.createElement('button');
-                    prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
-                    prevButton.textContent = 'ก่อนหน้า';
-                    prevButton.disabled = currentPageCompletedOperation === 1;
-                    prevButton.onclick = () => {
-                        currentPageCompletedOperation--;
-                        operationDisplayTasks(data);
-                    };
-
-                    const nextButton = document.createElement('button');
-                    nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
-                    nextButton.textContent = 'ถัดไป';
-                    nextButton.disabled = currentPageCompletedOperation === totalPagesCompleted;
-                    nextButton.onclick = () => {
-                        currentPageCompletedOperation++;
-                        operationDisplayTasks(data);
-                    };
-
-                    paginationDiv.appendChild(prevButton);
-                    paginationDiv.appendChild(nextButton);
-
+                    const paginationDiv = operationDisplayPagination(totalPagesCompleted, currentPageCompletedOperation, 'completed');
                     completedTasks.appendChild(paginationDiv);
                 }
             }
@@ -1171,7 +1132,7 @@
                     const detailsContent = document.getElementById('operation-details-content');
                     detailsContent.innerHTML = `
                         <p><strong>PO:</strong> ${row.idkey}</p>
-                        <p><strong>สถานะ:</strong> ${row.status}</p>
+                        <p><strong>สถานะ:</strong> ${operationTranslateStatus(row.status)}</p>
                         <p><strong>เวลาเริ่มงาน:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timeInside)}</p>
                         <p><strong>หมายเหตุ:</strong> ${row.insideNote || ''}</p>
                         <p><strong>เวลาดำเนินการ:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timeProcess)}</p>
@@ -1443,7 +1404,7 @@
             }
 
             /**
-             * ฟังก์ชันสำหรับแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
+             * ฟังก์ชันแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
              * @returns {string} - วันที่ในรูปแบบ YYYY-MM-DDTHH:mm
              */
             function operationGetCurrentDateTimeGMT7() {
@@ -1458,21 +1419,6 @@
                 const hours = String(gmt7Time.getHours()).padStart(2, '0');
                 const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
                 return `${year}-${month}-${day}T${hours}:${minutes}`;
-            }
-
-            /**
-             * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
-             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
-             * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
-             */
-            function operationParseDateDDMMYYYYHHmm(dateStr) {
-                if (!dateStr) return null;
-                const parts = dateStr.split(' ');
-                if (parts.length !== 2) return null;
-                const [datePart, timePart] = parts;
-                const [day, month, year] = datePart.split('/').map(Number);
-                const [hours, minutes] = timePart.split(':').map(Number);
-                return new Date(year, month - 1, day, hours, minutes);
             }
 
             /**
@@ -1496,6 +1442,21 @@
                 const hours = String(date.getHours()).padStart(2, '0');
                 const minutes = String(date.getMinutes()).padStart(2, '0');
                 return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            /**
+             * ฟังก์ชันแปลงวันที่จาก DD/MM/YYYY HH:mm เป็นวัตถุ Date
+             * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
+             * @returns {Date|null} - วัตถุ Date หรือ null หากไม่สามารถแปลงได้
+             */
+            function operationParseDateDDMMYYYYHHmm(dateStr) {
+                if (!dateStr) return null;
+                const parts = dateStr.split(' ');
+                if (parts.length !== 2) return null;
+                const [datePart, timePart] = parts;
+                const [day, month, year] = datePart.split('/').map(Number);
+                const [hours, minutes] = timePart.split(':').map(Number);
+                return new Date(year, month - 1, day, hours, minutes);
             }
 
             /**
@@ -1553,32 +1514,6 @@
                 paginationDiv.appendChild(nextButton);
 
                 return paginationDiv;
-            }
-
-            /**
-             * ฟังก์ชันแสดงข้อมูลในรูปแบบตารางสำหรับงานที่เสร็จสิ้น
-             */
-            function operationDisplayCompletedTable(data) {
-                const tableBody = document.querySelector('#operation-completed-tasks tbody');
-                tableBody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการสำเร็จ</td></tr>';
-                    return;
-                }
-
-                data.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="py-2 px-4 border text-center">${operationFormatDateToDDMMYYYYHHmm(row.Date)}</td>
-                        <td class="py-2 px-4 border text-center">${row.Name}</td>
-                        <td class="py-2 px-4 border text-center">${operationTranslateStatus(row.Status)}</td>
-                        <td class="flex flex-between text-xs py-2 px-4 border text-center">
-                            <button class="bg-purple-700 text-white py-1 px-3 rounded-lg hover:bg-purple-800 transition" onclick="operationOpenViewDetailsModal('${row.idkey}')">รายละเอียด</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
             }
 
             /**
@@ -1808,342 +1743,6 @@
             }
 
             /**
-             * ฟังก์ชันเปิด Modal สำหรับดูรายละเอียดข้อมูล
-             */
-            window.operationOpenViewDetailsModal = function(idkey) {
-                const row = operationTableData.find(row => row.idkey === idkey);
-                if (row) {
-                    const detailsContent = document.getElementById('operation-details-content');
-                    detailsContent.innerHTML = `
-                        <p><strong>PO:</strong> ${row.idkey}</p>
-                        <p><strong>สถานะ:</strong> ${operationTranslateStatus(row.status)}</p>
-                        <p><strong>เวลาเริ่มงาน:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timeInside)}</p>
-                        <p><strong>หมายเหตุ:</strong> ${row.insideNote || ''}</p>
-                        <p><strong>เวลาดำเนินการ:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timeProcess)}</p>
-                        <p><strong>หมายเหตุ:</strong> ${row.processNote || ''}</p>
-                        <p><strong>เวลาเสร็จสิ้น:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timeCompress)}</p>
-                        <p><strong>หมายเหตุ:</strong> ${row.compressNote || ''}</p>
-                        <p><strong>อัพโหลดรูป:</strong> ${row.compressPhoto ? `<a href="${row.compressPhoto}" target="_blank" class="text-blue-500 underline">ดูรูป</a>` : 'ไม่มี'}</p>
-                        <p><strong>ชื่อ:</strong> ${row.Name || ''}</p>
-                        <p><strong>ชื่อผู้ดูแล:</strong> ${row.Responsible || ''}</p>
-                        <p><strong>ผู้มอบหมาย:</strong> ${row.Admin || ''}</p>
-                        <p><strong>บันทึกเวลา:</strong> ${operationFormatDateToDDMMYYYYHHmm(row.timestamp)}</p>
-                    `;
-                    document.getElementById('operation-view-details-modal').classList.remove('hidden');
-                }
-            }
-
-            /**
-             * ฟังก์ชันเปิดโมดอลสำหรับเริ่มงาน
-             */
-            window.operationOpenStartJobModal = function(idkey) {
-                const row = operationTableData.find(row => row.idkey === idkey);
-                if (row) {
-                    document.getElementById('operation-start-job-idkey').value = row.idkey;
-                    document.getElementById('operation-start-time-inside').value = operationGetCurrentDateTimeGMT7();
-                    document.getElementById('operation-start-inside-note').value = row.insideNote || '';
-                    document.getElementById('operation-start-status').value = 'เริ่มงาน'; // ตั้งค่าสถานะเป็น 'เริ่มงาน'
-                    document.getElementById('operation-start-job-modal').classList.remove('hidden');
-                }
-            }
-
-            /**
-             * ฟังก์ชันเปิดโมดอลสำหรับดำเนินการ
-             */
-            window.operationOpenProcessJobModal = function(idkey) {
-                const row = operationTableData.find(row => row.idkey === idkey);
-                if (row) {
-                    document.getElementById('operation-process-job-idkey').value = row.idkey;
-                    document.getElementById('operation-process-time-process').value = operationGetCurrentDateTimeGMT7();
-                    document.getElementById('operation-process-process-note').value = row.processNote || '';
-                    document.getElementById('operation-process-status').value = 'กำลังดำเนินการ'; // ตั้งค่าสถานะเป็น 'กำลังดำเนินการ'
-                    document.getElementById('operation-process-job-modal').classList.remove('hidden');
-                }
-            }
-
-            /**
-             * ฟังก์ชันเปิดโมดอลสำหรับเสร็จสิ้นงาน
-             */
-            window.operationOpenCompleteJobModal = function(idkey) {
-                const row = operationTableData.find(row => row.idkey === idkey);
-                if (row) {
-                    document.getElementById('operation-complete-job-idkey').value = row.idkey;
-                    document.getElementById('operation-complete-time-compress').value = operationGetCurrentDateTimeGMT7();
-                    document.getElementById('operation-complete-compress-note').value = row.compressNote || '';
-                    document.getElementById('operation-complete-compress-photo').value = ''; // รีเซ็ตไฟล์
-                    document.getElementById('operation-complete-status').value = 'ดำเนินการสำเร็จ'; // ตั้งค่าสถานะเป็น 'ดำเนินการสำเร็จ'
-                    document.getElementById('operation-complete-job-modal').classList.remove('hidden');
-                }
-            }
-
-            /**
-             * ฟังก์ชันปิดโมดอลสำหรับเริ่มงาน
-             */
-            window.operationCloseStartJobModal = function() {
-                document.getElementById('operation-start-job-modal').classList.add('hidden');
-            }
-
-            /**
-             * ฟังก์ชันปิดโมดอลสำหรับดำเนินการ
-             */
-            window.operationCloseProcessJobModal = function() {
-                document.getElementById('operation-process-job-modal').classList.add('hidden');
-            }
-
-            /**
-             * ฟังก์ชันปิดโมดอลสำหรับเสร็จสิ้นงาน
-             */
-            window.operationCloseCompleteJobModal = function() {
-                document.getElementById('operation-complete-job-modal').classList.add('hidden');
-            }
-
-            /**
-             * ฟังก์ชันจัดการฟอร์มเสร็จสิ้นงาน
-             */
-            document.getElementById('operation-complete-job-form').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const submitButton = this.querySelector("button[type=submit]");
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = 'กำลังอัพเดท...';
-
-                const idkey = document.getElementById('operation-complete-job-idkey').value;
-                const status = document.getElementById('operation-complete-status').value;
-                const timeCompress = document.getElementById('operation-complete-time-compress').value;
-                const compressNote = document.getElementById('operation-complete-compress-note').value.trim();
-                const compressPhotoInput = document.getElementById('operation-complete-compress-photo');
-                const compressPhotoFile = compressPhotoInput.files[0];
-                let compressPhotoData = '';
-
-                if (compressPhotoFile) {
-                    // อ่านไฟล์เป็น base64
-                    compressPhotoData = await operationReadFileAsBase64(compressPhotoFile);
-                }
-
-                if (!idkey || !status || !timeCompress) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
-                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                    return;
-                }
-
-                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-                const formattedTimeCompress = operationFormatDateForSubmit(timeCompress);
-
-                try {
-                    let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(formattedTimeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
-                    if (compressPhotoData) {
-                        bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
-                    }
-
-                    const response = await fetch(WEB_APP_URL_OPERATION, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: bodyParams
-                    });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                        operationCloseCompleteJobModal();
-                        operationFetchData(operationCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                    }
-                } catch (error) {
-                    console.error('Error updating data:', error);
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                }
-            });
-
-            /**
-             * ฟังก์ชันจัดการฟอร์มเริ่มงาน
-             */
-            document.getElementById('operation-start-job-form').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const submitButton = this.querySelector("button[type=submit]");
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = 'กำลังอัพเดท...';
-
-                const idkey = document.getElementById('operation-start-job-idkey').value;
-                const status = document.getElementById('operation-start-status').value;
-                const timeInside = document.getElementById('operation-start-time-inside').value;
-                const insideNote = document.getElementById('operation-start-inside-note').value.trim();
-
-                if (!idkey || !status || !timeInside) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
-                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                    return;
-                }
-
-                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-                const formattedTimeInside = operationFormatDateForSubmit(timeInside);
-
-                try {
-                    const response = await fetch(WEB_APP_URL_OPERATION, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
-                    });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                        operationCloseStartJobModal();
-                        operationFetchData(operationCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                    }
-                } catch (error) {
-                    console.error('Error updating data:', error);
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                }
-            });
-
-            /**
-             * ฟังก์ชันจัดการฟอร์มดำเนินงาน
-             */
-            document.getElementById('operation-process-job-form').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const submitButton = this.querySelector("button[type=submit]");
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = 'กำลังอัพเดท...';
-
-                const idkey = document.getElementById('operation-process-job-idkey').value;
-                const status = document.getElementById('operation-process-status').value;
-                const timeProcess = document.getElementById('operation-process-time-process').value;
-                const processNote = document.getElementById('operation-process-process-note').value.trim();
-
-                if (!idkey || !status || !timeProcess) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
-                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                    return;
-                }
-
-                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-                const formattedTimeProcess = operationFormatDateForSubmit(timeProcess);
-
-                try {
-                    const response = await fetch(WEB_APP_URL_OPERATION, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `method=processJob&idkey=${encodeURIComponent(idkey)}&timeProcess=${encodeURIComponent(formattedTimeProcess)}&processNote=${encodeURIComponent(processNote)}&status=${encodeURIComponent(status)}`
-                    });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                        operationCloseProcessJobModal();
-                        operationFetchData(operationCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                    }
-                } catch (error) {
-                    console.error('Error updating data:', error);
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                }
-            });
-
-            /**
-             * ฟังก์ชันจัดการฟอร์มเสร็จสิ้นงาน
-             */
-            document.getElementById('operation-complete-job-form').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const submitButton = this.querySelector("button[type=submit]");
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = 'กำลังอัพเดท...';
-
-                const idkey = document.getElementById('operation-complete-job-idkey').value;
-                const status = document.getElementById('operation-complete-status').value;
-                const timeCompress = document.getElementById('operation-complete-time-compress').value;
-                const compressNote = document.getElementById('operation-complete-compress-note').value.trim();
-                const compressPhotoInput = document.getElementById('operation-complete-compress-photo');
-                const compressPhotoFile = compressPhotoInput.files[0];
-                let compressPhotoData = '';
-
-                if (compressPhotoFile) {
-                    // อ่านไฟล์เป็น base64
-                    compressPhotoData = await operationReadFileAsBase64(compressPhotoFile);
-                }
-
-                if (!idkey || !status || !timeCompress) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
-                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                    return;
-                }
-
-                // แปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-                const formattedTimeCompress = operationFormatDateForSubmit(timeCompress);
-
-                try {
-                    let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(formattedTimeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
-                    if (compressPhotoData) {
-                        bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
-                    }
-
-                    const response = await fetch(WEB_APP_URL_OPERATION, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: bodyParams
-                    });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                        operationCloseCompleteJobModal();
-                        operationFetchData(operationCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                    }
-                } catch (error) {
-                    console.error('Error updating data:', error);
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                }
-            });
-
-            /**
-             * ฟังก์ชันอ่านไฟล์เป็น base64
-             * @param {File} file 
-             * @returns {Promise<string>} - base64 string
-             */
-            function operationReadFileAsBase64(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        // แยกแค่ base64 string
-                        const base64 = e.target.result.split(',')[1];
-                        resolve(base64);
-                    };
-                    reader.onerror = function (e) {
-                        reject(e);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            /**
              * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
              * @param {string} dateStr - วันที่ในรูปแบบ DD/MM/YYYY HH:mm หรือ ISO string
              * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
@@ -2182,8 +1781,8 @@
             }
 
             /**
-             * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
-             * @param {string} dateStr - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
+             * ฟังก์ชันแปลงวันที่จาก datetime-local เป็น DD/MM/YYYY HH:mm
+             * @param {string} datetimeLocal - วันที่ในรูปแบบ datetime-local (YYYY-MM-DDTHH:mm)
              * @returns {string} - วันที่ในรูปแบบ DD/MM/YYYY HH:mm
              */
             function operationFormatDateForSubmit(datetimeLocal) {
