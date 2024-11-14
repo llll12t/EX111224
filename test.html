@@ -329,7 +329,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
         /* Tab Switching Logic */
         document.addEventListener('DOMContentLoaded', function() {
@@ -351,8 +350,10 @@
                     tabOrderContent.classList.remove('hidden');
                     tabOperationContent.classList.add('hidden');
 
-                    // โหลดข้อมูลการสั่งซื้อ (ถ้าจำเป็น)
-                    loadOrderData();
+                    // โหลดข้อมูลการสั่งซื้อ (ถ้ายังไม่ถูกโหลด)
+                    if (!window.orderInitialized) {
+                        window.orderInitialize();
+                    }
                 } else if (tab === 'operation') {
                     // เปลี่ยนคลาสแท็บ
                     tabOperation.classList.add('active-tab');
@@ -364,8 +365,10 @@
                     tabOperationContent.classList.remove('hidden');
                     tabOrderContent.classList.add('hidden');
 
-                    // โหลดข้อมูลการดำเนินการ (ถ้าจำเป็น)
-                    loadOperationData();
+                    // โหลดข้อมูลการดำเนินการ (ถ้ายังไม่ถูกโหลด)
+                    if (!window.operationInitialized) {
+                        window.operationInitialize();
+                    }
                 }
             }
 
@@ -380,8 +383,9 @@
 
             // โหลดข้อมูลแท็บเริ่มต้น
             activateTab('order');
-
         });
+    </script>
+    <script>
         /* -------------------- HTML1 Scripts (Order Management) -------------------- */
         (function() {
             const WEB_APP_URL_ORDER = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
