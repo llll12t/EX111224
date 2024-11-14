@@ -45,7 +45,7 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-ml mx-auto">
+    <div class="max-w-5xl mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
             <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
@@ -387,483 +387,509 @@
     <script>
         /* -------------------- HTML1 Scripts (Order Management) -------------------- */
         (function() {
-        const WEB_APP_URL_ORDER = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
-        const LIFF_ID_ORDER = '2006504113-lVYLV6Xe'; // เปลี่ยนเป็น LIFF ID ของคุณ
+            const WEB_APP_URL_ORDER = 'https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec'; // เปลี่ยนเป็น URL ของ Google Apps Script Web App ของคุณ
+            const LIFF_ID_ORDER = '2006504113-lVYLV6Xe'; // เปลี่ยนเป็น LIFF ID ของคุณ
 
-        let orderTableData = []; 
-        let orderFilteredData = [];
-        let orderCompletedData = [];
-        let orderCurrentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
-        let currentOrderPage = 1;
-        const orderRowsPerPage = 10;
-        let orderTotalPages = 1;
-        let isOrderSubmitting = false; // ตัวแปรเพื่อป้องกันการส่งข้อมูลซ้ำใน takeJob
+            let orderTableData = []; 
+            let orderFilteredData = [];
+            let orderCompletedData = [];
+            let orderCurrentUserId = ''; // ตัวแปรเก็บ userId ปัจจุบัน
+            let currentOrderPage = 1;
+            const orderRowsPerPage = 10;
+            let orderTotalPages = 1;
+            let isOrderSubmitting = false; // ตัวแปรเพื่อป้องกันการส่งข้อมูลซ้ำใน takeJob
 
-        /**
-         * ฟังก์ชันเริ่มต้น LIFF
-         */
-        async function orderInitializeLiff() {
-            try {
-                await liff.init({ liffId: LIFF_ID_ORDER });
-                if (liff.isLoggedIn()) {
-                    orderGetUserProfile();
-                } else {
-                    liff.login(); // ทำการล็อกอินถ้ายังไม่ได้ล็อกอิน
-                }
-            } catch (error) {
-                console.error('LIFF Initialization failed', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
-            }
-        }
-
-        /**
-         * ฟังก์ชันดึงข้อมูลโปรไฟล์ผู้ใช้จาก LIFF
-         */
-        async function orderGetUserProfile() {
-            try {
-                const profile = await liff.getProfile();
-                const userId = profile.userId;
-                orderCurrentUserId = userId;
-                console.log('User ID:', userId); // สำหรับการดีบัก
-                orderFetchData(userId); // ดึงและกรองข้อมูลตาม userId
-            } catch (error) {
-                console.error('Error getting profile data:', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้' });
-            }
-        }
-
-        /**
-         * ฟังก์ชันดึงข้อมูลจาก Google Sheets
-         * @param {string} userId - userId ของผู้ใช้
-         */
-        async function orderFetchData(userId) {
-            document.getElementById('order-loading-message').style.display = 'block';
-            try {
-                const response = await fetch(`${WEB_APP_URL_ORDER}?sheet=Data`);
-                const result = await response.json();
-                if (result.success) {
-                    orderTableData = result.data;
-                    console.log('Data fetched:', orderTableData); // สำหรับการดีบัก
-                    orderApplyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
-                } else {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
-            } finally {
-                document.getElementById('order-loading-message').style.display = 'none';
-            }
-        }
-
-        /**
-         * ฟังก์ชันแสดงข้อมูลในรูปแบบ Card
-         */
-        function orderDisplayCards(data) {
-            const cardContainer = document.querySelector('#order-card-container'); // Container สำหรับ card
-            cardContainer.innerHTML = ''; // ล้างเนื้อหาเดิม
-
-            if (data.length === 0) {
-                cardContainer.innerHTML = '<p class="text-center text-gray-500">ไม่มีข้อมูลที่จะแสดง</p>';
-                return;
-            }
-
-            data.forEach(row => {
-                // สร้าง card container
-                const card = document.createElement('div');
-                card.className = 'border border-green-700 rounded-lg p-4 mb-4 shadow-md bg-white';
-
-                // สร้าง grid สำหรับแถวที่ 1 (วันที่, ชื่อ, สถานะ)
-                const topRow = document.createElement('div');
-                topRow.className = 'grid grid-cols-3 gap-4 mb-4 ';
-
-                // วันที่
-                const dateDiv = document.createElement('div');
-                dateDiv.className = 'text-xs text-gray-500';
-                dateDiv.textContent = 'วันที่';
-                const dateValue = document.createElement('div');
-                dateValue.className = 'text-sm text-gray-800';
-                dateValue.textContent = orderFormatDate(row.Date);
-
-                // ชื่อ
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'text-xs text-gray-500';
-                nameDiv.textContent = 'ชื่อ';
-                const nameValue = document.createElement('div');
-                nameValue.className = 'text-sm text-gray-800';
-                nameValue.textContent = row.Name;
-
-                // สถานะ
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'text-xs text-gray-500';
-                statusDiv.textContent = 'สถานะ';
-                const statusValue = document.createElement('div');
-                statusValue.className = 'text-sm text-gray-800';
-                statusValue.textContent = orderTranslateStatus(row.Status);
-
-                // เพิ่มส่วนต่างๆ ลงใน topRow
-                const dateContainer = document.createElement('div');
-                dateContainer.appendChild(dateDiv);
-                dateContainer.appendChild(dateValue);
-                topRow.appendChild(dateContainer);
-
-                const nameContainer = document.createElement('div');
-                nameContainer.appendChild(nameDiv);
-                nameContainer.appendChild(nameValue);
-                topRow.appendChild(nameContainer);
-
-                const statusContainer = document.createElement('div');
-                statusContainer.appendChild(statusDiv);
-                statusContainer.appendChild(statusValue);
-                topRow.appendChild(statusContainer);
-
-                // สร้าง grid สำหรับแถวที่ 2 (ปุ่มต่างๆ)
-                const bottomRow = document.createElement('div');
-                bottomRow.className = 'grid grid-cols-3 gap-4 text-sm';
-
-                // ปุ่มรายละเอียด
-                const detailsButton = document.createElement('button');
-                detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full';
-                detailsButton.textContent = 'รายละเอียด';
-                detailsButton.onclick = () => window.orderViewDetails(row.IDkey); // เชื่อมต่อกับ window
-                detailsButton.setAttribute('aria-label', `ดูรายละเอียดของงาน ${row.Name}`);
-
-                // ปุ่มแจ้งเรื่อง
-                const editButton = document.createElement('button');
-                editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full';
-                editButton.textContent = 'แจ้งเรื่อง';
-                editButton.onclick = () => window.orderOpenEditModal(row.IDkey); // เชื่อมต่อกับ window
-
-                // ปุ่มยืนยัน (รับงาน)
-                const confirmButton = document.createElement('button');
-                const isDisabled = ['เริ่มงาน', 'กำลังดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
-                confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
-                confirmButton.textContent = 'ยืนยัน';
-                if (!isDisabled) {
-                    confirmButton.onclick = () => window.orderTakeJob(row.IDkey); // เชื่อมต่อกับ window
-                }
-                confirmButton.disabled = isDisabled;
-
-                // เพิ่มปุ่มทั้งหมดลงใน bottomRow
-                bottomRow.appendChild(detailsButton);
-                bottomRow.appendChild(editButton);
-                bottomRow.appendChild(confirmButton);
-
-                // นำ topRow และ bottomRow มารวมกันใน card
-                card.appendChild(topRow);
-                card.appendChild(bottomRow);
-
-                // เพิ่ม card ลงใน container
-                cardContainer.appendChild(card);
-            });
-        }
-
-        /**
-         * ฟังก์ชันแสดงข้อมูลในรูปแบบตารางสำหรับงานที่เสร็จสิ้น
-         */
-        function orderDisplayCompletedTable(data) {
-            const tableBody = document.querySelector('#order-completed-table tbody');
-            tableBody.innerHTML = '';
-
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการสำเร็จ</td></tr>';
-                return;
-            }
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="py-2 px-4 border text-center">${row.Name}</td>
-                    <td class="py-2 px-4 border text-center">${orderTranslateStatus(row.Status)}</td>
-                    <td class="flex justify-between text-xs py-2 px-4 border text-center"> <!-- แก้ไข 'jutify-between' เป็น 'justify-between' -->
-                        <button class="bg-purple-700 text-white py-1 px-3 rounded-lg hover:bg-purple-800 transition" onclick="window.orderViewDetails('${row.IDkey}')">รายละเอียด</button>
-                        <button class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="window.orderOpenEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        /**
-         * ฟังก์ชันดูรายละเอียดข้อมูล
-         */
-        window.orderViewDetails = function(idkey) { // แนบไปยัง window
-            const row = orderTableData.find(row => row.IDkey === idkey);
-            if (row) {
-                Swal.fire({
-                    title: 'รายละเอียด',
-                    html: `
-                        <div style="text-align: left;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อหมู่บ้าน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Village}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderFormatDate(row.Date)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderTranslateStatus(row.Status)}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
-                                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
-                            </table>
-                        </div>
-                    `,
-                    confirmButtonText: 'ปิด'
-                });
-            }
-        }
-
-        /**
-         * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
-         */
-        window.orderOpenEditModal = function(idkey) { // แนบไปยัง window
-            const row = orderTableData.find(row => row.IDkey === idkey);
-            if (row) {
-                document.getElementById('order-edit-idkey').value = row.IDkey;
-                document.getElementById('order-edit-status').value = row.Status;
-                document.getElementById('order-edit-responsible').value = row.Responsible;
-                document.getElementById('order-edit-admin-note').value = row.adminNote;
-                document.getElementById('order-edit-modal').classList.remove('hidden');
-            }
-        }
-
-        /**
-         * ฟังก์ชันปิดโมดอล
-         */
-        window.orderCloseModal = function() {
-            document.getElementById('order-edit-modal').classList.add('hidden');
-        }
-
-        /**
-         * ฟังก์ชันจัดการฟอร์มแก้ไขข้อมูล
-         */
-        document.getElementById('order-edit-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const submitButton = this.querySelector("button[type=submit]");
-            const originalText = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.textContent = 'กำลังอัพเดท...';
-
-            const idkey = document.getElementById('order-edit-idkey').value;
-            const status = document.getElementById('order-edit-status').value;
-            const responsible = document.getElementById('order-edit-responsible').value.trim();
-            const adminNote = document.getElementById('order-edit-admin-note').value.trim();
-
-            if (!idkey || !status || !responsible || !adminNote) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
-                Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
-                return;
-            }
-
-            try {
-                const response = await fetch(WEB_APP_URL_ORDER, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
-                    orderCloseModal();
-                    orderFetchData(orderCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
-                } else {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
-                }
-            } catch (error) {
-                console.error('Error updating data:', error);
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
-            }
-        });
-
-        /**
-         * ฟังก์ชันรับงาน
-         */
-        window.orderTakeJob = async function(idkey) { // แนบไปยัง window
-            if (isOrderSubmitting) {
-                // หากกำลังส่งข้อมูลอยู่แล้ว ไม่ทำอะไร
-                return;
-            }
-            isOrderSubmitting = true; // ตั้งค่าว่ากำลังส่งข้อมูลอยู่
-
-            Swal.fire({
-                title: 'ยืนยันการรับงาน?',
-                text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, รับงาน',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    // ปิด SweetAlert2 เพื่อแสดงข้อความกำลังอัพเดท
-                    Swal.fire({
-                        title: 'กำลังอัพเดท...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    try {
-                        const response = await fetch(WEB_APP_URL_ORDER, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
-                        });
-                        const resultData = await response.json();
-
-                        if (resultData.success) {
-                            Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
-                            orderFetchData(orderCurrentUserId);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
-                        }
-                    } catch (error) {
-                        console.error('Error updating data:', error);
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-                    } finally {
-                        isOrderSubmitting = false; // รีเซ็ตตัวแปรหลังจากส่งข้อมูลเสร็จสิ้น
+            /**
+             * ฟังก์ชันเริ่มต้น LIFF
+             */
+            async function orderInitializeLiff() {
+                try {
+                    await liff.init({ liffId: LIFF_ID_ORDER });
+                    if (liff.isLoggedIn()) {
+                        orderGetUserProfile();
+                    } else {
+                        liff.login(); // ทำการล็อกอินถ้ายังไม่ได้ล็อกอิน
                     }
-                } else {
-                    isOrderSubmitting = false; // รีเซ็ตตัวแปรถ้าผู้ใช้ยกเลิก
+                } catch (error) {
+                    console.error('LIFF Initialization failed', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
+                }
+            }
+
+            /**
+             * ฟังก์ชันดึงข้อมูลโปรไฟล์ผู้ใช้จาก LIFF
+             */
+            async function orderGetUserProfile() {
+                try {
+                    const profile = await liff.getProfile();
+                    const userId = profile.userId;
+                    orderCurrentUserId = userId;
+                    console.log('User ID:', userId); // สำหรับการดีบัก
+                    orderFetchData(userId); // ดึงและกรองข้อมูลตาม userId
+                } catch (error) {
+                    console.error('Error getting profile data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้' });
+                }
+            }
+
+            /**
+             * ฟังก์ชันดึงข้อมูลจาก Google Sheets
+             * @param {string} userId - userId ของผู้ใช้
+             */
+            async function orderFetchData(userId) {
+                document.getElementById('order-loading-message').style.display = 'block';
+                try {
+                    const response = await fetch(`${WEB_APP_URL_ORDER}?sheet=Data`);
+                    const result = await response.json();
+                    if (result.success) {
+                        orderTableData = result.data;
+                        console.log('Data fetched:', orderTableData); // สำหรับการดีบัก
+                        orderApplyFilters(); // แสดงข้อมูลหลังจากดึงมาเรียบร้อยแล้ว
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+                } finally {
+                    document.getElementById('order-loading-message').style.display = 'none';
+                }
+            }
+
+            /**
+             * ฟังก์ชันแสดงข้อมูลในรูปแบบ Card
+             */
+            function orderDisplayCards(data) {
+                const cardContainer = document.querySelector('#order-card-container'); // Container สำหรับ card
+                cardContainer.innerHTML = ''; // ล้างเนื้อหาเดิม
+
+                if (data.length === 0) {
+                    cardContainer.innerHTML = '<p class="text-center text-gray-500">ไม่มีข้อมูลที่จะแสดง</p>';
+                    return;
+                }
+
+                data.forEach(row => {
+                    // สร้าง card container
+                    const card = document.createElement('div');
+                    card.className = 'border border-green-700 rounded-lg p-4 mb-4 shadow-md bg-white';
+
+                    // สร้าง grid สำหรับแถวที่ 1 (วันที่, ชื่อ, สถานะ)
+                    const topRow = document.createElement('div');
+                    topRow.className = 'grid grid-cols-3 gap-4 mb-4 ';
+
+                    // วันที่
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = 'text-xs text-gray-500';
+                    dateDiv.textContent = 'วันที่';
+                    const dateValue = document.createElement('div');
+                    dateValue.className = 'text-sm text-gray-800';
+                    dateValue.textContent = orderFormatDate(row.Date);
+
+                    // ชื่อ
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'text-xs text-gray-500';
+                    nameDiv.textContent = 'ชื่อ';
+                    const nameValue = document.createElement('div');
+                    nameValue.className = 'text-sm text-gray-800';
+                    nameValue.textContent = row.Name;
+
+                    // สถานะ
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'text-xs text-gray-500';
+                    statusDiv.textContent = 'สถานะ';
+                    const statusValue = document.createElement('div');
+                    statusValue.className = 'text-sm text-gray-800';
+                    statusValue.textContent = orderTranslateStatus(row.Status);
+
+                    // เพิ่มส่วนต่างๆ ลงใน topRow
+                    const dateContainer = document.createElement('div');
+                    dateContainer.appendChild(dateDiv);
+                    dateContainer.appendChild(dateValue);
+                    topRow.appendChild(dateContainer);
+
+                    const nameContainer = document.createElement('div');
+                    nameContainer.appendChild(nameDiv);
+                    nameContainer.appendChild(nameValue);
+                    topRow.appendChild(nameContainer);
+
+                    const statusContainer = document.createElement('div');
+                    statusContainer.appendChild(statusDiv);
+                    statusContainer.appendChild(statusValue);
+                    topRow.appendChild(statusContainer);
+
+                    // สร้าง grid สำหรับแถวที่ 2 (ปุ่มต่างๆ)
+                    const bottomRow = document.createElement('div');
+                    bottomRow.className = 'grid grid-cols-3 gap-4 text-sm';
+
+                    // ปุ่มรายละเอียด
+                    const detailsButton = document.createElement('button');
+                    detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full';
+                    detailsButton.textContent = 'รายละเอียด';
+                    detailsButton.onclick = () => orderViewDetails(row.IDkey);
+                    detailsButton.setAttribute('aria-label', `ดูรายละเอียดของงาน ${row.Name}`);
+
+                    // ปุ่มแจ้งเรื่อง
+                    const editButton = document.createElement('button');
+                    editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full';
+                    editButton.textContent = 'แจ้งเรื่อง';
+                    editButton.onclick = () => orderOpenEditModal(row.IDkey);
+
+                    // ปุ่มยืนยัน (รับงาน)
+                    const confirmButton = document.createElement('button');
+                    const isDisabled = ['เริ่มงาน', 'กำลังดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
+                    confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
+                    confirmButton.textContent = 'ยืนยัน';
+                    if (!isDisabled) {
+                        confirmButton.onclick = () => orderTakeJob(row.IDkey);
+                    }
+                    confirmButton.disabled = isDisabled;
+
+                    // เพิ่มปุ่มทั้งหมดลงใน bottomRow
+                    bottomRow.appendChild(detailsButton);
+                    bottomRow.appendChild(editButton);
+                    bottomRow.appendChild(confirmButton);
+
+                    // นำ topRow และ bottomRow มารวมกันใน card
+                    card.appendChild(topRow);
+                    card.appendChild(bottomRow);
+
+                    // เพิ่ม card ลงใน container
+                    cardContainer.appendChild(card);
+                });
+            }
+
+            /**
+             * ฟังก์ชันแสดงข้อมูลในรูปแบบตารางสำหรับงานที่เสร็จสิ้น
+             */
+            function orderDisplayCompletedTable(data) {
+                const tableBody = document.querySelector('#order-completed-table tbody');
+                tableBody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการสำเร็จ</td></tr>';
+                    return;
+                }
+
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2 px-4 border text-center">${row.Name}</td>
+                        <td class="py-2 px-4 border text-center">${orderTranslateStatus(row.Status)}</td>
+                        <td class="flex jutify-between text-xs py-2 px-4 border text-center">
+                            <button class="bg-purple-700 text-white py-1 px-3 rounded-lg hover:bg-purple-800 transition" onclick="orderViewDetails('${row.IDkey}')">รายละเอียด</button>
+                            <button class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="orderOpenEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            /**
+             * ฟังก์ชันแปลสถานะจากภาษาอังกฤษเป็นภาษาไทย
+             */
+            function orderTranslateStatus(status) {
+                switch(status.toLowerCase()) {
+                    case 'อนุมัติ': return 'อนุมัติ';
+                    case 'ยกเลิก': return 'ยกเลิก';
+                    case 'ปฏิเสธ': return 'ปฏิเสธ';
+                    case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
+                    case 'เสร็จสิ้น': return 'เสร็จสิ้น';
+                    default: return status;
+                }
+            }
+
+            /**
+             * ฟังก์ชันแปลงวันที่เป็นรูปแบบ DD/MM/YYYY HH:mm
+             */
+            function orderFormatDate(dateString) {
+                const date = new Date(dateString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            /**
+             * ฟังก์ชันดูรายละเอียดข้อมูล
+             */
+            function orderViewDetails(idkey) {
+                const row = orderTableData.find(row => row.IDkey === idkey);
+                if (row) {
+                    Swal.fire({
+                        title: 'รายละเอียด',
+                        html: `
+                            <div style="text-align: left;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อหมู่บ้าน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Village}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderFormatDate(row.Date)}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderTranslateStatus(row.Status)}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
+                                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
+                                </table>
+                            </div>
+                        `,
+                        confirmButtonText: 'ปิด'
+                    });
+                }
+            }
+
+            /**
+             * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
+             */
+            function orderOpenEditModal(idkey) {
+                const row = orderTableData.find(row => row.IDkey === idkey);
+                if (row) {
+                    document.getElementById('order-edit-idkey').value = row.IDkey;
+                    document.getElementById('order-edit-status').value = row.Status;
+                    document.getElementById('order-edit-responsible').value = row.Responsible;
+                    document.getElementById('order-edit-admin-note').value = row.adminNote;
+                    document.getElementById('order-edit-modal').classList.remove('hidden');
+                }
+            }
+
+            /**
+             * ฟังก์ชันปิดโมดอล
+             */
+            window.orderCloseModal = function() {
+                document.getElementById('order-edit-modal').classList.add('hidden');
+            }
+
+            /**
+             * ฟังก์ชันจัดการฟอร์มแก้ไขข้อมูล
+             */
+            document.getElementById('order-edit-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const submitButton = this.querySelector("button[type=submit]");
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'กำลังอัพเดท...';
+
+                const idkey = document.getElementById('order-edit-idkey').value;
+                const status = document.getElementById('order-edit-status').value;
+                const responsible = document.getElementById('order-edit-responsible').value.trim();
+                const adminNote = document.getElementById('order-edit-admin-note').value.trim();
+
+                if (!idkey || !status || !responsible || !adminNote) { // เพิ่มเงื่อนไขการตรวจสอบขั้นต่ำ
+                    Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                    return;
+                }
+
+                try {
+                    const response = await fetch(WEB_APP_URL_ORDER, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+                        orderCloseModal();
+                        orderFetchData(orderCurrentUserId); // รีเฟรชข้อมูลหลังจากอัปเดต
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+                    }
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
                 }
             });
-        }
 
-        /**
-         * ฟังก์ชันกรองข้อมูล
-         */
-        function orderApplyFilters() {
-            const filterName = document.getElementById('order-filter-name').value.toLowerCase();
-            const filterStatus = document.getElementById('order-filter-status').value.toLowerCase();
-            const sortOrder = document.getElementById('order-sort-order').value;
+            /**
+             * ฟังก์ชันรับงาน
+             */
+            window.orderTakeJob = async function(idkey) {
+                if (isOrderSubmitting) {
+                    // หากกำลังส่งข้อมูลอยู่แล้ว ไม่ทำอะไร
+                    return;
+                }
+                isOrderSubmitting = true; // ตั้งค่าว่ากำลังส่งข้อมูลอยู่
 
-            // Filter by name, status, and userId
-            orderFilteredData = orderTableData.filter(row => {
-                const matchesName = row.Name.toLowerCase().includes(filterName);
-                const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-                const matchesUserId = row.UserIDresponsible === orderCurrentUserId; // เงื่อนไขกรองตาม userId
-                return matchesName && matchesStatus && matchesUserId;
-            });
+                Swal.fire({
+                    title: 'ยืนยันการรับงาน?',
+                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'ใช่, รับงาน',
+                    cancelButtonText: 'ยกเลิก'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        // ปิด SweetAlert2 เพื่อแสดงข้อความกำลังอัพเดท
+                        Swal.fire({
+                            title: 'กำลังอัพเดท...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
 
-            // แยกข้อมูลเป็นสองกลุ่ม: กำลังดำเนินการและเสร็จสิ้น
-            const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
-            orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
+                        try {
+                            const response = await fetch(WEB_APP_URL_ORDER, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
+                            });
+                            const resultData = await response.json();
 
-            // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
-            if (sortOrder === 'newest') {
-                pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-                orderCompletedData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-            } else if (sortOrder === 'oldest') {
-                pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
-                orderCompletedData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+                            if (resultData.success) {
+                                Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
+                                orderFetchData(orderCurrentUserId);
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
+                            }
+                        } catch (error) {
+                            console.error('Error updating data:', error);
+                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+                        } finally {
+                            isOrderSubmitting = false; // รีเซ็ตตัวแปรหลังจากส่งข้อมูลเสร็จสิ้น
+                        }
+                    } else {
+                        isOrderSubmitting = false; // รีเซ็ตตัวแปรถ้าผู้ใช้ยกเลิก
+                    }
+                });
             }
 
-            // คำนวณจำนวนหน้าทั้งหมดสำหรับการแบ่งหน้า
-            orderTotalPages = Math.ceil(pendingTasks.length / orderRowsPerPage);
-            currentOrderPage = 1;
-            orderSetupPagination();
+            /**
+             * ฟังก์ชันกรองข้อมูล
+             */
+            function orderApplyFilters() {
+                const filterName = document.getElementById('order-filter-name').value.toLowerCase();
+                const filterStatus = document.getElementById('order-filter-status').value.toLowerCase();
+                const sortOrder = document.getElementById('order-sort-order').value;
 
-            // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
-            const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
-            orderDisplayCards(paginatedData);
+                // Filter by name, status, and userId
+                orderFilteredData = orderTableData.filter(row => {
+                    const matchesName = row.Name.toLowerCase().includes(filterName);
+                    const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
+                    const matchesUserId = row.UserIDresponsible === orderCurrentUserId; // เงื่อนไขกรองตาม userId
+                    return matchesName && matchesStatus && matchesUserId;
+                });
 
-            // แสดงข้อมูลตารางสำหรับงานที่เสร็จสิ้น
-            orderDisplayCompletedTable(orderCompletedData);
-        }
+                // แยกข้อมูลเป็นสองกลุ่ม: กำลังดำเนินการและเสร็จสิ้น
+                const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+                orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
 
-        /**
-         * ฟังก์ชันตั้งค่าการแบ่งหน้า
-         */
-        function orderSetupPagination() {
-            const pageNumbersContainer = document.getElementById('order-page-numbers');
-            pageNumbersContainer.innerHTML = '';
+                // เรียงข้อมูลตามตัวเลือกการเรียงลำดับ
+                if (sortOrder === 'newest') {
+                    pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                    orderCompletedData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                } else if (sortOrder === 'oldest') {
+                    pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+                    orderCompletedData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+                }
 
-            for (let i = 1; i <= orderTotalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.innerText = i;
-                pageButton.className = `px-3 py-1 rounded-lg ${i === currentOrderPage ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`;
-                pageButton.onclick = () => orderChangePage(i);
-                pageNumbersContainer.appendChild(pageButton);
+                // คำนวณจำนวนหน้าทั้งหมดสำหรับการแบ่งหน้า
+                orderTotalPages = Math.ceil(pendingTasks.length / orderRowsPerPage);
+                currentOrderPage = 1;
+                orderSetupPagination();
+
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+                const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
+                orderDisplayCards(paginatedData);
+
+                // แสดงข้อมูลตารางสำหรับงานที่เสร็จสิ้น
+                orderDisplayCompletedTable(orderCompletedData);
             }
 
-            // ปรับสถานะปุ่มก่อนหน้าและถัดไป
-            document.getElementById('order-prev-page').disabled = currentOrderPage === 1;
-            document.getElementById('order-next-page').disabled = currentOrderPage === orderTotalPages;
-        }
+            /**
+             * ฟังก์ชันตั้งค่าการแบ่งหน้า
+             */
+            function orderSetupPagination() {
+                const pageNumbersContainer = document.getElementById('order-page-numbers');
+                pageNumbersContainer.innerHTML = '';
 
-        /**
-         * ฟังก์ชันเปลี่ยนหน้า
-         * @param {number} page - หน้าที่ต้องการเปลี่ยนไป
-         */
-        function orderChangePage(page) {
-            if (page < 1 || page > orderTotalPages) return;
-            currentOrderPage = page;
-            orderSetupPagination();
+                for (let i = 1; i <= orderTotalPages; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.innerText = i;
+                    pageButton.className = `px-3 py-1 rounded-lg ${i === currentOrderPage ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`;
+                    pageButton.onclick = () => orderChangePage(i);
+                    pageNumbersContainer.appendChild(pageButton);
+                }
 
-            // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
-            const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
-            const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
-            orderDisplayCards(paginatedData);
-        }
+                // ปรับสถานะปุ่มก่อนหน้าและถัดไป
+                document.getElementById('order-prev-page').disabled = currentOrderPage === 1;
+                document.getElementById('order-next-page').disabled = currentOrderPage === orderTotalPages;
+            }
 
-        /**
-         * ฟังก์ชันแบ่งข้อมูลตามหน้า
-         * @param {Array} data - ข้อมูลทั้งหมด
-         * @param {number} page - หน้าปัจจุบัน
-         * @returns {Array} - ข้อมูลที่อยู่ในหน้าปัจจุบัน
-         */
-        function orderPaginateData(data, page) {
-            const start = (page - 1) * orderRowsPerPage;
-            const end = start + orderRowsPerPage;
-            return data.slice(start, end);
-        }
+            /**
+             * ฟังก์ชันเปลี่ยนหน้า
+             * @param {number} page - หน้าที่ต้องการเปลี่ยนไป
+             */
+            function orderChangePage(page) {
+                if (page < 1 || page > orderTotalPages) return;
+                currentOrderPage = page;
+                orderSetupPagination();
 
-        /**
-         * ฟังก์ชันเริ่มต้นเมื่อโหลดหน้า
-         */
-        window.orderInitialize = function() {
-            orderInitializeLiff(); // เริ่มต้น LIFF
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+                const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+                const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
+                orderDisplayCards(paginatedData);
+            }
 
-            // เพิ่ม Event Listeners สำหรับฟิลเตอร์ที่ยังเหลืออยู่
-            document.getElementById('order-filter-name').addEventListener('input', orderApplyFilters);
-            document.getElementById('order-filter-status').addEventListener('change', orderApplyFilters);
-            document.getElementById('order-sort-order').addEventListener('change', orderApplyFilters);
-        };
+            /**
+             * ฟังก์ชันแบ่งข้อมูลตามหน้า
+             * @param {Array} data - ข้อมูลทั้งหมด
+             * @param {number} page - หน้าปัจจุบัน
+             * @returns {Array} - ข้อมูลที่อยู่ในหน้าปัจจุบัน
+             */
+            function orderPaginateData(data, page) {
+                const start = (page - 1) * orderRowsPerPage;
+                const end = start + orderRowsPerPage;
+                return data.slice(start, end);
+            }
 
-        /* Initialize Order Management on Load */
-        window.addEventListener('load', orderInitialize);
+            /**
+             * ฟังก์ชันเริ่มต้นเมื่อโหลดหน้า
+             */
+            window.orderInitialize = function() {
+                orderInitializeLiff(); // เริ่มต้น LIFF
 
-        /**
-         * ฟังก์ชันแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
-         * @returns {string} - วันที่ในรูปแบบ YYYY-MM-DDTHH:mm
-         */
-        function orderGetCurrentDateTimeGMT7() {
-            const now = new Date();
-            // แปลงเวลาเป็น UTC
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            // แปลงเวลาเป็น GMT+7
-            const gmt7Time = new Date(utc + (7 * 3600000));
-            const year = gmt7Time.getFullYear();
-            const month = String(gmt7Time.getMonth() + 1).padStart(2, '0');
-            const day = String(gmt7Time.getDate()).padStart(2, '0');
-            const hours = String(gmt7Time.getHours()).padStart(2, '0');
-            const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-        }
-    })();
+                // เพิ่ม Event Listeners สำหรับฟิลเตอร์ที่ยังเหลืออยู่
+                document.getElementById('order-filter-name').addEventListener('input', orderApplyFilters);
+                document.getElementById('order-filter-status').addEventListener('change', orderApplyFilters);
+                document.getElementById('order-sort-order').addEventListener('change', orderApplyFilters);
+            };
 
+            /* Initialize Order Management on Load */
+            window.addEventListener('load', orderInitialize);
+
+            /**
+             * ฟังก์ชันแปลงวันที่เป็น GMT+7 และฟอร์แมตให้เข้ากับ datetime-local
+             * @returns {string} - วันที่ในรูปแบบ YYYY-MM-DDTHH:mm
+             */
+            function orderGetCurrentDateTimeGMT7() {
+                const now = new Date();
+                // แปลงเวลาเป็น UTC
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                // แปลงเวลาเป็น GMT+7
+                const gmt7Time = new Date(utc + (7 * 3600000));
+                const year = gmt7Time.getFullYear();
+                const month = String(gmt7Time.getMonth() + 1).padStart(2, '0');
+                const day = String(gmt7Time.getDate()).padStart(2, '0');
+                const hours = String(gmt7Time.getHours()).padStart(2, '0');
+                const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+        })();
 
         /* -------------------- HTML2 Scripts (Operation Management) -------------------- */
         (function() {
