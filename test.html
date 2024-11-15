@@ -38,7 +38,7 @@
         }
         /* สีพื้นหลังสำหรับแท็บที่ไม่ถูกเลือก */
         .inactive-tab {
-            background-color: #f3f4f6; /* สีเทาอ่อน */
+            background-color: #c0f7e6; /* สีเทาอ่อน */
             border-color: transparent;
             color: #4b5563; /* สีเทาเข้ม */
         }
@@ -48,8 +48,8 @@
     <div class="max-w-5xl mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
-            <button id="tab-order" class="py-2 px-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
-            <button id="tab-operation" class="py-2 px-4 border-b-2 rounded-lg inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
+            <button id="tab-order" class="p-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
+            <button id="tab-operation" class="p-4 border-b-2 rounded-lg inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
         </div>
 
 
@@ -1104,9 +1104,9 @@
                             break;
                         case 'เริ่มงาน':
                             startButton.disabled = true;
-                            processButton.disabled = true;
+                            completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
-                            processButton.classList.add('disabled-button');
+                            completeButton.classList.add('disabled-button');
                             break;
                         case 'กำลังดำเนินการ':
                             startButton.disabled = true;
