@@ -45,11 +45,11 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-md mx-auto">
         <!-- Tab Navigation -->
         <div class="flex border-b mb-4">
-            <button id="tab-order" class="p-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
-            <button id="tab-operation" class="p-4 border-b-2 rounded-lg inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
+            <button id="tab-order" class="w-1/2 p-4 -mb-px border-b-2 rounded-lg active-tab focus:outline-none">จัดการข้อมูลการสั่งซื้อ</button>
+            <button id="tab-operation" class="w-1/2 p-4 border-b-2 rounded-lg inactive-tab focus:outline-none">จัดการข้อมูลการดำเนินการ</button>
         </div>
 
 
@@ -575,9 +575,9 @@
                     tr.innerHTML = `
                         <td class="py-2 px-4 border text-center">${row.Name}</td>
                         <td class="py-2 px-4 border text-center">${orderTranslateStatus(row.Status)}</td>
-                        <td class="flex jutify-between text-xs py-2 px-4 border text-center">
-                            <button class="bg-purple-700 text-white py-1 px-3 rounded-lg hover:bg-purple-800 transition" onclick="orderViewDetails('${row.IDkey}')">รายละเอียด</button>
-                            <button class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="orderOpenEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+                        <td class="flex justify-between text-xs py-2 px-4 border text-center">
+                            <button class="bg-purple-700 text-white py-2 px-3 rounded-lg hover:bg-purple-800 transition" onclick="orderViewDetails('${row.IDkey}')">รายละเอียด</button>
+                            <button class="bg-yellow-500 text-white py-2 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="orderOpenEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
                         </td>
                     `;
                     tableBody.appendChild(tr);
@@ -1110,9 +1110,9 @@
                             break;
                         case 'กำลังดำเนินการ':
                             startButton.disabled = true;
-                            processButton.disabled = true;
+                            completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
-                            processButton.classList.add('disabled-button');
+                            completeButton.classList.add('disabled-button');                            
                             break;
                         case 'เสร็จสิ้น':
                             startButton.disabled = true;
