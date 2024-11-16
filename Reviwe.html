@@ -3,29 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <title>Feedback Form</title>
+  <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <!-- SweetAlert CSS and JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+  <!-- FontAwesome for star icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <!-- Custom CSS for star ratings -->
+  <style>
+    .star-rating {
+      direction: rtl;
+      display: inline-block;
+      padding: 5px;
+    }
+    .star-rating input[type=radio] {
+      display: none;
+    }
+    .star-rating label {
+      color: #ccc;
+      font-size: 30px;
+      padding: 0;
+      cursor: pointer;
+    }
+    .star-rating input[type=radio]:checked ~ label {
+      color: #f5b301;
+    }
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+      color: #f5b301;
+    }
+  </style>
 </head>
 <body>
   <h1>แสดงความคิดเห็นและให้คะแนน</h1>
+  <p>กรุณาประเมินความพึงพอใจของท่าน ต่อการให้บริการของช่างทีมนี้ในครั้งนี้ ให้ทางเราทราบด้วยนะครับ เพื่อเป็นการพัฒนาและปรับปรุงการให้บริการให้ดียิ่งขึ้นครับ</p>
   <form id="feedbackForm">
-    <!-- Hidden inputs to store the parameters -->
+    <!-- Hidden inputs for parameters -->
     <input type="hidden" id="idkey" name="idkey">
     <input type="hidden" id="status" name="status">
     <input type="hidden" id="name" name="name">
     <input type="hidden" id="responsible" name="responsible">
 
-    <!-- Display the parameters to the user -->
+    <!-- Display parameters to the user -->
     <p>ID งาน: <span id="displayIdkey"></span></p>
     <p>ชื่อผู้เกี่ยวข้อง: <span id="displayName"></span></p>
     <p>ชื่อผู้รับผิดชอบ: <span id="displayResponsible"></span></p>
     <p>สถานะ: <span id="displayStatus"></span></p>
 
-    <!-- Input fields for rating and comments -->
-    <label for="rating">ให้คะแนน (1-5):</label><br>
-    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
+    <!-- Question 1 -->
+    <p>1. คุณภาพของการให้บริการ (1-5 ดาว)</p>
+    <div class="star-rating">
+      <input type="radio" id="quality5" name="quality" value="5"><label for="quality5"><i class="fas fa-star"></i></label>
+      <input type="radio" id="quality4" name="quality" value="4"><label for="quality4"><i class="fas fa-star"></i></label>
+      <input type="radio" id="quality3" name="quality" value="3"><label for="quality3"><i class="fas fa-star"></i></label>
+      <input type="radio" id="quality2" name="quality" value="2"><label for="quality2"><i class="fas fa-star"></i></label>
+      <input type="radio" id="quality1" name="quality" value="1" required><label for="quality1"><i class="fas fa-star"></i></label>
+    </div>
 
-    <label for="comments">ความคิดเห็น:</label><br>
-    <textarea id="comments" name="comments" rows="4" cols="50" required></textarea><br><br>
+    <!-- Question 2 -->
+    <p>2. ความตรงต่อเวลา (1-5 ดาว)</p>
+    <div class="star-rating">
+      <input type="radio" id="punctuality5" name="punctuality" value="5"><label for="punctuality5"><i class="fas fa-star"></i></label>
+      <input type="radio" id="punctuality4" name="punctuality" value="4"><label for="punctuality4"><i class="fas fa-star"></i></label>
+      <input type="radio" id="punctuality3" name="punctuality" value="3"><label for="punctuality3"><i class="fas fa-star"></i></label>
+      <input type="radio" id="punctuality2" name="punctuality" value="2"><label for="punctuality2"><i class="fas fa-star"></i></label>
+      <input type="radio" id="punctuality1" name="punctuality" value="1" required><label for="punctuality1"><i class="fas fa-star"></i></label>
+    </div>
+
+    <!-- Question 3 -->
+    <p>3. การให้บริการอย่างเต็มที่ (1-5 ดาว)</p>
+    <p>(หากช่างอู้งาน หรือลูกค้าเห็นช่างพักเกิน 15 นาที กรณีไม่ใช่การพักเที่ยง หรือช่างติดโทรศัพท์ กรุณาให้ 1 ดาวนะครับ)</p>
+    <div class="star-rating">
+      <input type="radio" id="dedication5" name="dedication" value="5"><label for="dedication5"><i class="fas fa-star"></i></label>
+      <input type="radio" id="dedication4" name="dedication" value="4"><label for="dedication4"><i class="fas fa-star"></i></label>
+      <input type="radio" id="dedication3" name="dedication" value="3"><label for="dedication3"><i class="fas fa-star"></i></label>
+      <input type="radio" id="dedication2" name="dedication" value="2"><label for="dedication2"><i class="fas fa-star"></i></label>
+      <input type="radio" id="dedication1" name="dedication" value="1" required><label for="dedication1"><i class="fas fa-star"></i></label>
+    </div>
+
+    <!-- Question 4 -->
+    <p>4. ความสุภาพในการสื่อสาร (1-5 ดาว)</p>
+    <div class="star-rating">
+      <input type="radio" id="politeness5" name="politeness" value="5"><label for="politeness5"><i class="fas fa-star"></i></label>
+      <input type="radio" id="politeness4" name="politeness" value="4"><label for="politeness4"><i class="fas fa-star"></i></label>
+      <input type="radio" id="politeness3" name="politeness" value="3"><label for="politeness3"><i class="fas fa-star"></i></label>
+      <input type="radio" id="politeness2" name="politeness" value="2"><label for="politeness2"><i class="fas fa-star"></i></label>
+      <input type="radio" id="politeness1" name="politeness" value="1" required><label for="politeness1"><i class="fas fa-star"></i></label>
+    </div>
+
+    <!-- Additional Message -->
+    <p>สำหรับการประเมินความพึงพอใจทุกครั้ง ท่านจะได้รับ 10 Point สำหรับสะสมไว้ใช้เป็นส่วนลดค่าบริการในครั้งถัดไป กรุณาแจ้งหมายเลขโทรศัพท์ ที่ใช้ในการสมัครสมาชิกให้ทางแอดมินทราบ หลังจากลูกค้าประเมินเสร็จครับ</p>
+    <p>หรือหากมีข้อเสนอแนะเพิ่มเติม กรุณาแจ้งให้ทางเราทราบ ผ่านกล่องข้อความด้านล่างนี้ครับ</p>
+
+    <!-- Comments Field -->
+    <label for="comments">ความเห็นเพิ่มเติม:</label><br>
+    <textarea id="comments" name="comments" rows="4" cols="50"></textarea><br><br>
 
     <button type="submit">ส่งความคิดเห็น</button>
   </form>
@@ -48,10 +121,10 @@
         document.getElementById('responsible').value = responsible;
 
         // Display values on the form
-        document.getElementById('displayIdkey').textContent = idkey;
-        document.getElementById('displayName').textContent = name;
-        document.getElementById('displayResponsible').textContent = responsible;
-        document.getElementById('displayStatus').textContent = status;
+        document.getElementById('displayIdkey').textContent = idkey || '-';
+        document.getElementById('displayName').textContent = name || '-';
+        document.getElementById('displayResponsible').textContent = responsible || '-';
+        document.getElementById('displayStatus').textContent = status || '-';
       })
       .catch((err) => {
         console.error('LIFF Initialization failed', err);
@@ -68,10 +141,23 @@
         status: document.getElementById('status').value,
         name: document.getElementById('name').value,
         responsible: document.getElementById('responsible').value,
-        rating: document.getElementById('rating').value,
+        quality: document.querySelector('input[name="quality"]:checked') ? document.querySelector('input[name="quality"]:checked').value : '',
+        punctuality: document.querySelector('input[name="punctuality"]:checked') ? document.querySelector('input[name="punctuality"]:checked').value : '',
+        dedication: document.querySelector('input[name="dedication"]:checked') ? document.querySelector('input[name="dedication"]:checked').value : '',
+        politeness: document.querySelector('input[name="politeness"]:checked') ? document.querySelector('input[name="politeness"]:checked').value : '',
         comments: document.getElementById('comments').value,
         userId: liff.getContext().userId || ''
       };
+
+      // Validate that all ratings have been selected
+      if (!formData.quality || !formData.punctuality || !formData.dedication || !formData.politeness) {
+        Swal.fire({
+          icon: 'error',
+          title: 'กรุณาให้คะแนนทุกข้อ',
+          confirmButtonText: 'ตกลง'
+        });
+        return;
+      }
 
       // Send data to Google Apps Script
       fetch('https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec', {
@@ -84,15 +170,30 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert('ขอบคุณสำหรับความคิดเห็นของคุณ!');
-          liff.closeWindow();
+          Swal.fire({
+            icon: 'success',
+            title: 'ขอบคุณสำหรับความคิดเห็นของคุณ!',
+            text: 'คุณจะได้รับ 10 Point สำหรับส่วนลดครั้งถัดไป',
+            confirmButtonText: 'ตกลง'
+          }).then(() => {
+            liff.closeWindow();
+          });
         } else {
-          alert('เกิดข้อผิดพลาดในการส่งความคิดเห็น: ' + data.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาดในการส่งความคิดเห็น',
+            text: data.message,
+            confirmButtonText: 'ตกลง'
+          });
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการส่งความคิดเห็น');
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาดในการส่งความคิดเห็น',
+          confirmButtonText: 'ตกลง'
+        });
       });
     });
   </script>
