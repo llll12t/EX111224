@@ -1,319 +1,100 @@
-
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>ฟอร์มรีวิวการให้บริการ</title>
-    <!-- ลิงก์ไปยัง Tailwind CSS ผ่าน CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ลิงก์ไปยัง SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- ลิงก์ไปยัง Font Awesome สำหรับไอคอนดาว -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Feedback Form</title>
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 </head>
-<body class="bg-gray-100">
-    <div class="flex justify-center items-center min-h-screen">
-        <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold text-center mb-6">กรุณาประเมินความพึงพอใจของท่าน</h2>
-            <form id="reviewForm" enctype="multipart/form-data">
-                <p class="mb-6 text-gray-700">
-                    กรุณาประเมินความพึงพอใจของท่าน ต่อการให้บริการของช่างทีมนี้ ในครั้งนี้ ให้ทางเราทราบด้วยนะครับ เพื่อเป็นการพัฒนาและปรับปรุงการให้บริการให้ดียิ่งขึ้นครับ
-                </p>
+<body>
+  <h1>แสดงความคิดเห็นและให้คะแนน</h1>
+  <form id="feedbackForm">
+    <!-- Hidden inputs to store the parameters -->
+    <input type="hidden" id="idkey" name="idkey">
+    <input type="hidden" id="status" name="status">
+    <input type="hidden" id="name" name="name">
+    <input type="hidden" id="responsible" name="responsible">
 
-                <!-- คำถามที่ 1 -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">1. คุณภาพของการให้บริการ</label>
-                    <div class="flex items-center space-x-1 star-group">
-                        <input type="radio" id="quality1" name="quality" value="1" class="hidden">
-                        <label for="quality1" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+    <!-- Display the parameters to the user -->
+    <p>ID งาน: <span id="displayIdkey"></span></p>
+    <p>ชื่อผู้เกี่ยวข้อง: <span id="displayName"></span></p>
+    <p>ชื่อผู้รับผิดชอบ: <span id="displayResponsible"></span></p>
+    <p>สถานะ: <span id="displayStatus"></span></p>
 
-                        <input type="radio" id="quality2" name="quality" value="2" class="hidden">
-                        <label for="quality2" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+    <!-- Input fields for rating and comments -->
+    <label for="rating">ให้คะแนน (1-5):</label><br>
+    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
 
-                        <input type="radio" id="quality3" name="quality" value="3" class="hidden">
-                        <label for="quality3" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+    <label for="comments">ความคิดเห็น:</label><br>
+    <textarea id="comments" name="comments" rows="4" cols="50" required></textarea><br><br>
 
-                        <input type="radio" id="quality4" name="quality" value="4" class="hidden">
-                        <label for="quality4" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+    <button type="submit">ส่งความคิดเห็น</button>
+  </form>
 
-                        <input type="radio" id="quality5" name="quality" value="5" class="hidden">
-                        <label for="quality5" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-                    </div>
-                </div>
+  <script>
+    // Initialize LIFF SDK
+    liff.init({ liffId: "2006504113-VWYEMlmk" })
+      .then(() => {
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const idkey = urlParams.get('idkey');
+        const status = urlParams.get('status');
+        const name = urlParams.get('name');
+        const responsible = urlParams.get('responsible');
 
-                <!-- คำถามที่ 2 -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">2. ความตรงต่อเวลา</label>
-                    <div class="flex items-center space-x-1 star-group">
-                        <input type="radio" id="punctuality1" name="punctuality" value="1" class="hidden">
-                        <label for="punctuality1" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+        // Set hidden input values
+        document.getElementById('idkey').value = idkey;
+        document.getElementById('status').value = status;
+        document.getElementById('name').value = name;
+        document.getElementById('responsible').value = responsible;
 
-                        <input type="radio" id="punctuality2" name="punctuality" value="2" class="hidden">
-                        <label for="punctuality2" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+        // Display values on the form
+        document.getElementById('displayIdkey').textContent = idkey;
+        document.getElementById('displayName').textContent = name;
+        document.getElementById('displayResponsible').textContent = responsible;
+        document.getElementById('displayStatus').textContent = status;
+      })
+      .catch((err) => {
+        console.error('LIFF Initialization failed', err);
+      });
 
-                        <input type="radio" id="punctuality3" name="punctuality" value="3" class="hidden">
-                        <label for="punctuality3" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+    // Handle form submission
+    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+      e.preventDefault();
 
-                        <input type="radio" id="punctuality4" name="punctuality" value="4" class="hidden">
-                        <label for="punctuality4" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
+      // Collect form data
+      const formData = {
+        method: 'submitFeedback',
+        idkey: document.getElementById('idkey').value,
+        status: document.getElementById('status').value,
+        name: document.getElementById('name').value,
+        responsible: document.getElementById('responsible').value,
+        rating: document.getElementById('rating').value,
+        comments: document.getElementById('comments').value,
+        userId: liff.getContext().userId || ''
+      };
 
-                        <input type="radio" id="punctuality5" name="punctuality" value="5" class="hidden">
-                        <label for="punctuality5" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- คำถามที่ 3 -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">3. การให้บริการอย่างเต็มที่</label>
-                    <div class="flex items-center space-x-1 star-group">
-                        <input type="radio" id="service1" name="service" value="1" class="hidden">
-                        <label for="service1" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="service2" name="service" value="2" class="hidden">
-                        <label for="service2" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="service3" name="service" value="3" class="hidden">
-                        <label for="service3" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="service4" name="service" value="4" class="hidden">
-                        <label for="service4" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="service5" name="service" value="5" class="hidden">
-                        <label for="service5" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-2">
-                        (หากช่างอู้งาน หรือลูกค้าเห็นช่างพักเกิน 15 นาที กรณีไม่ใช่การพักเที่ยง หรือช่างติดโทรศัพท์ กรุณาให้ 1 ดาวนะครับ)
-                    </p>
-                </div>
-
-                <!-- คำถามที่ 4 -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">4. ความสุภาพในการสื่อสาร</label>
-                    <div class="flex items-center space-x-1 star-group">
-                        <input type="radio" id="communication1" name="communication" value="1" class="hidden">
-                        <label for="communication1" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="communication2" name="communication" value="2" class="hidden">
-                        <label for="communication2" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="communication3" name="communication" value="3" class="hidden">
-                        <label for="communication3" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="communication4" name="communication" value="4" class="hidden">
-                        <label for="communication4" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-
-                        <input type="radio" id="communication5" name="communication" value="5" class="hidden">
-                        <label for="communication5" class="cursor-pointer text-gray-400 hover:text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- หมายเลขโทรศัพท์ -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">หมายเลขโทรศัพท์ที่ใช้ในการสมัครสมาชิก</label>
-                    <input type="tel" name="phone" pattern="[0-9]{10}" placeholder="กรอกหมายเลขโทรศัพท์ 10 หลัก" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <!-- ความเห็นเพิ่มเติม -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">ความเห็นเพิ่มเติม</label>
-                    <textarea name="comments" rows="4" placeholder="กรุณาแจ้งให้ทางเราทราบผ่านกล่องข้อความด้านล่างนี้ครับ"
-                              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-
-                <!-- อัปโหลดรูปภาพ -->
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-semibold mb-2">อัปโหลดรูปภาพ</label>
-                    <input type="file" name="image" accept="image/*"
-                           class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="text-sm text-gray-500 mt-1">อัปโหลดรูปภาพเพิ่มเติม (ไม่จำเป็น)</p>
-                    <!-- ตัวอย่างการแสดงภาพ -->
-                    <img id="imagePreview" src="#" alt="ตัวอย่างรูปภาพ" class="mt-4 hidden w-full h-auto rounded">
-                </div>
-
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
-                    ส่งรีวิว
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // ฟังก์ชันสำหรับเปลี่ยนสีดาวเมื่อเลือก
-        document.querySelectorAll('.star-group').forEach(group => {
-            const radios = group.querySelectorAll('input[type="radio"]');
-            radios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const name = this.name;
-                    const value = parseInt(this.value);
-                    // รีเซ็ตสีดาวทั้งหมดในกลุ่มนี้
-                    group.querySelectorAll('label i').forEach(icon => {
-                        icon.classList.remove('text-yellow-400');
-                        icon.classList.add('text-gray-400');
-                    });
-                    // เปลี่ยนสีดาวที่เลือกและดาวที่น้อยกว่าหรือเท่ากับ
-                    for (let i = 1; i <= value; i++) {
-                        const star = group.querySelector(`#${name}${i} + label i`);
-                        if (star) {
-                            star.classList.remove('text-gray-400');
-                            star.classList.add('text-yellow-400');
-                        }
-                    }
-                });
-            });
-        });
-
-        // ฟังก์ชันสำหรับแสดงตัวอย่างรูปภาพที่เลือก
-        document.querySelector('input[name="image"]').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = e.target.result;
-                    preview.classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            } else {
-                const preview = document.getElementById('imagePreview');
-                preview.src = '#';
-                preview.classList.add('hidden');
-            }
-        });
-
-        document.getElementById('reviewForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // ตรวจสอบว่ามีการเลือกดาวครบทุกข้อหรือไม่
-            const requiredFields = ['quality', 'punctuality', 'service', 'communication', 'phone'];
-            let allFilled = true;
-            for (let field of requiredFields) {
-                if (field !== 'phone') {
-                    if (!document.querySelector(`input[name="${field}"]:checked`)) {
-                        allFilled = false;
-                        break;
-                    }
-                } else {
-                    const phone = document.querySelector(`input[name="${field}"]`).value;
-                    const phonePattern = /^[0-9]{10}$/;
-                    if (!phonePattern.test(phone)) {
-                        allFilled = false;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ข้อผิดพลาด',
-                            text: 'กรุณากรอกหมายเลขโทรศัพท์ให้ถูกต้อง (10 หลัก)',
-                        });
-                        return;
-                    }
-                }
-            }
-
-            if (!allFilled) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ข้อผิดพลาด',
-                    text: 'กรุณาให้คะแนนทุกข้อและกรอกหมายเลขโทรศัพท์ให้ครบถ้วน',
-                });
-                return;
-            }
-
-            // เก็บข้อมูลฟอร์ม
-            const formData = new FormData(this);
-
-            // ตัวอย่างการส่งข้อมูลไปยังเซิร์ฟเวอร์ (Uncomment และปรับ URL ตามต้องการ)
-            /*
-            fetch('/your-server-endpoint', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                // จัดการกับการตอบกลับจากเซิร์ฟเวอร์
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ขอบคุณสำหรับการรีวิว',
-                    text: 'ทางเราจะนำความคิดเห็นของท่านไปพัฒนาและปรับปรุงการให้บริการต่อไป',
-                }).then(() => {
-                    // รีเซ็ตฟอร์มหลังจากปิด popup
-                    document.getElementById('reviewForm').reset();
-                    // รีเซ็ตสีดาว
-                    document.querySelectorAll('.star-group label i').forEach(icon => {
-                        icon.classList.remove('text-yellow-400');
-                        icon.classList.add('text-gray-400');
-                    });
-                    // ซ่อนตัวอย่างรูปภาพ
-                    document.getElementById('imagePreview').classList.add('hidden');
-                    document.getElementById('imagePreview').src = '#';
-                });
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ข้อผิดพลาด',
-                    text: 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง',
-                });
-            });
-            */
-
-            // หากไม่ต้องการส่งไปยังเซิร์ฟเวอร์ สามารถแสดง popup ขอบคุณได้เลย
-            Swal.fire({
-                icon: 'success',
-                title: 'ขอบคุณสำหรับการรีวิว',
-                text: 'ทางเราจะนำความคิดเห็นของท่านไปพัฒนาและปรับปรุงการให้บริการต่อไป',
-            }).then(() => {
-                // รีเซ็ตฟอร์มหลังจากปิด popup
-                document.getElementById('reviewForm').reset();
-                // รีเซ็ตสีดาว
-                document.querySelectorAll('.star-group label i').forEach(icon => {
-                    icon.classList.remove('text-yellow-400');
-                    icon.classList.add('text-gray-400');
-                });
-                // ซ่อนตัวอย่างรูปภาพ
-                document.getElementById('imagePreview').classList.add('hidden');
-                document.getElementById('imagePreview').src = '#';
-            });
-        });
-    </script>
+      // Send data to Google Apps Script
+      fetch('https://script.google.com/macros/s/AKfycbxJoSNrT4OAaEdwusbpVN9tid-kVkVWtBfP7XhXfy_fXUcgeYl2HZSndC95SuNDFVRxAg/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('ขอบคุณสำหรับความคิดเห็นของคุณ!');
+          liff.closeWindow();
+        } else {
+          alert('เกิดข้อผิดพลาดในการส่งความคิดเห็น: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการส่งความคิดเห็น');
+      });
+    });
+  </script>
 </body>
 </html>
