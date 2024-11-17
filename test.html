@@ -52,104 +52,104 @@
             <button id="tab-operation" class="w-1/2 p-4 border-b-2 rounded-r-lg inactive-tab focus:outline-none">ข้อมูลการดำเนินการ</button>
         </div>
         <!-- Tab Content -->
-        <div id="tab-order-content">
-            <!-- Content from HTML1 -->
-            <div class="">
-                <!-- Filter Section -->
-                <div class="bg-green-custom rounded-lg p-4 mb-4">
-                    <div class="flex flex-wrap -mx-2">
-                        <div class="p-2 w-1/3">
-                            <input type="text" id="order-filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-lg">
-                        </div>
-                        <div class="p-2 w-1/3">
-                            <select id="order-filter-status" class="w-full border px-2 py-1 rounded-lg">
-                                <option value="">สถานะ</option>
-                                <option value="รอดำเนินการ">รอดำเนินการ</option>
-                                <option value="ปฏิเสธ">ปฏิเสธ</option>
-                                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                                <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+        div id="tab-order-content">
+        <!-- Content from HTML1 -->
+        <div class="">
+            <!-- Filter Section -->
+            <div class="bg-green-custom rounded-lg p-4 mb-4">
+                <div class="flex flex-wrap -mx-2">
+                    <div class="p-2 w-1/3">
+                        <input type="text" id="order-filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-lg">
+                    </div>
+                    <div class="p-2 w-1/3">
+                        <select id="order-filter-status" class="w-full border px-2 py-1 rounded-lg">
+                            <option value="">สถานะ</option>
+                            <option value="รอดำเนินการ">รอดำเนินการ</option>
+                            <option value="ปฏิเสธ">ปฏิเสธ</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                        </select>
+                    </div>
+                    <div class="p-2 w-1/3">
+                        <select id="order-sort-order" class="w-full border px-2 py-1 rounded-lg">
+                            <option value="newest">ใหม่สุด</option>
+                            <option value="oldest">เก่าสุด</option>
+                        </select>
+                    </div>
+                </div> 
+            </div>
+
+            <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
+            <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-4">
+                <!-- Card จะถูกแทรกที่นี่ -->
+            </div>
+
+            <!-- ตารางสำหรับงานที่เสร็จสิ้น -->
+            <div id="order-completed-tasks-section" class="mb-8">
+                <h2 class="text-lg font-semibold mb-4">งานที่ดำเนินการสำเร็จ</h2>
+                <table id="order-completed-table" class="min-w-full text-xs bg-white rounded-lg">
+                    <thead>
+                        <tr class="text-green-custom text-sm">
+                             <th class="py-2 px-4 border">ชื่อ</th>
+                             <th class="py-2 px-4 border">สถานะ</th>
+                             <th class="py-2 px-4 border">การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm"></tbody>
+                </table>
+            </div>
+
+            <!-- Loading Message -->
+            <div id="order-loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+
+            <!-- Pagination Controls -->
+            <div id="order-pagination-controls" class="flex justify-center mt-4 space-x-2">
+                <button id="order-prev-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage - 1)">ก่อนหน้า</button>
+                <div id="order-page-numbers" class="flex space-x-1">
+                    <!-- ตัวเลขหน้าจะถูกสร้างที่นี่ -->
+                </div>
+                <button id="order-next-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage + 1)">ถัดไป</button>
+            </div>
+
+            <!-- Edit Modal -->
+            <div id="order-edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white p-6 rounded-lg w-full max-w-md">
+                    <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
+                    <form id="order-edit-form">
+                        <input type="hidden" id="order-edit-idkey">
+                        
+                        <div class="mb-4">
+                            <label for="order-edit-status" class="block mb-1">สถานะ</label>
+                            <select id="order-edit-status" class="w-full border p-2 rounded-lg">
+                                <option value="เลื่อนนัด">เลื่อนนัด</option>
+                                <option value="ยกเลิก">ยกเลิก</option>
+                                <option value="ข้อมูลไม่ถูกต้อง">ข้อมูลไม่ถูกต้อง</option>
+                                <option value="ผิดพลาด">ผิดพลาด</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
                             </select>
                         </div>
-                        <div class="p-2 w-1/3">
-                            <select id="order-sort-order" class="w-full border px-2 py-1 rounded-lg">
-                                <option value="newest">ใหม่สุด</option>
-                                <option value="oldest">เก่าสุด</option>
-                            </select>
+
+                        <div class="mb-4">
+                            <label for="order-edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
+                            <input type="text" id="order-edit-responsible" class="w-full border p-2 rounded-lg" required>
                         </div>
-                    </div> 
-                </div>
 
-                <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
-                <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-4">
-                    <!-- Card จะถูกแทรกที่นี่ -->
-                </div>
+                        <div class="mb-4">
+                            <label for="order-edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
+                            <textarea type="text" id="order-edit-admin-note" class="w-full border p-2  rounded-lg" ></textarea>
+                        </div>
 
-                <!-- ตารางสำหรับงานที่เสร็จสิ้น -->
-                <div id="order-completed-tasks-section" class="mb-8">
-                    <h2 class="text-lg font-semibold mb-4">งานที่ดำเนินการสำเร็จ</h2>
-                    <table id="order-completed-table" class="min-w-full text-xs bg-white rounded-lg">
-                        <thead>
-                            <tr class="text-green-custom text-sm">
-                                 <th class="py-2 px-4 border">ชื่อ</th>
-                                 <th class="py-2 px-4 border">สถานะ</th>
-                                 <th class="py-2 px-4 border">การดำเนินการ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm"></tbody>
-                    </table>
-                </div>
-
-                <!-- Loading Message -->
-                <div id="order-loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
-
-                <!-- Pagination Controls -->
-                <div id="order-pagination-controls" class="flex justify-center mt-4 space-x-2">
-                    <button id="order-prev-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage - 1)">ก่อนหน้า</button>
-                    <div id="order-page-numbers" class="flex space-x-1">
-                        <!-- ตัวเลขหน้าจะถูกสร้างที่นี่ -->
-                    </div>
-                    <button id="order-next-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage + 1)">ถัดไป</button>
-                </div>
-
-                <!-- Edit Modal -->
-                <div id="order-edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-                    <div class="bg-white p-6 rounded-lg w-full max-w-md">
-                        <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
-                        <form id="order-edit-form">
-                            <input type="hidden" id="order-edit-idkey">
-                            
-                            <div class="mb-4">
-                                <label for="order-edit-status" class="block mb-1">สถานะ</label>
-                                <select id="order-edit-status" class="w-full border p-2 rounded-lg">
-                                    <option value="เลื่อนนัด">เลื่อนนัด</option>
-                                    <option value="ยกเลิก">ยกเลิก</option>
-                                    <option value="ข้อมูลไม่ถูกต้อง">ข้อมูลไม่ถูกต้อง</option>
-                                    <option value="ผิดพลาด">ผิดพลาด</option>
-                                    <option value="อื่นๆ">อื่นๆ</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="order-edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
-                                <input type="text" id="order-edit-responsible" class="w-full border p-2 rounded-lg" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="order-edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
-                                <textarea type="text" id="order-edit-admin-note" class="w-full border p-2  rounded-lg" ></textarea>
-                            </div>
-
-                            <div class="flex justify-end mt-4 space-x-2">
-                                <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
-                                    onclick="orderCloseModal()">ยกเลิก</button>
-                                <button type="submit"
-                                    class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="flex justify-end mt-4 space-x-2">
+                            <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700"
+                                onclick="orderCloseModal()">ยกเลิก</button>
+                            <button type="submit"
+                                class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
         <div id="tab-operation-content" class="hidden">
             <!-- Content from HTML2 -->
@@ -612,7 +612,7 @@
             /**
              * ฟังก์ชันดูรายละเอียดข้อมูล
              */
-            function orderViewDetails(idkey) {
+            window.orderViewDetails = function(idkey) {
                 const row = orderTableData.find(row => row.IDkey === idkey);
                 if (row) {
                     Swal.fire({
@@ -645,7 +645,7 @@
             /**
              * ฟังก์ชันเปิดโมดอลสำหรับแก้ไขข้อมูล
              */
-            function orderOpenEditModal(idkey) {
+            window.orderOpenEditModal = function(idkey) {
                 const row = orderTableData.find(row => row.IDkey === idkey);
                 if (row) {
                     document.getElementById('order-edit-idkey').value = row.IDkey;
