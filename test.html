@@ -65,9 +65,9 @@
                         <select id="order-filter-status" class="w-full border px-2 py-1 rounded-lg">
                             <option value="">สถานะ</option>
                             <option value="รอดำเนินการ">รอดำเนินการ</option>
-                            <option value="ปฏิเสธ">ปฏิเสธ</option>
-                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                            <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
+                            <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
+                            <option value="ดำเนินงานเสร็จสิ้น">ดำเนินงานเสร็จสิ้น</option>
                         </select>
                     </div>
                     <div class="p-2 w-1/3">
@@ -162,7 +162,7 @@
                                 class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                                 <option value="">ทุกสถานะ</option>
                                 <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
-                                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                                <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
                                 <option value="ดำเนินการเสร็จสิ้น">ดำเนินการเสร็จสิ้น</option>
                                 <option value="อนุมัติ">อนุมัติ</option>
                                 <option value="รอดำเนินการ">รอดำเนินการ</option>
@@ -253,7 +253,7 @@
                             <div class="mb-4">
                                 <label for="operation-process-status" class="block mb-1">สถานะ</label>
                                 <select id="operation-process-status" class="w-full border p-2 rounded-lg" required>
-                                    <option value="กำลังดำเนินการ" selected>กำลังดำเนินการ</option>
+                                    <option value="เริ่มดำเนินการ" selected>เริ่มดำเนินการ</option>
                                     <option value="ยกเลิก">ยกเลิก</option>
                                     <option value="เลื่อน">เลื่อน</option>
                                 </select>
@@ -590,7 +590,7 @@
                     case 'อนุมัติ': return 'อนุมัติ';
                     case 'ยกเลิก': return 'ยกเลิก';
                     case 'ปฏิเสธ': return 'ปฏิเสธ';
-                    case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
+                    case 'เริ่มดำเนินการ': return 'เริ่มดำเนินการ';
                     case 'เสร็จสิ้น': return 'เสร็จสิ้น';
                     default: return status;
                 }
@@ -722,7 +722,7 @@
 
                 Swal.fire({
                     title: 'ยืนยันการรับงาน?',
-                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "กำลังดำเนินการ" ใช่หรือไม่?`,
+                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "เริ่มดำเนินการ" ใช่หรือไม่?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -782,7 +782,7 @@
                     return matchesName && matchesStatus && matchesUserId;
                 });
 
-                // แยกข้อมูลเป็นสองกลุ่ม: กำลังดำเนินการและเสร็จสิ้น
+                // แยกข้อมูลเป็นสองกลุ่ม: เริ่มดำเนินการและเสร็จสิ้น
                 const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
                 orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
 
@@ -800,7 +800,7 @@
                 currentOrderPage = 1;
                 orderSetupPagination();
 
-                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่เริ่มดำเนินการ
                 const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
                 orderDisplayCards(paginatedData);
 
@@ -837,7 +837,7 @@
                 currentOrderPage = page;
                 orderSetupPagination();
 
-                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่กำลังดำเนินการ
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่เริ่มดำเนินการ
                 const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
                 const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
                 orderDisplayCards(paginatedData);
@@ -1310,7 +1310,7 @@
                     document.getElementById('operation-process-job-idkey').value = row.idkey;
                     document.getElementById('operation-process-time-process').value = operationGetCurrentDateTimeGMT7();
                     document.getElementById('operation-process-process-note').value = row.processNote || '';
-                    document.getElementById('operation-process-status').value = 'กำลังดำเนินการ'; // ตั้งค่าสถานะเป็น 'กำลังดำเนินการ'
+                    document.getElementById('operation-process-status').value = 'เริ่มดำเนินการ'; // ตั้งค่าสถานะเป็น 'เริ่มดำเนินการ'
                     document.getElementById('operation-process-job-modal').classList.remove('hidden');
                 }
             }
@@ -1598,7 +1598,7 @@
                     case 'อนุมัติ': return 'อนุมัติ';
                     case 'ยกเลิก': return 'ยกเลิก';
                     case 'ปฏิเสธ': return 'ปฏิเสธ';
-                    case 'กำลังดำเนินการ': return 'กำลังดำเนินการ';
+                    case 'เริ่มดำเนินการ': return 'เริ่มดำเนินการ';
                     case 'ดำเนินการเสร็จสิ้น': return 'ดำเนินการเสร็จสิ้น';
                     default: return status;
                 }
