@@ -1082,17 +1082,17 @@
 
                     const startButton = document.createElement('button');
                     startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
-                    startButton.textContent = 'เริ่มงาน';
+                    startButton.textContent = 'เริ่มเดินทาง';
                     startButton.onclick = () => operationOpenStartJobModal(row.idkey);
 
                     const processButton = document.createElement('button');
                     processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
-                    processButton.textContent = 'ดำเนินงาน';
+                    processButton.textContent = 'ถึงหน้างาน';
                     processButton.onclick = () => operationOpenProcessJobModal(row.idkey);
 
                     const completeButton = document.createElement('button');
                     completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
-                    completeButton.textContent = 'เสร็จสิ้น';
+                    completeButton.textContent = 'งานเสร็จสิ้น';
                     completeButton.onclick = () => operationOpenCompleteJobModal(row.idkey);
 
                     // ตรวจสอบสถานะเพื่อปิดใช้งานปุ่มตามเงื่อนไข
@@ -1100,19 +1100,19 @@
                         case 'รอดำเนินการ':
                             // เปิดใช้งานทุกปุ่ม
                             break;
-                        case 'เริ่มงาน':
+                        case 'ระหว่างเดินทาง':
                             startButton.disabled = true;
                             completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
                             completeButton.classList.add('disabled-button');
                             break;
-                        case 'กำลังดำเนินการ':
+                        case 'เริ่มดำเนินการ':
                             startButton.disabled = true;
                             processButton.disabled = true;
                             startButton.classList.add('disabled-button');
                             processButton.classList.add('disabled-button');
                             break;
-                        case 'เสร็จสิ้น':
+                        case 'ดำเนินงานเสร็จสิ้น':
                             startButton.disabled = true;
                             processButton.disabled = true;
                             completeButton.disabled = true;
