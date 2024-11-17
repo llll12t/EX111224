@@ -1098,7 +1098,10 @@
                     // ตรวจสอบสถานะเพื่อปิดใช้งานปุ่มตามเงื่อนไข
                     switch(row.status) {
                         case 'รอดำเนินการ':
-                            // เปิดใช้งานทุกปุ่ม
+                            processButton.disabled = true;
+                            completeButton.disabled = true;
+                            processButton.classList.add('disabled-button');
+                            completeButton.classList.add('disabled-button');
                             break;
                         case 'ระหว่างเดินทาง':
                             startButton.disabled = true;
