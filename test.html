@@ -536,7 +536,7 @@
                     const confirmButton = document.createElement('button');
                     const isDisabled = ['เริ่มงาน', 'รอดำเนินการ','กำลังเริ่มดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
                     confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
-                    confirmButton.textContent = 'ยืนยัน';
+                    confirmButton.textContent = 'ยืนยันรับงาน';
                     if (!isDisabled) {
                         confirmButton.onclick = () => orderTakeJob(row.IDkey);
                     }
