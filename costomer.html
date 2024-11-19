@@ -4,127 +4,211 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แบบฟอร์มข้อมูล</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>ลงทะเบียน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 </head>
-<body class="bg-gray-100">
-
-<div class="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl font-semibold mb-4">แบบฟอร์มข้อมูล</h1>
-
-    <form id="dataForm">
-        <div class="mb-4">
-            <label for="idkey" class="block text-sm font-medium text-gray-600">ID Key</label>
-            <input type="text" id="idkey" name="idkey" placeholder="กรอก ID Key" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="useridLine" class="block text-sm font-medium text-gray-600">User ID Line</label>
-            <input type="text" id="useridLine" name="useridLine" placeholder="กรอก User ID Line" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-600">ชื่อ</label>
-            <input type="text" id="name" name="name" placeholder="กรอกชื่อ" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="village" class="block text-sm font-medium text-gray-600">หมู่บ้าน</label>
-            <input type="text" id="village" name="village" placeholder="กรอกหมู่บ้าน" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="address" class="block text-sm font-medium text-gray-600">ที่อยู่</label>
-            <input type="text" id="address" name="address" placeholder="กรอกที่อยู่" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="maplink" class="block text-sm font-medium text-gray-600">ลิงก์แผนที่</label>
-            <input type="text" id="maplink" name="maplink" placeholder="กรอกลิงก์แผนที่" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="detail" class="block text-sm font-medium text-gray-600">รายละเอียด</label>
-            <textarea id="detail" name="detail" placeholder="กรอกรายละเอียด" class="mt-1 p-2 border rounded-md w-full"></textarea>
-        </div>
-
-        <div class="mb-4">
-            <label for="contact" class="block text-sm font-medium text-gray-600">ช่องทางติดต่อ</label>
-            <input type="text" id="contact" name="contact" placeholder="กรอกช่องทางติดต่อ" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <div class="mb-4">
-            <label for="note" class="block text-sm font-medium text-gray-600">หมายเหตุ</label>
-            <textarea id="note" name="note" placeholder="กรอกหมายเหตุ" class="mt-1 p-2 border rounded-md w-full"></textarea>
-        </div>
-
-        <div class="mb-4">
-            <label for="caedit" class="block text-sm font-medium text-gray-600">CA Edit</label>
-            <input type="text" id="caedit" name="caedit" placeholder="กรอก CA Edit" class="mt-1 p-2 border rounded-md w-full">
-        </div>
-
-        <button type="button" id="submitBtn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
-    </form>
-</div>
-
-<script>
-    const url = "https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec"; // แทนที่ YOUR_SCRIPT_ID ด้วย Script ID จริงของคุณ
-    const submitBtn = document.getElementById("submitBtn");
-    const form = document.getElementById("dataForm");
-
-    submitBtn.addEventListener('click', () => {
-        // ดึงค่าจากฟอร์ม
-        const idkey = document.getElementById("idkey").value.trim();
-        const useridLine = document.getElementById("useridLine").value.trim();
-        const name = document.getElementById("name").value.trim();
-        const village = document.getElementById("village").value.trim();
-        const address = document.getElementById("address").value.trim();
-        const maplink = document.getElementById("maplink").value.trim();
-        const detail = document.getElementById("detail").value.trim();
-        const contact = document.getElementById("contact").value.trim();
-        const note = document.getElementById("note").value.trim();
-        const caedit = document.getElementById("caedit").value.trim();
-
-        // ตรวจสอบความครบถ้วนของข้อมูล
-        if (!idkey || !useridLine || !name || !village || !address || !maplink || !detail || !contact || !note || !caedit) {
-            alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
-            return;
-        }
-
-        // สร้างอ็อบเจ็กต์ข้อมูล
-        const payload = {
-            idkey: idkey,
-            useridLine: useridLine,
-            name: name,
-            village: village,
-            address: address,
-            maplink: maplink,
-            detail: detail,
-            contact: contact,
-            note: note,
-            caedit: caedit
+<body class="bg-slate-100 min-h-screen">
+    <div class="max-w-md m-auto p-2">
+        <form>
+            <div class="bg-white rounded-lg p-10">    
+                <div class="flex flex-col">
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full bg-slate-200 p-2 text-slate-500 text-sm text-center rounded-lg" id="useridLine" placeholder="useridLine" name="useridLine" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="name" placeholder="ชื่อ" name="name" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="village" placeholder="หมู่บ้าน" name="village" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="address" placeholder="ที่อยู่" name="address" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="maplink" placeholder="ลิงค์แผนที่" name="maplink" required>
+                    </div>
+                    <div class="mb-4">
+                        <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="detail" placeholder="รายละเอียด" name="detail" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="contact" placeholder="ติดต่อ" name="contact" required>
+                    </div>
+                    <div class="mb-4">
+                        <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="note" placeholder="หมายเหตุ" name="note"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="caedit" placeholder="CA Edit" name="caedit" required>
+                    </div>
+                </div>
+                <button type="button" id="submitBtn" class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-blue-700">บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script>
+        // URL ของ Web App
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec'; 
+        // LIFF ID
+        const LIFF_ID = '2006504113-w9Y247mX'; 
+    
+        // ฟังก์ชันเริ่มต้น LIFF SDK
+        window.onload = function () {
+            initializeLiff();
         };
-
-        // ส่งข้อมูลไปยัง Google Apps Script
-        fetch(url, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.text())
-        .then(data => {
-            console.log(data);
-            alert("ส่งข้อมูลสำเร็จ!");
-            form.reset();
-        })
-        .catch(error => {
-            console.error(error);
-            alert("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
+    
+        // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+    
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error('LIFF Initialization failed:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Initialization Error',
+                    text: 'ไม่สามารถเริ่มต้น LIFF ได้ กรุณาลองใหม่อีกครั้งในภายหลัง.',
+                });
+            }
+        }
+    
+        // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                document.getElementById('useridLine').value = profile.userId;
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
+            }
+        }
+    
+        let url = WEB_APP_URL;
+        let useridLineInput = document.getElementById("useridLine");
+        let nameInput = document.getElementById("name");
+        let villageInput = document.getElementById("village");
+        let addressInput = document.getElementById("address");
+        let maplinkInput = document.getElementById("maplink");
+        let detailInput = document.getElementById("detail");
+        let contactInput = document.getElementById("contact");
+        let noteInput = document.getElementById("note");
+        let caeditInput = document.getElementById("caedit");
+        let submitBtn = document.getElementById("submitBtn");
+    
+        // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
+        function validateForm() {
+            const useridLine = useridLineInput.value.trim();
+            const name = nameInput.value.trim();
+            const village = villageInput.value.trim();
+            const address = addressInput.value.trim();
+            const maplink = maplinkInput.value.trim();
+            const detail = detailInput.value.trim();
+            const contact = contactInput.value.trim();
+            const caedit = caeditInput.value.trim();
+    
+            if (useridLine === '' || name === '' || village === '' || address === '' || maplink === '' || detail === '' || contact === '' || caedit === '') {
+                return false;
+            }
+    
+            return true;
+        }
+    
+        // เพิ่ม event listener สำหรับปุ่มบันทึกข้อมูล
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+    
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'กรุณากรอกข้อมูลในช่องที่จำเป็น.',
+                });
+                return;
+            }
+    
+            const isConfirmed = await showConfirmationDialog();
+    
+            if (isConfirmed) {
+                submitBtn.disabled = true;
+    
+                try {
+                    let obj = {
+                        useridLine: useridLineInput.value,
+                        name: nameInput.value,
+                        village: villageInput.value,
+                        address: addressInput.value,
+                        maplink: maplinkInput.value,
+                        detail: detailInput.value,
+                        contact: contactInput.value,
+                        note: noteInput.value,
+                        caedit: caeditInput.value
+                    };
+    
+                    Swal.fire({
+                        title: 'กำลังบันทึก, รอสักครู่...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+    
+                    let response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(obj)
+                    });
+    
+                    let data = await response.text();
+    
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
+                        icon: 'success',
+                        confirmButtonText: 'ปิด',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            liff.closeWindow();
+                        }
+                    });
+    
+                    console.log(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'เกิดข้อผิดพลาดขณะส่งข้อมูล.',
+                    });
+    
+                    console.error(error);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            } else {
+                Swal.fire('Submission Canceled', 'ข้อมูลของคุณไม่ได้ถูกส่ง.', 'info');
+            }
         });
-    });
-</script>
-
+    
+        // ฟังก์ชันสำหรับแสดงกล่องยืนยัน
+        async function showConfirmationDialog() {
+            const confirmation = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ส่งข้อมูล!',
+                cancelButtonText: 'ไม่, ยกเลิก'
+            });
+    
+            return confirmation.isConfirmed;
+        }
+    </script>
 </body>
 </html>
