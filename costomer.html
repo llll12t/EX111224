@@ -4,25 +4,63 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึก User ID Line</title>
+    <title>แบบฟอร์มข้อมูล</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- เพิ่ม LIFF SDK -->
-    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 </head>
 <body class="bg-gray-100">
 
-<div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-    <h1 class="text-3xl font-semibold mb-6">บันทึก User ID Line</h1>
+<div class="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-semibold mb-4">แบบฟอร์มข้อมูล</h1>
 
     <form id="dataForm">
         <div class="mb-4">
-            <label for="contact" class="block text-sm font-medium text-gray-600">Contact (เบอร์โทรศัพท์)</label>
-            <input type="text" id="contact" name="contact" placeholder="กรอกเบอร์โทรศัพท์" class="mt-1 p-2 border rounded-md w-full" required>
+            <label for="idkey" class="block text-sm font-medium text-gray-600">ID Key</label>
+            <input type="text" id="idkey" name="idkey" placeholder="กรอก ID Key" class="mt-1 p-2 border rounded-md w-full">
         </div>
 
         <div class="mb-4">
             <label for="useridLine" class="block text-sm font-medium text-gray-600">User ID Line</label>
-            <input type="text" id="useridLine" name="useridLine" placeholder="User ID Line จะถูกกรอกอัตโนมัติ" class="mt-1 p-2 border rounded-md w-full bg-gray-200" readonly>
+            <input type="text" id="useridLine" name="useridLine" placeholder="กรอก User ID Line" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-600">ชื่อ</label>
+            <input type="text" id="name" name="name" placeholder="กรอกชื่อ" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="village" class="block text-sm font-medium text-gray-600">หมู่บ้าน</label>
+            <input type="text" id="village" name="village" placeholder="กรอกหมู่บ้าน" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="address" class="block text-sm font-medium text-gray-600">ที่อยู่</label>
+            <input type="text" id="address" name="address" placeholder="กรอกที่อยู่" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="maplink" class="block text-sm font-medium text-gray-600">ลิงก์แผนที่</label>
+            <input type="text" id="maplink" name="maplink" placeholder="กรอกลิงก์แผนที่" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="detail" class="block text-sm font-medium text-gray-600">รายละเอียด</label>
+            <textarea id="detail" name="detail" placeholder="กรอกรายละเอียด" class="mt-1 p-2 border rounded-md w-full"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="contact" class="block text-sm font-medium text-gray-600">ช่องทางติดต่อ</label>
+            <input type="text" id="contact" name="contact" placeholder="กรอกช่องทางติดต่อ" class="mt-1 p-2 border rounded-md w-full">
+        </div>
+
+        <div class="mb-4">
+            <label for="note" class="block text-sm font-medium text-gray-600">หมายเหตุ</label>
+            <textarea id="note" name="note" placeholder="กรอกหมายเหตุ" class="mt-1 p-2 border rounded-md w-full"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="caedit" class="block text-sm font-medium text-gray-600">CA Edit</label>
+            <input type="text" id="caedit" name="caedit" placeholder="กรอก CA Edit" class="mt-1 p-2 border rounded-md w-full">
         </div>
 
         <button type="button" id="submitBtn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
@@ -30,65 +68,44 @@
 </div>
 
 <script>
-    // กำหนด LIFF ID ของคุณที่นี่
-    const LIFF_ID = "2006504113-w9Y247mX"; // แทนที่ด้วย LIFF ID ของคุณ
-
-    // กำหนด URL ของ Google Apps Script ของคุณที่นี่
-    const url = "https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec"; // แทนที่ด้วย URL ของสคริปต์คุณ
-
-    // ฟังก์ชันเริ่มต้น LIFF SDK
-    window.onload = function () {
-        initializeLiff();
-    };
-
-    // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
-    async function initializeLiff() {
-        try {
-            await liff.init({ liffId: LIFF_ID });
-
-            if (liff.isLoggedIn()) {
-                getUserProfile();
-            } else {
-                liff.login();
-            }
-        } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการเริ่มต้น LIFF:', error);
-            alert("เกิดข้อผิดพลาดในการเริ่มต้น LIFF. กรุณาลองใหม่อีกครั้ง.");
-        }
-    }
-
-    // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้
-    async function getUserProfile() {
-        try {
-            const profile = await liff.getProfile();
-            document.getElementById('useridLine').value = profile.userId;
-        } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
-            alert("เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์. กรุณาลองใหม่อีกครั้ง.");
-        }
-    }
-
-    // การส่งข้อมูลเมื่อคลิกปุ่ม Submit
+    const url = "https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec"; // แทนที่ YOUR_SCRIPT_ID ด้วย Script ID จริงของคุณ
     const submitBtn = document.getElementById("submitBtn");
     const form = document.getElementById("dataForm");
 
-    submitBtn.addEventListener('click', (e) => {
-        e.preventDefault(); // ป้องกันการรีเฟรชหน้าจอ
-
-        // การตรวจสอบข้อมูลเบื้องต้น
-        const contact = document.getElementById("contact").value.trim();
+    submitBtn.addEventListener('click', () => {
+        // ดึงค่าจากฟอร์ม
+        const idkey = document.getElementById("idkey").value.trim();
         const useridLine = document.getElementById("useridLine").value.trim();
+        const name = document.getElementById("name").value.trim();
+        const village = document.getElementById("village").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const maplink = document.getElementById("maplink").value.trim();
+        const detail = document.getElementById("detail").value.trim();
+        const contact = document.getElementById("contact").value.trim();
+        const note = document.getElementById("note").value.trim();
+        const caedit = document.getElementById("caedit").value.trim();
 
-        if (!contact || !useridLine) {
-            alert("กรุณากรอกเบอร์โทรศัพท์.");
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        if (!idkey || !useridLine || !name || !village || !address || !maplink || !detail || !contact || !note || !caedit) {
+            alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
             return;
         }
 
+        // สร้างอ็อบเจ็กต์ข้อมูล
         const payload = {
+            idkey: idkey,
+            useridLine: useridLine,
+            name: name,
+            village: village,
+            address: address,
+            maplink: maplink,
+            detail: detail,
             contact: contact,
-            useridLine: useridLine
+            note: note,
+            caedit: caedit
         };
 
+        // ส่งข้อมูลไปยัง Google Apps Script
         fetch(url, {
             method: "POST",
             headers: {
@@ -99,13 +116,12 @@
         .then(response => response.text())
         .then(data => {
             console.log(data);
-            alert(data); // แสดงข้อความตอบกลับจากเซิร์ฟเวอร์
+            alert("ส่งข้อมูลสำเร็จ!");
             form.reset();
-            document.getElementById('useridLine').value = ""; // ล้างค่า useridLine
         })
         .catch(error => {
             console.error(error);
-            alert("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง.");
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
         });
     });
 </script>
