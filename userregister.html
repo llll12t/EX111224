@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,331 +10,223 @@
     <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen">
-<div class="max-w-md m-auto p-2">
+    <div class="max-w-md m-auto p-2">
         <form>
             <div class="bg-white rounded-lg p-10">    
-                <div class="mb-5 text-center">
-                    <div class="mx-auto w-32 h-32 mb-2 border rounded-lg relative bg-slate-100 mb-4 shadow-inset">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Default Image" id="preview" class="h-32 w-32 object-cover rounded-lg">
-                    </div>
-                    <label for="file" class="cursor-pointer inline-flex justify-between items-center p-2 rounded-lg text-slate-800 bg-slate-100 hover:bg-slate-300">
-                        อัพโหลดรูป
-                        <input type="file" id="file" name="file" accept="image/*" class="hidden">
-                    </label>
-                    <div class="mx-auto w-48 text-slate-500 text-xs text-center mt-1">คลิกเพื่ออัพโหลดรูปของคุณ</div>
-                </div>
                 <div class="flex flex-col">
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full  bg-slate-200 p-2 text-slate-500 text-sm text-center rounded-lg" id="userlineId" placeholder="useridLine" name="useridLine" >
-                </div>
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="name" placeholder="ชื่อ" name="name" required>
-                </div>
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="village" placeholder="หมู่บ้าน" name="village" required>
-                </div>
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="address" placeholder="ที่อยู่" name="address" required>
-                </div>
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="maplink" placeholder="ลิงค์แผนที่" name="maplink" required>
-                </div>
-                <div class="mb-4">
-                    <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="detail" placeholder="รายละเอียด" name="detail" required></textarea>
-                </div>
-                <div class="mb-4">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="contact" placeholder="ติดต่อ" name="contact" required>
-                </div>
-                <div class="mb-4">
-                    <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="note" placeholder="หมายเหตุ" name="note"></textarea>
-                </div>
-                <div class="mb-6">
-                    <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="caedit" placeholder="CA Edit" name="caedit" required>
-                </div>
+                    <!-- ลบส่วนการอัพโหลดรูปภาพออก -->
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full bg-slate-200 p-2 text-slate-500 text-sm text-center rounded-lg" id="useridLine" placeholder="useridLine" name="useridLine" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="name" placeholder="ชื่อ" name="name" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="village" placeholder="หมู่บ้าน" name="village" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="address" placeholder="ที่อยู่" name="address" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="maplink" placeholder="ลิงค์แผนที่" name="maplink" required>
+                    </div>
+                    <div class="mb-4">
+                        <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="detail" placeholder="รายละเอียด" name="detail" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="contact" placeholder="ติดต่อ" name="contact" required>
+                    </div>
+                    <div class="mb-4">
+                        <textarea class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="note" placeholder="หมายเหตุ" name="note"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="caedit" placeholder="CA Edit" name="caedit" required>
+                    </div>
                 </div>
                 <button type="button" id="submitBtn" class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-blue-700">บันทึกข้อมูล</button>
             </div>
         </form>
-</div>
-<script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
-<script>
+    </div>
+    <script>
+        // ลิ้งจาก ระบบสมาชิก
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec'; 
+        // LIFF ID
+        const LIFF_ID = '2006504113-w9Y247mX'; // LIFF ID
 
-// ลิ้งจาก ระบบสมาชิก
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSKXsg0YQVG-3hrexNoeNwpRM8KdrqxcrYBTHe-P0jWb1J4QbeJCK64FPXLvJ_V3rZcA/exec'; 
- // Liff ไอดีไล์เรียกใช้หน้าข้อมูลส่วนตัว
-const LIFF_ID = '2006504113-w9Y247mX'; // LIFF ID
+        // ฟังก์ชันเริ่มต้น LIFF SDK
+        window.onload = function () {
+            initializeLiff();
+        };
 
+        // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: `${LIFF_ID}` });
 
-// ฟังก์ชันเริ่มต้น LIFF SDK
-window.onload = function () {
-    initializeLiff();
-};
-
-// ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
-async function initializeLiff() {
-    try {
-        await liff.init({ liffId: `${LIFF_ID}` });
-
-        if (liff.isLoggedIn()) {
-            getUserProfile();
-        } else {
-            liff.login();
-        }
-    } catch (error) {
-        console.error('LIFF Initialization failed:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Initialization Error',
-            text: 'Failed to initialize LINE LIFF. Please try again later.',
-        });
-    }
-}
-
-// ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้
-async function getUserProfile() {
-    try {
-        const profile = await liff.getProfile();
-        document.getElementById('userlineId').value = profile.userId;
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
-    }
-}
-
-// ฟังก์ชันสำหรับส่งข้อความ Flex
-async function sendFlexMessage() {
-    const flexMessage = {
-        type: 'flex',
-        altText: 'ลงทะเบียนเรียบร้อย',
-        contents: {
-            type: 'bubble',
-            styles: {
-                header: {
-                    backgroundColor: '#f0f0f0'
-                },
-                footer: {
-                    backgroundColor: '#f0f0f0'
-                },
-                body: {
-                    backgroundColor: '#ffffff'
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
                 }
-            },
-            header: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                    {
-                        type: 'text',
-                        text: 'ข้อมูลลงทะเบียนสำเร็จ',
-                        weight: 'bold',
-                        size: 'lg',
-                        color: '#000000',
-                        align: 'center'
-                    }
-                ]
-            },
-            body: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                    {
-                        type: 'box',
-                        layout: 'vertical',
-                        margin: 'lg',
-                        spacing: 'sm',
-                        contents: [
-                            {
-                                type: 'box',
-                                layout: 'horizontal',
-                                contents: [
-                                    {
-                                        type: 'text',
-                                        text: 'ชื่อ',
-                                        size: 'sm',
-                                        color: '#555555',
-                                        flex: 1
-                                    },
-                                    {
-                                        type: 'text',
-                                        text: document.getElementById('name').value,
-                                        size: 'sm',
-                                        color: '#111111',
-                                        align: 'end',
-                                        flex: 2
-                                    }
-                                ]
-                            },
-                            {
-                                type: 'box',
-                                layout: 'horizontal',
-                                contents: [
-                                    {
-                                        type: 'text',
-                                        text: 'หมู่บ้าน',
-                                        size: 'sm',
-                                        color: '#555555',
-                                        flex: 1
-                                    },
-                                    {
-                                        type: 'text',
-                                        text: document.getElementById('village').value,
-                                        size: 'sm',
-                                        color: '#111111',
-                                        align: 'end',
-                                        flex: 2
-                                    }
-                                ]
-                            },
-                            // Add other fields similarly...
-                        ]
-                    }
-                ]
-            },
-            footer: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                    {
-                        type: 'text',
-                        text: 'ยินดีต้อนรับ!',
-                        size: 'sm',
-                        color: '#aaaaaa',
-                        align: 'center'
-                    }
-                ]
+            } catch (error) {
+                console.error('LIFF Initialization failed:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Initialization Error',
+                    text: 'ไม่สามารถเริ่มต้น LIFF ได้ กรุณาลองใหม่อีกครั้งในภายหลัง.',
+                });
             }
         }
-    };
 
-    await liff.sendMessages([flexMessage]);
-}
+        // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                document.getElementById('useridLine').value = profile.userId;
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
+            }
+        }
 
-let url = `${WEB_APP_URL}`;
-let userlineIdInput = document.getElementById("userlineId");
-let nameInput = document.getElementById("name");
-let villageInput = document.getElementById("village");
-let addressInput = document.getElementById("address");
-let maplinkInput = document.getElementById("maplink");
-let detailInput = document.getElementById("detail");
-let contactInput = document.getElementById("contact");
-let noteInput = document.getElementById("note");
-let caeditInput = document.getElementById("caedit");
-let submitBtn = document.getElementById("submitBtn");
+        let url = WEB_APP_URL;
+        let useridLineInput = document.getElementById("useridLine");
+        let nameInput = document.getElementById("name");
+        let villageInput = document.getElementById("village");
+        let addressInput = document.getElementById("address");
+        let maplinkInput = document.getElementById("maplink");
+        let detailInput = document.getElementById("detail");
+        let contactInput = document.getElementById("contact");
+        let noteInput = document.getElementById("note");
+        let caeditInput = document.getElementById("caedit");
+        let submitBtn = document.getElementById("submitBtn");
 
-// ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
-function validateForm() {
-    const useridLine = userlineIdInput.value.trim();
-    const name = nameInput.value.trim();
-    const village = villageInput.value.trim();
-    const address = addressInput.value.trim();
-    const maplink = maplinkInput.value.trim();
-    const detail = detailInput.value.trim();
-    const contact = contactInput.value.trim();
-    const caedit = caeditInput.value.trim();
+        // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
+        function validateForm() {
+            const useridLine = useridLineInput.value.trim();
+            const name = nameInput.value.trim();
+            const village = villageInput.value.trim();
+            const address = addressInput.value.trim();
+            const maplink = maplinkInput.value.trim();
+            const detail = detailInput.value.trim();
+            const contact = contactInput.value.trim();
+            const caedit = caeditInput.value.trim();
 
-    if (useridLine === '' || name === '' || village === '' || address === '' || maplink === '' || detail === '' || contact === '' || caedit === '') {
-        return false;
-    }
+            if (useridLine === '' || name === '' || village === '' || address === '' || maplink === '' || detail === '' || contact === '' || caedit === '') {
+                return false;
+            }
 
-    return true;
-}
+            return true;
+        }
 
-// เพิ่ม event listener สำหรับปุ่มบันทึกข้อมูล
-submitBtn.addEventListener('click', async (event) => {
-    event.preventDefault();
+        // เพิ่ม event listener สำหรับปุ่มบันทึกข้อมูล
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
 
-    if (!validateForm()) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Validation Error',
-            text: 'กรุณากรอกข้อมูลในช่องที่จำเป็น.',
-        });
-        return;
-    }
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'กรุณากรอกข้อมูลในช่องที่จำเป็น.',
+                });
+                return;
+            }
 
-    const isConfirmed = await showConfirmationDialog();
+            const isConfirmed = await showConfirmationDialog();
 
-    if (isConfirmed) {
-        submitBtn.disabled = true;
+            if (isConfirmed) {
+                submitBtn.disabled = true;
 
-        try {
-            let obj = {
-                useridLine: userlineIdInput.value,
-                name: nameInput.value,
-                village: villageInput.value,
-                address: addressInput.value,
-                maplink: maplinkInput.value,
-                detail: detailInput.value,
-                contact: contactInput.value,
-                note: noteInput.value,
-                caedit: caeditInput.value
-            };
+                try {
+                    let obj = {
+                        contact: contactInput.value, // ใช้ contact เป็นตัวตรวจสอบ
+                        useridLine: useridLineInput.value,
+                        name: nameInput.value,
+                        village: villageInput.value,
+                        address: addressInput.value,
+                        maplink: maplinkInput.value,
+                        detail: detailInput.value,
+                        note: noteInput.value,
+                        caedit: caeditInput.value
+                    };
 
-            Swal.fire({
-                title: 'กำลังบันทึก, รอสักครู่...',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+                    Swal.fire({
+                        title: 'กำลังบันทึก, รอสักครู่...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-            let response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(obj)
-            });
+                    let response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(obj)
+                    });
 
-            let data = await response.text();
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
 
-            Swal.fire({
-                title: 'สำเร็จ!',
-                text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
-                icon: 'success',
-                confirmButtonText: 'ปิด',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    sendFlexMessage().then(() => {
-                        liff.closeWindow();
-                    }).catch(error => {
-                        console.error('Failed to send Flex Message:', error);
+                    let data = await response.text();
+
+                    if (data === "Data updated successfully") {
+                        Swal.fire({
+                            title: 'สำเร็จ!',
+                            text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
+                            icon: 'success',
+                            confirmButtonText: 'ปิด',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                liff.closeWindow();
+                            }
+                        });
+                    } else if (data === "Your number is not registered") {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'ไม่พบข้อมูล',
+                            text: 'เบอร์ของคุณยังไม่ได้ลงทะเบียน.',
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Messaging Error',
-                            text: 'ข้อมูลลงทะเบียนสำเร็จ แต่ไม่สามารถส่งข้อความยืนยันได้.',
+                            title: 'Error',
+                            text: 'เกิดข้อผิดพลาดขณะส่งข้อมูล.',
                         });
+                    }
+
+                    console.log(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `เกิดข้อผิดพลาดขณะส่งข้อมูล: ${error.message}`,
                     });
+
+                    console.error(error);
+                } finally {
+                    submitBtn.disabled = false;
                 }
+            } else {
+                Swal.fire('Submission Canceled', 'ข้อมูลของคุณไม่ได้ถูกส่ง.', 'info');
+            }
+        });
+
+        // ฟังก์ชันสำหรับแสดงกล่องยืนยัน
+        async function showConfirmationDialog() {
+            const confirmation = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ส่งข้อมูล!',
+                cancelButtonText: 'ไม่, ยกเลิก'
             });
 
-            console.log(data);
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'เกิดข้อผิดพลาดขณะส่งข้อมูล.',
-            });
-
-            console.error(error);
-        } finally {
-            submitBtn.disabled = false;
+            return confirmation.isConfirmed;
         }
-    } else {
-        Swal.fire('Submission Canceled', 'ข้อมูลของคุณไม่ได้ถูกส่ง.', 'info');
-    }
-});
-
-// ฟังก์ชันสำหรับแสดงกล่องยืนยัน
-async function showConfirmationDialog() {
-    const confirmation = await Swal.fire({
-        title: 'ยืนยันการส่งข้อมูล',
-        text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'ใช่, ส่งข้อมูล!',
-        cancelButtonText: 'ไม่, ยกเลิก'
-    });
-
-    return confirmation.isConfirmed;
-}
-</script>
+    </script>
 </body>
 </html>
