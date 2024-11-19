@@ -109,15 +109,10 @@ let submitBtn = document.getElementById("submitBtn");
 // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
 function validateForm() {
     const useridLine = userlineIdInput.value.trim();
-    const name = nameInput.value.trim();
-    const village = villageInput.value.trim();
-    const address = addressInput.value.trim();
-    const maplink = maplinkInput.value.trim();
-    const detail = detailInput.value.trim();
+   
     const contact = contactInput.value.trim();
-    const caedit = caeditInput.value.trim();
-
-    if (useridLine === '' || name === '' || village === '' || address === '' || maplink === '' || detail === '' || contact === '' || caedit === '') {
+   
+    if (useridLine === ''  || contact === '' ) {
         return false;
     }
 
