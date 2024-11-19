@@ -85,6 +85,8 @@
             try {
                 const profile = await liff.getProfile();
                 document.getElementById('userlineId').value = profile.userId;
+                document.getElementById('displayName').value = profile.displayName;
+                document.getElementById('profileImage').src = profile.pictureUrl || DEFAULT_IMAGE_URL;
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
             }
