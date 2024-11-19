@@ -1,128 +1,118 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>ผูก LINE กับเบอร์โทร</title>
-  <!-- Tailwind CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึก User ID Line</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- เพิ่ม LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">ผูก LINE กับเบอร์โทร</h2>
-    <div class="mb-4">
-      <label for="contact" class="block text-gray-700 font-semibold mb-2">เบอร์ติดต่อ</label>
-      <input type="text" id="contact" placeholder="กรุณากรอกเบอร์ติดต่อ" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400">
-    </div>
-    <button onclick="bindUser()" class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200">ผูกข้อมูล</button>
-  </div>
+<body class="bg-gray-100">
 
-  <script>
-    // แทนที่ "YOUR_LIFF_ID" ด้วย LIFF ID ของคุณ
-    const LIFF_ID = "2006504113-w9Y247mX"; // ตัวอย่าง LIFF ID
+<div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-3xl font-semibold mb-6">บันทึก User ID Line</h1>
 
-    async function initializeApp() {
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) {
-          liff.login();
+    <form id="dataForm">
+        <div class="mb-4">
+            <label for="contact" class="block text-sm font-medium text-gray-600">Contact (เบอร์โทรศัพท์)</label>
+            <input type="text" id="contact" name="contact" placeholder="กรอกเบอร์โทรศัพท์" class="mt-1 p-2 border rounded-md w-full" required>
+        </div>
+
+        <div class="mb-4">
+            <label for="useridLine" class="block text-sm font-medium text-gray-600">User ID Line</label>
+            <input type="text" id="useridLine" name="useridLine" placeholder="User ID Line จะถูกกรอกอัตโนมัติ" class="mt-1 p-2 border rounded-md w-full bg-gray-200" readonly>
+        </div>
+
+        <button type="button" id="submitBtn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
+    </form>
+</div>
+
+<script>
+    // กำหนด LIFF ID ของคุณที่นี่
+    const LIFF_ID = "2006504113-w9Y247mX"; // แทนที่ด้วย LIFF ID ของคุณ
+
+    // กำหนด URL ของ Google Apps Script ของคุณที่นี่
+    const url = "https://script.google.com/macros/s/AKfycbwTOMtcDFu2rfEba7ZLx_rTvMDpemc7BrhJ-krzmzfLrRfi76RAsRr_GhoAN23-6RlKqw/exec"; // แทนที่ด้วย URL ของสคริปต์คุณ
+
+    // ฟังก์ชันเริ่มต้น LIFF SDK
+    window.onload = function () {
+        initializeLiff();
+    };
+
+    // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
+    async function initializeLiff() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+
+            if (liff.isLoggedIn()) {
+                getUserProfile();
+            } else {
+                liff.login();
+            }
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการเริ่มต้น LIFF:', error);
+            alert("เกิดข้อผิดพลาดในการเริ่มต้น LIFF. กรุณาลองใหม่อีกครั้ง.");
         }
-      } catch (error) {
-        console.error('Error initializing LIFF:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: 'ไม่สามารถเชื่อมต่อกับ LIFF ได้',
-        });
-      }
     }
 
-    async function bindUser() {
-      const contact = document.getElementById('contact').value.trim();
-
-      // ตรวจสอบว่ากรอกเบอร์โทรหรือไม่
-      if (contact === "") {
-        Swal.fire({
-          icon: 'warning',
-          title: 'เตือน!',
-          text: 'กรุณากรอกเบอร์โทรก่อน',
-        });
-        return;
-      }
-
-      // ตรวจสอบรูปแบบเบอร์โทร (ตัวอย่าง: 10 หลัก)
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(contact)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'เบอร์โทรไม่ถูกต้อง',
-          text: 'กรุณากรอกเบอร์โทรที่ถูกต้อง (10 หลัก)',
-        });
-        return;
-      }
-
-      try {
-        const profile = await liff.getProfile();
-        const userId = profile.userId;
-
-        // แสดง Loading ขณะส่งข้อมูล
-        Swal.fire({
-          title: 'กำลังผูกข้อมูล',
-          text: 'กรุณารอสักครู่...',
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-
-        // ส่งข้อมูลไปยัง Google Apps Script
-        const response = await fetch('https://script.google.com/macros/s/AKfycbwTOMtcDFu2rfEba7ZLx_rTvMDpemc7BrhJ-krzmzfLrRfi76RAsRr_GhoAN23-6RlKqw/exec', { // แทนที่ด้วย Web App URL ของคุณ
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            action: 'bindUserData',
-            userId: userId,
-            contact: contact
-          })
-        });
-
-        const result = await response.json();
-
-        Swal.close(); // ปิด Loading
-
-        if (result.status === 'success') {
-          Swal.fire({
-            icon: 'success',
-            title: 'สำเร็จ',
-            text: result.message,
-          }).then(() => {
-            // เคลียร์ฟอร์มหลังจากสำเร็จ
-            document.getElementById('contact').value = '';
-          });
-        } else {
-          Swal.fire({
-            icon: 'info',
-            title: 'ข้อมูล',
-            text: result.message,
-          });
+    // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้
+    async function getUserProfile() {
+        try {
+            const profile = await liff.getProfile();
+            document.getElementById('useridLine').value = profile.userId;
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
+            alert("เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์. กรุณาลองใหม่อีกครั้ง.");
         }
-      } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: 'ไม่สามารถส่งข้อมูลได้',
-        });
-      }
     }
 
-    // เรียกใช้งานฟังก์ชัน initializeApp เมื่อโหลดหน้าเว็บ
-    window.onload = initializeApp;
-  </script>
+    // การส่งข้อมูลเมื่อคลิกปุ่ม Submit
+    const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("dataForm");
+
+    submitBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // ป้องกันการรีเฟรชหน้าจอ
+
+        // การตรวจสอบข้อมูลเบื้องต้น
+        const contact = document.getElementById("contact").value.trim();
+        const useridLine = document.getElementById("useridLine").value.trim();
+
+        if (!contact || !useridLine) {
+            alert("กรุณากรอกเบอร์โทรศัพท์.");
+            return;
+        }
+
+        const payload = {
+            contact: contact,
+            useridLine: useridLine
+        };
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+            alert(data); // แสดงข้อความตอบกลับจากเซิร์ฟเวอร์
+            form.reset();
+            document.getElementById('useridLine').value = ""; // ล้างค่า useridLine
+        })
+        .catch(error => {
+            console.error(error);
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง.");
+        });
+    });
+</script>
+
 </body>
 </html>
+
+
+
+
