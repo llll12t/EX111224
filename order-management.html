@@ -340,7 +340,7 @@
           const response = await fetch(WEB_APP_URL_ORDER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
+            body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&name=${encodeURIComponent(name)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
           });
           const result = await response.json();
           if (result.success) {
