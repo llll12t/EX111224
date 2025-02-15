@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ข้อมูลการดำเนินการ</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
+  <style>
+    .bg-green-custom { background: #FFFFFF; }
+    .disabled-button { opacity: 0.5; cursor: not-allowed; }
+    .bg-green { background: #078274; }
+    .border-green { border: 2px solid #078274; border-radius: 10px; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-md mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center">ข้อมูลการดำเนินการ</h1>
+    
+    <!-- Content for ข้อมูลการดำเนินการ -->
+    <div id="operation-management">
+      <!-- Filter Section -->
+      <div class="w-full max-w-md mb-4">
+        <div class="bg-green-custom rounded-lg p-4 mb-4">
+          <div class="flex flex-wrap gap-4">
+            <select id="operation-filter-status" onchange="operationApplyFilters()"
+              class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
+              <option value="">ทุกสถานะ</option>
+              <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
+              <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
+              <option value="ดำเนินการเสร็จสิ้น">ดำเนินการเสร็จสิ้น</option>
+              <option value="อนุมัติ">อนุมัติ</option>
+              <option value="รอดำเนินการ">รอดำเนินการ</option>
+              <option value="ปฏิเสธ">ปฏิเสธ</option>
+            </select>
+            <input type="text" id="operation-filter-name" placeholder="ค้นหาตามชื่อ"
+              class="w-full sm:w-auto flex-1 border p-2 rounded-lg" oninput="operationApplyFilters()">
+            <input type="hidden" id="operation-userId" readonly class="w-full sm:w-auto flex-1 border p-2 rounded-lg bg-gray-100">
+          </div>
+        </div>
+      </div>
+
+      <!-- Task List Section -->
+      <div id="operation-task-list" class="bg-white w-full max-w-md p-2">
+        <!-- รายการงานที่ต้องทำจะแสดงที่นี่ -->
+      </div>
+
+      <!-- Completed/Archived Tasks Section -->
+      <div id="operation-completed-tasks" class="bg-white w-full max-w-md p-2 mt-4">
+        <!-- งานที่เสร็จสิ้นหรือถูกเลื่อนจะแสดงที่นี่ -->
+      </div>
+
+      <!-- Loading Message -->
+      <div id="operation-loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+
+      <!-- View Details Modal -->
+      <div id="operation-view-details-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+          <h2 class="text-xl mb-4">รายละเอียดข้อมูล</h2>
+          <div id="operation-details-content" class="space-y-2"></div>
+          <div class="flex justify-end mt-4 space-x-2">
+            <button type="button" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700" onclick="operationCloseViewDetailsModal()">ปิด</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start Job Modal -->
+      <div id="operation-start-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+          <h2 class="text-xl mb-4">ระหว่างเดินทาง</h2>
+          <form id="operation-start-job-form">
+            <input type="hidden" id="operation-start-job-idkey">
+            <div class="mb-4">
+              <label for="operation-start-status" class="block mb-1">สถานะ</label>
+              <select id="operation-start-status" class="w-full border p-2 rounded-lg" required>
+                <option value="ระหว่างเดินทาง" selected>ระหว่างเดินทาง</option>
+                <option value="ยกเลิก">ยกเลิก</option>
+                <option value="เลื่อน">เลื่อน</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="operation-start-time-inside" class="block mb-1">เวลา</label>
+              <input type="datetime-local" id="operation-start-time-inside" class="w-full border p-2 rounded-lg" required>
+            </div>
+            <div class="mb-4">
+              <label for="operation-start-inside-note" class="block mb-1">หมายเหตุ</label>
+              <textarea id="operation-start-inside-note" class="w-full border p-2 rounded-lg"></textarea>
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+              <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="operationCloseStartJobModal()">ยกเลิก</button>
+              <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Process Job Modal -->
+      <div id="operation-process-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
+          <h2 class="text-xl mb-4">ดำเนินการ</h2>
+          <form id="operation-process-job-form">
+            <input type="hidden" id="operation-process-job-idkey">
+            <div class="mb-4">
+              <label for="operation-process-status" class="block mb-1">สถานะ</label>
+              <select id="operation-process-status" class="w-full border p-2 rounded-lg" required>
+                <option value="เริ่มดำเนินการ" selected>เริ่มดำเนินการ</option>
+                <option value="ยกเลิก">ยกเลิก</option>
+                <option value="เลื่อน">เลื่อน</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="operation-process-time-process" class="block mb-1">เวลา</label>
+              <input type="datetime-local" id="operation-process-time-process" class="w-full border p-2 rounded-lg" required>
+            </div>
+            <div class="mb-4">
+              <label for="operation-process-process-note" class="block mb-1">หมายเหตุ</label>
+              <textarea id="operation-process-process-note" class="w-full border p-2 rounded-lg"></textarea>
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+              <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="operationCloseProcessJobModal()">ยกเลิก</button>
+              <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Complete Job Modal -->
+      <div id="operation-complete-job-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
+          <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
+          <form id="operation-complete-job-form" enctype="multipart/form-data">
+            <input type="hidden" id="operation-complete-job-idkey">
+            <div class="mb-4">
+              <label for="operation-complete-status" class="block mb-1">สถานะ</label>
+              <select id="operation-complete-status" class="w-full border p-2 rounded-md" required>
+                <option value="ดำเนินการเสร็จสิ้น" selected>ดำเนินการเสร็จสิ้น</option>
+                <option value="ยกเลิก">ยกเลิก</option>
+                <option value="เลื่อน">เลื่อน</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="operation-complete-time-compress" class="block mb-1">เวลา</label>
+              <input type="datetime-local" id="operation-complete-time-compress" class="w-full border p-2 rounded-lg" required>
+            </div>
+            <div class="mb-4">
+              <label for="operation-complete-compress-note" class="block mb-1">หมายเหตุ</label>
+              <textarea id="operation-complete-compress-note" class="w-full border p-2 rounded-lg"></textarea>
+            </div>
+            <div class="mb-4">
+              <label for="operation-complete-compress-photo" class="block mb-1">รูปภาพ (ไม่บังคับ)</label>
+              <input type="file" id="operation-complete-compress-photo" accept="image/*" class="w-full border p-2 rounded-lg">
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+              <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="operationCloseCompleteJobModal()">ยกเลิก</button>
+              <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operation Management Scripts -->
+  <script>
+    (function() {
+      const WEB_APP_URL_OPERATION = 'https://script.google.com/macros/s/AKfycbxeLbY6sR3LCqVU240VKUlBP3Zc6IihNbw-J-iBhbQ_bAEjx9zy5ezXrEzpiBEWzjvrbA/exec';
+      const LIFF_ID_OPERATION = '2006504113-bBeyx8LX';
+      let operationCurrentUserId = '';
+      let operationTableData = [];
+      let currentPagePendingOperation = 1;
+      let currentPageCompletedOperation = 1;
+      const operationItemsPerPage = 10;
+
+      async function operationInitializeLiff() {
+        try {
+          await liff.init({ liffId: LIFF_ID_OPERATION });
+          if (liff.isLoggedIn()) {
+            operationGetUserProfile();
+          } else {
+            liff.login();
+          }
+        } catch (error) {
+          console.error('LIFF Initialization failed', error);
+        }
+      }
+
+      async function operationGetUserProfile() {
+        try {
+          const profile = await liff.getProfile();
+          operationCurrentUserId = profile.userId;
+          document.getElementById('operation-userId').value = operationCurrentUserId;
+          operationFetchData(operationCurrentUserId);
+        } catch (error) {
+          console.error('Error getting profile data:', error);
+        }
+      }
+
+      async function operationFetchData(userId) {
+        document.getElementById('operation-loading-message').style.display = 'block';
+        try {
+          const response = await fetch(`${WEB_APP_URL_OPERATION}?sheet=Dataservice`);
+          const result = await response.json();
+          if (result.success) {
+            operationTableData = result.data;
+            operationApplyFilters(userId);
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+        } finally {
+          document.getElementById('operation-loading-message').style.display = 'none';
+        }
+      }
+
+      function operationApplyFilters(userId = operationCurrentUserId) {
+        const filterStatus = document.getElementById('operation-filter-status').value.toLowerCase();
+        const filterName = document.getElementById('operation-filter-name').value.toLowerCase();
+        const filteredData = operationTableData.filter(row => {
+          const matchesStatus = filterStatus ? row.status.toLowerCase().includes(filterStatus) : true;
+          const matchesName = filterName ? (row.Name || '').toLowerCase().includes(filterName) : true;
+          const matchesUserId = row.useridresponsible === userId;
+          return matchesStatus && matchesName && matchesUserId;
+        });
+        filteredData.sort((a, b) => {
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        });
+        currentPagePendingOperation = 1;
+        currentPageCompletedOperation = 1;
+        operationDisplayTasks(filteredData);
+      }
+
+      function operationDisplayTasks(data) {
+        const taskList = document.getElementById('operation-task-list');
+        const completedTasks = document.getElementById('operation-completed-tasks');
+        taskList.innerHTML = '';
+        completedTasks.innerHTML = '';
+        const pendingTasks = data.filter(row => !(row.status === 'ดำเนินการเสร็จสิ้น' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
+        const completedTaskData = data.filter(row => (row.status === 'ดำเนินการเสร็จสิ้น' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
+        const totalPagesPending = Math.ceil(pendingTasks.length / operationItemsPerPage);
+        if (currentPagePendingOperation > totalPagesPending) currentPagePendingOperation = totalPagesPending || 1;
+        const totalPagesCompleted = Math.ceil(completedTaskData.length / operationItemsPerPage);
+        if (currentPageCompletedOperation > totalPagesCompleted) currentPageCompletedOperation = totalPagesCompleted || 1;
+        const taskListHeading = document.createElement('h3');
+        taskListHeading.className = 'text-lg font-semibold mb-2';
+        taskListHeading.textContent = 'งานที่ต้องทำ';
+        taskList.appendChild(taskListHeading);
+        const startPending = (currentPagePendingOperation - 1) * operationItemsPerPage;
+        const tasksToDisplay = pendingTasks.slice(startPending, startPending + operationItemsPerPage);
+        tasksToDisplay.forEach(row => {
+          const card = document.createElement('div');
+          card.className = 'border-green rounded-lg p-4 mb-4';
+          const header = document.createElement('div');
+          header.className = 'grid grid-cols-3 gap-4 border-b pb-2';
+          header.innerHTML = `
+            <div class="flex flex-col items-start">
+              <span class="text-sm text-gray-600 mb-1">สถานะ</span>
+              <span class="font-normal text-base">${row.status}</span>
+            </div>
+            <div class="flex flex-col items-start">
+              <span class="text-sm text-gray-600 mb-1">ชื่อ</span>
+              <span class="font-normal text-base">${row.Name || ''}</span>
+            </div>
+            <div class="flex flex-col items-start">
+              <span class="text-sm text-gray-600 mb-1">รายละเอียด</span>
+              <button class="text-blue-500 underline" onclick="operationOpenViewDetailsModal('${row.idkey}')">เพิ่มเติม</button>
+            </div>
+          `;
+          const actionButtons = document.createElement('div');
+          actionButtons.className = 'grid grid-cols-3 gap-4 mt-2 text-sm';
+          const startButton = document.createElement('button');
+          startButton.className = 'bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition';
+          startButton.textContent = 'เริ่มเดินทาง';
+          startButton.onclick = () => operationOpenStartJobModal(row.idkey);
+          const processButton = document.createElement('button');
+          processButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition';
+          processButton.textContent = 'ถึงหน้างาน';
+          processButton.onclick = () => operationOpenProcessJobModal(row.idkey);
+          const completeButton = document.createElement('button');
+          completeButton.className = 'bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition';
+          completeButton.textContent = 'งานเสร็จสิ้น';
+          completeButton.onclick = () => operationOpenCompleteJobModal(row.idkey);
+          if (row.status === 'รอดำเนินการ') {
+            processButton.disabled = true;
+            completeButton.disabled = true;
+            processButton.classList.add('disabled-button');
+            completeButton.classList.add('disabled-button');
+          } else if (row.status === 'ระหว่างเดินทาง') {
+            startButton.disabled = true;
+            completeButton.disabled = true;
+            startButton.classList.add('disabled-button');
+            completeButton.classList.add('disabled-button');
+          } else if (row.status === 'เริ่มดำเนินการ') {
+            startButton.disabled = true;
+            processButton.disabled = true;
+            startButton.classList.add('disabled-button');
+            processButton.classList.add('disabled-button');
+          } else if (row.status === 'ดำเนินการเสร็จสิ้น') {
+            startButton.disabled = true;
+            processButton.disabled = true;
+            completeButton.disabled = true;
+            startButton.classList.add('disabled-button');
+            processButton.classList.add('disabled-button');
+            completeButton.classList.add('disabled-button');
+          }
+          actionButtons.append(startButton, processButton, completeButton);
+          card.append(header, actionButtons);
+          taskList.appendChild(card);
+        });
+        if (totalPagesPending > 1) {
+          const paginationDiv = operationDisplayPagination(totalPagesPending, currentPagePendingOperation, 'pending');
+          taskList.appendChild(paginationDiv);
+        }
+        const completedTasksHeading = document.createElement('h3');
+        completedTasksHeading.className = 'text-lg font-semibold mb-2 mt-4';
+        completedTasksHeading.textContent = 'เลื่อน/สำเร็จ';
+        completedTasks.appendChild(completedTasksHeading);
+        const completedHeader = document.createElement('div');
+        completedHeader.className = 'flex justify-between font-bold mb-2';
+        completedHeader.innerHTML = `<span>สถานะ</span><span>ชื่อ</span><span>รายละเอียด</span>`;
+        completedTasks.appendChild(completedHeader);
+        const startCompleted = (currentPageCompletedOperation - 1) * operationItemsPerPage;
+        const completedToDisplay = completedTaskData.slice(startCompleted, startCompleted + operationItemsPerPage);
+        completedToDisplay.forEach(row => {
+          const taskItem = document.createElement('div');
+          taskItem.className = 'flex justify-between py-2';
+          taskItem.innerHTML = `<span>${row.status}</span><span>${row.Name || ''}</span><button class="text-blue-500" onclick="operationOpenViewDetailsModal('${row.idkey}')">เพิ่มเติม</button>`;
+          completedTasks.appendChild(taskItem);
+        });
+        if (totalPagesCompleted > 1) {
+          const paginationDiv = operationDisplayPagination(totalPagesCompleted, currentPageCompletedOperation, 'completed');
+          completedTasks.appendChild(paginationDiv);
+        }
+      }
+
+      function operationDisplayPagination(pages, currentPage, type) {
+        const paginationDiv = document.createElement('div');
+        paginationDiv.className = 'flex justify-center mt-4 space-x-2';
+        const prevButton = document.createElement('button');
+        prevButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+        prevButton.textContent = 'ก่อนหน้า';
+        prevButton.disabled = currentPage === 1;
+        prevButton.onclick = () => {
+          if (type === 'pending') currentPagePendingOperation--;
+          else currentPageCompletedOperation--;
+          operationApplyFilters();
+        };
+        const nextButton = document.createElement('button');
+        nextButton.className = 'bg-gray-500 text-white py-1 px-3 rounded-lg';
+        nextButton.textContent = 'ถัดไป';
+        nextButton.disabled = currentPage === pages;
+        nextButton.onclick = () => {
+          if (type === 'pending') currentPagePendingOperation++;
+          else currentPageCompletedOperation++;
+          operationApplyFilters();
+        };
+        paginationDiv.append(prevButton, nextButton);
+        return paginationDiv;
+      }
+
+      window.operationOpenViewDetailsModal = function(idkey) {
+        const row = operationTableData.find(row => row.idkey === idkey);
+        if (row) {
+          document.getElementById('operation-details-content').innerHTML = `
+            <p><strong>PO:</strong> ${row.idkey}</p>
+            <p><strong>สถานะ:</strong> ${row.status}</p>
+            <p><strong>บันทึกเวลา:</strong> ${row.timestamp}</p>
+          `;
+          document.getElementById('operation-view-details-modal').classList.remove('hidden');
+        }
+      };
+
+      window.operationCloseViewDetailsModal = function() {
+        document.getElementById('operation-view-details-modal').classList.add('hidden');
+      };
+
+      window.operationOpenStartJobModal = function(idkey) {
+        const row = operationTableData.find(row => row.idkey === idkey);
+        if (row) {
+          document.getElementById('operation-start-job-idkey').value = row.idkey;
+          document.getElementById('operation-start-time-inside').value = new Date().toISOString().substring(0,16);
+          document.getElementById('operation-start-inside-note').value = row.insideNote || '';
+          document.getElementById('operation-start-status').value = 'ระหว่างเดินทาง';
+          document.getElementById('operation-start-job-modal').classList.remove('hidden');
+        }
+      };
+
+      window.operationCloseStartJobModal = function() {
+        document.getElementById('operation-start-job-modal').classList.add('hidden');
+      };
+
+      document.getElementById('operation-start-job-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitButton = this.querySelector("button[type=submit]");
+        submitButton.disabled = true;
+        const idkey = document.getElementById('operation-start-job-idkey').value;
+        const status = document.getElementById('operation-start-status').value;
+        const timeInside = document.getElementById('operation-start-time-inside').value;
+        const insideNote = document.getElementById('operation-start-inside-note').value.trim();
+        if (!idkey || !status || !timeInside) {
+          Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+          submitButton.disabled = false;
+          return;
+        }
+        try {
+          const response = await fetch(WEB_APP_URL_OPERATION, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(timeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
+          });
+          const result = await response.json();
+          if (result.success) {
+            Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+            operationCloseStartJobModal();
+            operationFetchData(operationCurrentUserId);
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      window.operationOpenProcessJobModal = function(idkey) {
+        const row = operationTableData.find(row => row.idkey === idkey);
+        if (row) {
+          document.getElementById('operation-process-job-idkey').value = row.idkey;
+          document.getElementById('operation-process-time-process').value = new Date().toISOString().substring(0,16);
+          document.getElementById('operation-process-process-note').value = row.processNote || '';
+          document.getElementById('operation-process-status').value = 'เริ่มดำเนินการ';
+          document.getElementById('operation-process-job-modal').classList.remove('hidden');
+        }
+      };
+
+      window.operationCloseProcessJobModal = function() {
+        document.getElementById('operation-process-job-modal').classList.add('hidden');
+      };
+
+      document.getElementById('operation-process-job-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitButton = this.querySelector("button[type=submit]");
+        submitButton.disabled = true;
+        const idkey = document.getElementById('operation-process-job-idkey').value;
+        const status = document.getElementById('operation-process-status').value;
+        const timeProcess = document.getElementById('operation-process-time-process').value;
+        const processNote = document.getElementById('operation-process-process-note').value.trim();
+        if (!idkey || !status || !timeProcess) {
+          Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+          submitButton.disabled = false;
+          return;
+        }
+        try {
+          const response = await fetch(WEB_APP_URL_OPERATION, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `method=processJob&idkey=${encodeURIComponent(idkey)}&timeProcess=${encodeURIComponent(timeProcess)}&processNote=${encodeURIComponent(processNote)}&status=${encodeURIComponent(status)}`
+          });
+          const result = await response.json();
+          if (result.success) {
+            Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+            operationCloseProcessJobModal();
+            operationFetchData(operationCurrentUserId);
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      window.operationOpenCompleteJobModal = function(idkey) {
+        const row = operationTableData.find(row => row.idkey === idkey);
+        if (row) {
+          document.getElementById('operation-complete-job-idkey').value = row.idkey;
+          document.getElementById('operation-complete-time-compress').value = new Date().toISOString().substring(0,16);
+          document.getElementById('operation-complete-compress-note').value = row.compressNote || '';
+          document.getElementById('operation-complete-compress-photo').value = '';
+          document.getElementById('operation-complete-status').value = 'ดำเนินการเสร็จสิ้น';
+          document.getElementById('operation-complete-job-modal').classList.remove('hidden');
+        }
+      };
+
+      window.operationCloseCompleteJobModal = function() {
+        document.getElementById('operation-complete-job-modal').classList.add('hidden');
+      };
+
+      document.getElementById('operation-complete-job-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitButton = this.querySelector("button[type=submit]");
+        submitButton.disabled = true;
+        const idkey = document.getElementById('operation-complete-job-idkey').value;
+        const status = document.getElementById('operation-complete-status').value;
+        const timeCompress = document.getElementById('operation-complete-time-compress').value;
+        const compressNote = document.getElementById('operation-complete-compress-note').value.trim();
+        const compressPhotoInput = document.getElementById('operation-complete-compress-photo');
+        const compressPhotoFile = compressPhotoInput.files[0];
+        let compressPhotoData = '';
+        if (compressPhotoFile) {
+          compressPhotoData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              resolve(e.target.result.split(',')[1]);
+            };
+            reader.onerror = function(e) {
+              reject(e);
+            };
+            reader.readAsDataURL(compressPhotoFile);
+          });
+        }
+        if (!idkey || !status || !timeCompress) {
+          Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+          submitButton.disabled = false;
+          return;
+        }
+        try {
+          let bodyParams = `method=completeJob&idkey=${encodeURIComponent(idkey)}&timeCompress=${encodeURIComponent(timeCompress)}&compressNote=${encodeURIComponent(compressNote)}&status=${encodeURIComponent(status)}`;
+          if (compressPhotoData) {
+            bodyParams += `&compressPhotoData=${encodeURIComponent(compressPhotoData)}`;
+          }
+          const response = await fetch(WEB_APP_URL_OPERATION, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: bodyParams
+          });
+          const result = await response.json();
+          if (result.success) {
+            Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+            operationCloseCompleteJobModal();
+            operationFetchData(operationCurrentUserId);
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      window.operationInitialize = function () {
+        operationInitializeLiff();
+      };
+
+      window.addEventListener('load', operationInitialize);
+    })();
+  </script>
+</body>
+</html>
