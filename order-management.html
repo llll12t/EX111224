@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จัดการข้อมูลการสั่งซื้อ</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
+  <style>
+    .bg-green-custom { background: #FFFFFF; }
+    .disabled-button { opacity: 0.5; cursor: not-allowed; }
+    .bg-green { background: #078274; }
+    .border-green { border: 2px solid #078274; border-radius: 10px; }
+    .active-tab { background-color: #1A2A40; border-color: #1A2A40; color: #FFFFFF; }
+    .inactive-tab { background-color: #B1FF45; border-color: transparent; color: #1A2A40; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-md mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center">จัดการข้อมูลการสั่งซื้อ</h1>
+    
+    <!-- Content for ข้อมูลงาน -->
+    <div id="order-management">
+      <!-- Filter Section -->
+      <div class="bg-green-custom rounded-lg p-4 mb-4">
+        <div class="flex flex-wrap -mx-2">
+          <div class="p-2 w-1/3">
+            <input type="text" id="order-filter-name" placeholder="ค้นหาตามชื่อ" class="w-full border px-2 py-1 rounded-lg">
+          </div>
+          <div class="p-2 w-1/3">
+            <select id="order-filter-status" class="w-full border px-2 py-1 rounded-lg">
+              <option value="">สถานะ</option>
+              <option value="รอดำเนินการ">รอดำเนินการ</option>
+              <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
+              <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
+              <option value="ดำเนินงานเสร็จสิ้น">ดำเนินงานเสร็จสิ้น</option>
+            </select>
+          </div>
+          <div class="p-2 w-1/3">
+            <select id="order-sort-order" class="w-full border px-2 py-1 rounded-lg">
+              <option value="newest">ใหม่สุด</option>
+              <option value="oldest">เก่าสุด</option>
+            </select>
+          </div>
+        </div> 
+      </div>
+
+      <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
+      <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-4">
+        <!-- Card จะถูกแทรกที่นี่ -->
+      </div>
+
+      <!-- ตารางสำหรับงานที่เสร็จสิ้น -->
+      <div id="order-completed-tasks-section" class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">งานที่ดำเนินการเสร็จสิ้น</h2>
+        <table id="order-completed-table" class="min-w-full text-xs bg-white rounded-lg">
+          <thead>
+            <tr class="text-green-custom text-sm">
+              <th class="py-2 px-4 border">ชื่อ</th>
+              <th class="py-2 px-4 border">สถานะ</th>
+              <th class="py-2 px-4 border">การดำเนินการ</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm"></tbody>
+        </table>
+      </div>
+
+      <!-- Loading Message -->
+      <div id="order-loading-message" class="text-center text-gray-500 mt-4" style="display: none;">กำลังโหลดข้อมูล...</div>
+
+      <!-- Pagination Controls -->
+      <div id="order-pagination-controls" class="flex justify-center mt-4 space-x-2">
+        <button id="order-prev-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage - 1)">ก่อนหน้า</button>
+        <div id="order-page-numbers" class="flex space-x-1">
+          <!-- ตัวเลขหน้าจะถูกสร้างที่นี่ -->
+        </div>
+        <button id="order-next-page" class="bg-gray-300 text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-400" onclick="orderChangePage(currentOrderPage + 1)">ถัดไป</button>
+      </div>
+      
+      <!-- Edit Modal -->
+      <div id="order-edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+          <h2 class="text-xl mb-4">แก้ไขข้อมูลสถานะ</h2>
+          <form id="order-edit-form">
+            <input type="hidden" id="order-edit-idkey">
+            <div class="mb-4">
+              <label for="order-edit-status" class="block mb-1">สถานะ</label>
+              <select id="order-edit-status" class="w-full border p-2 rounded-lg">
+                <option value="เลื่อนนัด">เลื่อนนัด</option>
+                <option value="ยกเลิก">ยกเลิก</option>
+                <option value="ข้อมูลไม่ถูกต้อง">ข้อมูลไม่ถูกต้อง</option>
+                <option value="ผิดพลาด">ผิดพลาด</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="order-edit-responsible" class="block mb-1">ผู้รับผิดชอบ</label>
+              <input type="text" id="order-edit-responsible" class="w-full border p-2 rounded-lg" required>
+            </div>
+            <div class="mb-4">
+              <label for="order-edit-admin-note" class="block mb-1">หมายเหตุ Admin</label>
+              <textarea id="order-edit-admin-note" class="w-full border p-2 rounded-lg"></textarea>
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+              <button type="button" class="bg-red-500 text-white p-3 w-1/3 rounded-lg hover:bg-red-700" onclick="orderCloseModal()">ยกเลิก</button>
+              <button type="submit" class="bg-blue-500 text-white p-3 w-2/3 rounded-lg hover:bg-blue-700">บันทึก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Management Scripts -->
+  <script>
+    (function() {
+      const WEB_APP_URL_ORDER = 'https://script.google.com/macros/s/AKfycbxeLbY6sR3LCqVU240VKUlBP3Zc6IihNbw-J-iBhbQ_bAEjx9zy5ezXrEzpiBEWzjvrbA/exec';
+      const LIFF_ID_ORDER = '2006504113-d6BQkxey';
+      let orderTableData = [];
+      let orderFilteredData = [];
+      let orderCompletedData = [];
+      let orderCurrentUserId = '';
+      let currentOrderPage = 1;
+      const orderRowsPerPage = 10;
+      let orderTotalPages = 1;
+      let isOrderSubmitting = false;
+
+      async function orderInitializeLiff() {
+        try {
+          await liff.init({ liffId: LIFF_ID_ORDER });
+          if (liff.isLoggedIn()) {
+            orderGetUserProfile();
+          } else {
+            liff.login();
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเริ่มต้น LIFF ได้' });
+        }
+      }
+
+      async function orderGetUserProfile() {
+        try {
+          const profile = await liff.getProfile();
+          orderCurrentUserId = profile.userId;
+          orderFetchData(orderCurrentUserId);
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้' });
+        }
+      }
+
+      async function orderFetchData(userId) {
+        document.getElementById('order-loading-message').style.display = 'block';
+        try {
+          const response = await fetch(`${WEB_APP_URL_ORDER}?sheet=Data`);
+          const result = await response.json();
+          if (result.success) {
+            orderTableData = result.data;
+            orderApplyFilters();
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลได้' });
+        } finally {
+          document.getElementById('order-loading-message').style.display = 'none';
+        }
+      }
+
+      function orderDisplayCards(data) {
+        const container = document.getElementById('order-card-container');
+        container.innerHTML = '';
+        if (data.length === 0) {
+          container.innerHTML = '<p class="text-center text-gray-500">ไม่มีข้อมูลที่จะแสดง</p>';
+          return;
+        }
+        data.forEach(row => {
+          const card = document.createElement('div');
+          card.className = 'border border-green-700 rounded-lg p-4 mb-4 shadow-md bg-white';
+          // สร้างเนื้อหา card ตามข้อมูลที่ต้องการ
+          // (ตัวอย่างแสดงวันที่ ชื่อ และสถานะ)
+          const topRow = document.createElement('div');
+          topRow.className = 'grid grid-cols-3 gap-4 mb-4';
+          topRow.innerHTML = `
+            <div><div class="text-xs text-gray-500">วันที่</div><div class="text-sm text-gray-800">${new Date(row.Date).toLocaleString()}</div></div>
+            <div><div class="text-xs text-gray-500">ชื่อ</div><div class="text-sm text-gray-800">${row.Name}</div></div>
+            <div><div class="text-xs text-gray-500">สถานะ</div><div class="text-sm text-gray-800">${row.Status}</div></div>
+          `;
+          const bottomRow = document.createElement('div');
+          bottomRow.className = 'grid grid-cols-3 gap-4 text-sm';
+          // ปุ่มรายละเอียด, แจ้งเรื่อง, ยืนยันรับงาน
+          const detailsButton = document.createElement('button');
+          detailsButton.className = 'bg-purple-700 text-white py-2 px-4 rounded-lg hover:bg-purple-800 transition w-full';
+          detailsButton.textContent = 'รายละเอียด';
+          detailsButton.onclick = () => orderViewDetails(row.IDkey);
+          const editButton = document.createElement('button');
+          editButton.className = 'bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition w-full';
+          editButton.textContent = 'แจ้งเรื่อง';
+          editButton.onclick = () => orderOpenEditModal(row.IDkey);
+          const confirmButton = document.createElement('button');
+          const isDisabled = ['ระหว่างเดินทาง', 'รอดำเนินการ','เริ่มดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
+          confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
+          confirmButton.textContent = 'ยืนยันรับงาน';
+          if (!isDisabled) {
+            confirmButton.onclick = () => orderTakeJob(row.IDkey);
+          }
+          bottomRow.append(detailsButton, editButton, confirmButton);
+          card.append(topRow, bottomRow);
+          container.appendChild(card);
+        });
+      }
+
+      function orderDisplayCompletedTable(data) {
+        const tableBody = document.querySelector('#order-completed-table tbody');
+        tableBody.innerHTML = '';
+        if (data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการเสร็จสิ้น</td></tr>';
+          return;
+        }
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="py-2 px-4 border text-center">${row.Name}</td>
+            <td class="py-2 px-4 border text-center">${row.Status}</td>
+            <td class="flex justify-between text-xs py-2 px-4 border text-center">
+              <button class="bg-purple-700 text-white py-2 px-3 rounded-lg hover:bg-purple-800 transition" onclick="orderViewDetails('${row.IDkey}')">รายละเอียด</button>
+              <button class="bg-yellow-500 text-white py-2 px-3 rounded-lg hover:bg-yellow-600 transition" onclick="orderOpenEditModal('${row.IDkey}')">แจ้งเรื่อง</button>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      }
+
+      function orderApplyFilters() {
+        const filterName = document.getElementById('order-filter-name').value.toLowerCase();
+        const filterStatus = document.getElementById('order-filter-status').value.toLowerCase();
+        const sortOrder = document.getElementById('order-sort-order').value;
+        orderFilteredData = orderTableData.filter(row => {
+          const matchesName = row.Name.toLowerCase().includes(filterName);
+          const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
+          const matchesUserId = row.UserIDresponsible === orderCurrentUserId;
+          return matchesName && matchesStatus && matchesUserId;
+        });
+        const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+        orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
+        if (sortOrder === 'newest') {
+          pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+          orderCompletedData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+        } else if (sortOrder === 'oldest') {
+          pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+          orderCompletedData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+        }
+        orderTotalPages = Math.ceil(pendingTasks.length / orderRowsPerPage);
+        currentOrderPage = 1;
+        orderSetupPagination();
+        const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
+        orderDisplayCards(paginatedData);
+        orderDisplayCompletedTable(orderCompletedData);
+      }
+
+      function orderSetupPagination() {
+        const pageNumbersContainer = document.getElementById('order-page-numbers');
+        pageNumbersContainer.innerHTML = '';
+        for (let i = 1; i <= orderTotalPages; i++) {
+          const pageButton = document.createElement('button');
+          pageButton.innerText = i;
+          pageButton.className = `px-3 py-1 rounded-lg ${i === currentOrderPage ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`;
+          pageButton.onclick = () => orderChangePage(i);
+          pageNumbersContainer.appendChild(pageButton);
+        }
+        document.getElementById('order-prev-page').disabled = currentOrderPage === 1;
+        document.getElementById('order-next-page').disabled = currentOrderPage === orderTotalPages;
+      }
+
+      function orderChangePage(page) {
+        if (page < 1 || page > orderTotalPages) return;
+        currentOrderPage = page;
+        orderSetupPagination();
+        const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+        const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
+        orderDisplayCards(paginatedData);
+      }
+
+      function orderPaginateData(data, page) {
+        const start = (page - 1) * orderRowsPerPage;
+        return data.slice(start, start + orderRowsPerPage);
+      }
+
+      window.orderViewDetails = function(idkey) {
+        const row = orderTableData.find(row => row.IDkey === idkey);
+        if (row) {
+          Swal.fire({
+            title: 'รายละเอียด',
+            html: `<div style="text-align: left;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
+                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
+                <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Status}</td></tr>
+              </table>
+            </div>`,
+            confirmButtonText: 'ปิด'
+          });
+        }
+      };
+
+      window.orderOpenEditModal = function(idkey) {
+        const row = orderTableData.find(row => row.IDkey === idkey);
+        if (row) {
+          document.getElementById('order-edit-idkey').value = row.IDkey;
+          document.getElementById('order-edit-status').value = row.Status;
+          document.getElementById('order-edit-responsible').value = row.Responsible;
+          document.getElementById('order-edit-admin-note').value = row.adminNote;
+          document.getElementById('order-edit-modal').classList.remove('hidden');
+        }
+      };
+
+      window.orderCloseModal = function() {
+        document.getElementById('order-edit-modal').classList.add('hidden');
+      };
+
+      document.getElementById('order-edit-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const submitButton = this.querySelector("button[type=submit]");
+        submitButton.disabled = true;
+        const idkey = document.getElementById('order-edit-idkey').value;
+        const status = document.getElementById('order-edit-status').value;
+        const responsible = document.getElementById('order-edit-responsible').value.trim();
+        const adminNote = document.getElementById('order-edit-admin-note').value.trim();
+        if (!idkey || !status || !responsible) {
+          Swal.fire({ icon: 'warning', title: 'คำเตือน', text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' });
+          submitButton.disabled = false;
+          return;
+        }
+        try {
+          const response = await fetch(WEB_APP_URL_ORDER, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
+          });
+          const result = await response.json();
+          if (result.success) {
+            Swal.fire({ title: 'สำเร็จ', text: result.message, icon: 'success' });
+            orderCloseModal();
+            orderFetchData(orderCurrentUserId);
+          } else {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: result.message });
+          }
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      window.orderTakeJob = async function(idkey) {
+        if (isOrderSubmitting) return;
+        isOrderSubmitting = true;
+        Swal.fire({
+          title: 'ยืนยันการรับงาน?',
+          text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "เริ่มดำเนินการ" ใช่หรือไม่?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'ใช่, รับงาน',
+          cancelButtonText: 'ยกเลิก'
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            Swal.fire({ title: 'กำลังอัพเดท...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            try {
+              const response = await fetch(WEB_APP_URL_ORDER, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `method=takeJob&idkey=${encodeURIComponent(idkey)}`
+              });
+              const resultData = await response.json();
+              if (resultData.success) {
+                Swal.fire({ title: 'สำเร็จ', text: resultData.message, icon: 'success' });
+                orderFetchData(orderCurrentUserId);
+              } else {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: resultData.message });
+              }
+            } catch (error) {
+              Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
+            } finally {
+              isOrderSubmitting = false;
+            }
+          } else {
+            isOrderSubmitting = false;
+          }
+        });
+      };
+
+      window.orderInitialize = function() {
+        orderInitializeLiff();
+        document.getElementById('order-filter-name').addEventListener('input', orderApplyFilters);
+        document.getElementById('order-filter-status').addEventListener('change', orderApplyFilters);
+        document.getElementById('order-sort-order').addEventListener('change', orderApplyFilters);
+      };
+
+      window.addEventListener('load', orderInitialize);
+    })();
+  </script>
+</body>
+</html>
