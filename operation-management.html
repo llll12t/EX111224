@@ -576,9 +576,6 @@
              */
             function orderTranslateStatus(status) {
                 switch(status.toLowerCase()) {
-                    case 'อนุมัติ': return 'อนุมัติ';
-                    case 'ยกเลิก': return 'ยกเลิก';
-                    case 'ปฏิเสธ': return 'ปฏิเสธ';
                     case 'ถึงจุดหมาย': return 'ถึงจุดหมาย';
                     case 'เสร็จสิ้น': return 'เสร็จสิ้น';
                     default: return status;
@@ -1104,7 +1101,7 @@
                             startButton.classList.add('disabled-button');
                             processButton.classList.add('disabled-button');
                             break;
-                        case 'ดำเนินงานเสร็จสิ้น':
+                        case 'งานเสร็จสิ้น':
                             startButton.disabled = true;
                             processButton.disabled = true;
                             completeButton.disabled = true;
