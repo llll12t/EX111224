@@ -65,8 +65,8 @@
                         <select id="order-filter-status" class="w-full border px-2 py-1 rounded-lg">
                             <option value="">สถานะ</option>
                             <option value="รอดำเนินการ">รอดำเนินการ</option>
-                            <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
-                            <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
+                            <option value="กำลังเดินทาง">กำลังเดินทาง</option>
+                            <option value="ถึงจุดหมาย">ถึงจุดหมาย</option>
                             <option value="ดำเนินงานเสร็จสิ้น">ดำเนินงานเสร็จสิ้น</option>
                         </select>
                     </div>
@@ -161,8 +161,8 @@
                             <select id="operation-filter-status" onchange="operationApplyFilters()"
                                 class="w-full sm:w-auto flex-1 border p-2 rounded-lg">
                                 <option value="">ทุกสถานะ</option>
-                                <option value="ระหว่างเดินทาง">ระหว่างเดินทาง</option>
-                                <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
+                                <option value="กำลังเดินทาง">กำลังเดินทาง</option>
+                                <option value="ถึงจุดหมาย">ถึงจุดหมาย</option>
                                 <option value="ดำเนินการเสร็จสิ้น">ดำเนินการเสร็จสิ้น</option>
                                 <option value="อนุมัติ">อนุมัติ</option>
                                 <option value="รอดำเนินการ">รอดำเนินการ</option>
@@ -209,16 +209,13 @@
                 <div id="operation-start-job-modal"
                     class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
                     <div class="bg-white p-6 rounded-lg w-full max-w-md overflow-y-auto max-h-full">
-                        <h2 class="text-xl mb-4">ระหว่างเดินทาง</h2>
+                        <h2 class="text-xl mb-4">กำลังเดินทาง</h2>
                         <form id="operation-start-job-form">
                             <input type="hidden" id="operation-start-job-idkey">
-
                             <div class="mb-4">
                                 <label for="operation-start-status" class="block mb-1">สถานะ</label>
                                 <select id="operation-start-status" class="w-full border p-2 rounded-lg" required>
-                                    <option value="ระหว่างเดินทาง" selected>ระหว่างเดินทาง</option>
-                                    <option value="ยกเลิก">ยกเลิก</option>
-                                    <option value="เลื่อน">เลื่อน</option>
+                                    <option value="กำลังเดินทาง" selected>กำลังเดินทาง</option>
                                 </select>
                             </div>
 
@@ -249,13 +246,10 @@
                         <h2 class="text-xl mb-4">ดำเนินการ</h2>
                         <form id="operation-process-job-form">
                             <input type="hidden" id="operation-process-job-idkey">
-
                             <div class="mb-4">
                                 <label for="operation-process-status" class="block mb-1">สถานะ</label>
                                 <select id="operation-process-status" class="w-full border p-2 rounded-lg" required>
-                                    <option value="เริ่มดำเนินการ" selected>เริ่มดำเนินการ</option>
-                                    <option value="ยกเลิก">ยกเลิก</option>
-                                    <option value="เลื่อน">เลื่อน</option>
+                                    <option value="ถึงจุดหมาย" selected>ถึงจุดหมาย</option>
                                 </select>
                             </div>
                             <div class="mb-4">
@@ -263,7 +257,6 @@
                                 <input type="datetime-local" id="operation-process-time-process" class="w-full border p-2 rounded-lg"
                                     required>
                             </div>
-
                             <div class="mb-4">
                                 <label for="operation-process-process-note" class="block mb-1">หมายเหตุ</label>
                                 <textarea id="operation-process-process-note" class="w-full border p-2 rounded-lg"></textarea>
@@ -283,17 +276,13 @@
                 <div id="operation-complete-job-modal"
                     class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
                     <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
-                        <h2 class="text-xl mb-4">เสร็จสิ้นงาน</h2>
+                        <h2 class="text-xl mb-4">เสร็จงาน</h2>
                         <form id="operation-complete-job-form" enctype="multipart/form-data">
                             <input type="hidden" id="operation-complete-job-idkey">
 
                             <div class="mb-4">
                                 <label for="operation-complete-status" class="block mb-1">สถานะ</label>
-                                <select id="operation-complete-status" class="w-full border p-2 rounded-md" required>
-                                    <option value="ดำเนินการเสร็จสิ้น" selected>ดำเนินการเสร็จสิ้น</option>
-                                    <option value="ยกเลิก">ยกเลิก</option>
-                                    <option value="เลื่อน">เลื่อน</option>
-                                </select>
+                                <input type="text" id="operation-complete-status" value="เสร็จงาน">
                             </div>
 
                             <div class="mb-4">
@@ -534,7 +523,7 @@
 
                     // ปุ่มยืนยัน (รับงาน)
                     const confirmButton = document.createElement('button');
-                    const isDisabled = ['ระหว่างเดินทาง', 'รอดำเนินการ','เริ่มดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
+                    const isDisabled = ['กำลังเดินทาง', 'รอดำเนินการ','ถึงจุดหมาย', 'เสร็จสิ้น'].includes(row.Status);
                     confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
                     confirmButton.textContent = 'ยืนยันรับงาน';
                     if (!isDisabled) {
@@ -590,7 +579,7 @@
                     case 'อนุมัติ': return 'อนุมัติ';
                     case 'ยกเลิก': return 'ยกเลิก';
                     case 'ปฏิเสธ': return 'ปฏิเสธ';
-                    case 'เริ่มดำเนินการ': return 'เริ่มดำเนินการ';
+                    case 'ถึงจุดหมาย': return 'ถึงจุดหมาย';
                     case 'เสร็จสิ้น': return 'เสร็จสิ้น';
                     default: return status;
                 }
@@ -722,7 +711,7 @@
 
                 Swal.fire({
                     title: 'ยืนยันการรับงาน?',
-                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "เริ่มดำเนินการ" ใช่หรือไม่?`,
+                    text: `คุณต้องการเปลี่ยนสถานะของ Order ID: ${idkey} เป็น "ถึงจุดหมาย" ใช่หรือไม่?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -782,7 +771,7 @@
                     return matchesName && matchesStatus && matchesUserId;
                 });
 
-                // แยกข้อมูลเป็นสองกลุ่ม: เริ่มดำเนินการและเสร็จสิ้น
+                // แยกข้อมูลเป็นสองกลุ่ม: ถึงจุดหมายและเสร็จสิ้น
                 const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
                 orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
 
@@ -800,7 +789,7 @@
                 currentOrderPage = 1;
                 orderSetupPagination();
 
-                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่เริ่มดำเนินการ
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่ถึงจุดหมาย
                 const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
                 orderDisplayCards(paginatedData);
 
@@ -837,7 +826,7 @@
                 currentOrderPage = page;
                 orderSetupPagination();
 
-                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่เริ่มดำเนินการ
+                // แสดงข้อมูลหน้าปัจจุบันสำหรับงานที่ถึงจุดหมาย
                 const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
                 const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
                 orderDisplayCards(paginatedData);
@@ -1103,13 +1092,13 @@
                             processButton.classList.add('disabled-button');
                             completeButton.classList.add('disabled-button');
                             break;
-                        case 'ระหว่างเดินทาง':
+                        case 'กำลังเดินทาง':
                             startButton.disabled = true;
                             completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
                             completeButton.classList.add('disabled-button');
                             break;
-                        case 'เริ่มดำเนินการ':
+                        case 'ถึงจุดหมาย':
                             startButton.disabled = true;
                             processButton.disabled = true;
                             startButton.classList.add('disabled-button');
@@ -1239,7 +1228,7 @@
                     document.getElementById('operation-start-job-idkey').value = row.idkey;
                     document.getElementById('operation-start-time-inside').value = operationGetCurrentDateTimeGMT7();
                     document.getElementById('operation-start-inside-note').value = row.insideNote || '';
-                    document.getElementById('operation-start-status').value = 'ระหว่างเดินทาง'; // ตั้งค่าสถานะเป็น 'เริ่มงาน'
+                    document.getElementById('operation-start-status').value = 'กำลังเดินทาง'; // ตั้งค่าสถานะเป็น 'เริ่มงาน'
                     document.getElementById('operation-start-job-modal').classList.remove('hidden');
                 }
             }
@@ -1310,7 +1299,7 @@
                     document.getElementById('operation-process-job-idkey').value = row.idkey;
                     document.getElementById('operation-process-time-process').value = operationGetCurrentDateTimeGMT7();
                     document.getElementById('operation-process-process-note').value = row.processNote || '';
-                    document.getElementById('operation-process-status').value = 'เริ่มดำเนินการ'; // ตั้งค่าสถานะเป็น 'เริ่มดำเนินการ'
+                    document.getElementById('operation-process-status').value = 'ถึงจุดหมาย'; // ตั้งค่าสถานะเป็น 'ถึงจุดหมาย'
                     document.getElementById('operation-process-job-modal').classList.remove('hidden');
                 }
             }
@@ -1598,7 +1587,7 @@
                     case 'อนุมัติ': return 'อนุมัติ';
                     case 'ยกเลิก': return 'ยกเลิก';
                     case 'ปฏิเสธ': return 'ปฏิเสธ';
-                    case 'เริ่มดำเนินการ': return 'เริ่มดำเนินการ';
+                    case 'ถึงจุดหมาย': return 'ถึงจุดหมาย';
                     case 'ดำเนินการเสร็จสิ้น': return 'ดำเนินการเสร็จสิ้น';
                     default: return status;
                 }
