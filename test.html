@@ -86,7 +86,7 @@
 
             <!-- ตารางสำหรับงานที่เสร็จสิ้น -->
             <div id="order-completed-tasks-section" class="mb-8">
-                <h2 class="text-lg font-semibold mb-4">งานที่ดำเนินการเสร็จสิ้น</h2>
+                <h2 class="text-lg font-semibold mb-4">งานที่งานเสร็จสิ้น</h2>
                 <table id="order-completed-table" class="min-w-full text-xs bg-white rounded-lg">
                     <thead>
                         <tr class="text-green-custom text-sm">
@@ -163,7 +163,7 @@
                                 <option value="">ทุกสถานะ</option>
                                 <option value="กำลังเดินทาง">กำลังเดินทาง</option>
                                 <option value="ถึงจุดหมาย">ถึงจุดหมาย</option>
-                                <option value="ดำเนินการเสร็จสิ้น">ดำเนินการเสร็จสิ้น</option>
+                                <option value="งานเสร็จสิ้น">งานเสร็จสิ้น</option>
                                 <option value="อนุมัติ">อนุมัติ</option>
                                 <option value="รอดำเนินการ">รอดำเนินการ</option>
                                 <option value="ปฏิเสธ">ปฏิเสธ</option>
@@ -276,13 +276,13 @@
                 <div id="operation-complete-job-modal"
                     class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
                     <div class="bg-white p-6 rounded-lg w-full max-w-lg overflow-y-auto max-h-full">
-                        <h2 class="text-xl mb-4">เสร็จงาน</h2>
+                        <h2 class="text-xl mb-4">งานเสร็จสิ้น</h2>
                         <form id="operation-complete-job-form" enctype="multipart/form-data">
                             <input type="hidden" id="operation-complete-job-idkey">
 
                             <div class="mb-4">
                                 <label for="operation-complete-status" class="block mb-1">สถานะ</label>
-                                <input type="text" id="operation-complete-status" value="เสร็จงาน">
+                                <input type="text" id="operation-complete-status" value="งานเสร็จสิ้น">
                             </div>
 
                             <div class="mb-4">
@@ -553,7 +553,7 @@
                 tableBody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่ดำเนินการเสร็จสิ้น</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="4" class="py-2 px-4 border text-center text-gray-500">ไม่มีงานที่งานเสร็จสิ้น</td></tr>';
                     return;
                 }
 
@@ -576,11 +576,8 @@
              */
             function orderTranslateStatus(status) {
                 switch(status.toLowerCase()) {
-                    case 'อนุมัติ': return 'อนุมัติ';
-                    case 'ยกเลิก': return 'ยกเลิก';
-                    case 'ปฏิเสธ': return 'ปฏิเสธ';
                     case 'ถึงจุดหมาย': return 'ถึงจุดหมาย';
-                    case 'เสร็จสิ้น': return 'เสร็จสิ้น';
+                    case 'งานเสร็จสิ้น': return 'งานเสร็จสิ้น';
                     default: return status;
                 }
             }
@@ -982,8 +979,8 @@
                 completedTasks.innerHTML = '';
 
                 // แยกข้อมูลเป็นงานที่ต้องทำและงานที่เสร็จสิ้น
-                const pendingTasks = data.filter(row => !(row.status === 'ดำเนินการเสร็จสิ้น' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
-                const completedTaskData = data.filter(row => (row.status === 'ดำเนินการเสร็จสิ้น' || row.status === 'เลื่อน' || row.status === 'ปฏิเสธ'));
+                const pendingTasks = data.filter(row => !(row.status === 'งานเสร็จสิ้น'));
+                const completedTaskData = data.filter(row => (row.status === 'งานเสร็จสิ้น'));
 
                 // คำนวณจำนวนหน้าสำหรับงานที่ต้องทำ
                 const totalPagesPending = Math.ceil(pendingTasks.length / operationItemsPerPage);
@@ -1104,7 +1101,7 @@
                             startButton.classList.add('disabled-button');
                             processButton.classList.add('disabled-button');
                             break;
-                        case 'ดำเนินงานเสร็จสิ้น':
+                        case 'งานเสร็จสิ้น':
                             startButton.disabled = true;
                             processButton.disabled = true;
                             completeButton.disabled = true;
@@ -1371,7 +1368,7 @@
                     document.getElementById('operation-complete-time-compress').value = operationGetCurrentDateTimeGMT7();
                     document.getElementById('operation-complete-compress-note').value = row.compressNote || '';
                     document.getElementById('operation-complete-compress-photo').value = ''; // รีเซ็ตไฟล์
-                    document.getElementById('operation-complete-status').value = 'ดำเนินการเสร็จสิ้น'; // ตั้งค่าสถานะเป็น 'ดำเนินการเสร็จสิ้น'
+                    document.getElementById('operation-complete-status').value = 'งานเสร็จสิ้น'; // ตั้งค่าสถานะเป็น 'งานเสร็จสิ้น'
                     document.getElementById('operation-complete-job-modal').classList.remove('hidden');
                 }
             }
@@ -1584,11 +1581,8 @@
              */
             function operationTranslateStatus(status) {
                 switch(status.toLowerCase()) {
-                    case 'อนุมัติ': return 'อนุมัติ';
-                    case 'ยกเลิก': return 'ยกเลิก';
-                    case 'ปฏิเสธ': return 'ปฏิเสธ';
                     case 'ถึงจุดหมาย': return 'ถึงจุดหมาย';
-                    case 'ดำเนินการเสร็จสิ้น': return 'ดำเนินการเสร็จสิ้น';
+                    case 'งานเสร็จสิ้น': return 'งานเสร็จสิ้น';
                     default: return status;
                 }
             }
