@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -93,12 +91,12 @@
       });
     }
     
-    // แสดงรายละเอียดข้อมูล (ใช้ SweetAlert2)
+    // ฟังก์ชันแสดงรายละเอียดข้อมูล (ใช้ SweetAlert2)
     function showDetails(item) {
       Swal.fire({
         title: '<h2 style="font-size: 14px;">รายละเอียด</h2>',
         html: `
-                            <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse; border: 1px solid #ddd;">
+          <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse; border: 1px solid #ddd;">
             <tr>
               <td style="padding: 8px; border: 1px solid #ddd;"><strong>เลขที่:</strong></td>
               <td style="padding: 8px; border: 1px solid #ddd;">${item.IDkey}</td>
@@ -109,7 +107,9 @@
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #ddd;"><strong>แผนที่:</strong></td>
-              <td style="padding: 8px; border: 1px solid #ddd;"><a href="${item.Maplink}" target="_blank">ดูแผนที่</a></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">
+                <a href="${item.Maplink}" target="_blank" class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs">ดูแผนที่</a>
+              </td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #ddd;"><strong>ชื่อหมู่บ้าน:</strong></td>
@@ -121,7 +121,9 @@
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #ddd;"><strong>เบอร์ติดต่อ:</strong></td>
-              <td style="padding: 8px; border: 1px solid #ddd;">${item.Contact}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;">
+                <a href="tel:${item.Contact}" class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">${item.Contact}</a>
+              </td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #ddd;"><strong>สถานะ:</strong></td>
