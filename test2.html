@@ -22,7 +22,7 @@
     }
     .loader {
       border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
+      border-top: 4px solid #33422b;
       border-radius: 50%;
       width: 40px;
       height: 40px;
@@ -60,7 +60,7 @@
         </select>
       </div>
       <div>
-        <button onclick="applyFilters()" class="bg-blue-500 text-white px-4 py-2 rounded">กรองข้อมูล</button>
+        <button onclick="applyFilters()" class="bg-[#33422b] text-white px-4 py-3 rounded">กรองข้อมูล</button>
       </div>
     </div>
     
@@ -158,7 +158,7 @@
           <div class="mb-2"><span class="font-bold text-gray-600">ชื่อลูกค้า:</span> ${item.Name}</div>
           <div class="mb-2"><span class="font-bold text-gray-600">สถานะ:</span> ${item.Status}</div>
           <div class="flex space-x-2">
-            <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
+            <button class="bg-[#33422b] text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
             <button class="bg-green-500 text-white px-3 py-1 rounded" onclick='viewData("${item.IDkey}")'>สถานะดำเนินการ</button>
           </div>
         `;
@@ -184,7 +184,7 @@
           <td class="py-2 px-4 border">${item.Date}</td>
           <td class="py-2 px-4 border">${item.Name}</td>
           <td class="py-2 px-4 border">
-            <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
+            <button class="bg-[#33422b] text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
           </td>
         `;
         tableBody.appendChild(row);
@@ -205,7 +205,7 @@
         btn.textContent = i;
         btn.className = "bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-3 rounded mx-1";
         if (currentPageTable === i) {
-          btn.classList.add("bg-blue-500", "text-white");
+          btn.classList.add("bg-[#33422b]", "text-white");
         }
         btn.addEventListener("click", () => {
           currentPageTable = i;
