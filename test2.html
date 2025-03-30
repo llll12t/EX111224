@@ -44,7 +44,7 @@
     <h2 class="text-2xl font-bold mb-4">รายการงานตามทีม</h2>
     
     <!-- Filter Controls -->
-    <div class="mb-4 flex flex-wrap gap-4 items-end">
+    <div class="mb-4 grid grid-cols-3 gap-2">
       <div>
         <label for="filterDate" class="block text-sm font-medium text-gray-700">วันที่</label>
         <input type="date" id="filterDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="onFilterChange()">
@@ -79,6 +79,8 @@
         </thead>
         <tbody id="tableData"></tbody>
       </table>
+      <!-- Pagination Controls -->
+      <div id="paginationContainer" class="mt-4"></div>
     </div>
   </div>
   
@@ -89,6 +91,8 @@
 
     let allData = [];     // ข้อมูลทั้งหมดจาก GAS API
     let filteredData = []; // ข้อมูลหลังจากกรอง
+    let currentPageTable = 1;
+    const rowsPerPage = 10;
 
     function showLoading() {
       document.getElementById('loadingOverlay').style.display = "flex";
@@ -97,7 +101,6 @@
       document.getElementById('loadingOverlay').style.display = "none";
     }
     
-    // เมื่อมีการเปลี่ยนแปลงค่า filter ให้ log ค่าที่เปลี่ยน
     function onFilterChange() {
       console.log("Filter changed - Date:", document.getElementById("filterDate").value,
                   "Status:", document.getElementById("filterStatus").value);
@@ -125,54 +128,91 @@
         return dateMatch && statusMatch;
       });
       console.log("Filtered data:", filteredData);
+      currentPageTable = 1; // reset page
       displayData();
     }
     
-    // ฟังก์ชันแสดงข้อมูลใน Card view และ Table view
+    // ฟังก์ชันแสดงข้อมูลทั้งใน Card view และ Table view
     function displayData() {
       // ตรวจสอบว่ามีการตั้งค่าตัวกรองหรือไม่
       const filterDate = document.getElementById("filterDate").value;
       const filterStatus = document.getElementById("filterStatus").value;
       const hasFilter = filterDate !== "" || filterStatus !== "";
       
-      // ถ้ามีการตั้งค่า filter ให้ใช้ filteredData (แม้ว่าจะว่าง) มิฉะนั้นใช้ allData
+      // ถ้ามี filter ให้ใช้ filteredData (ถ้าไม่มีข้อมูลตรงกับ filter จะเป็นอาร์เรย์ว่าง)
       const dataToDisplay = hasFilter ? filteredData : allData;
       console.log("Displaying data:", dataToDisplay);
       
-      // Clear container ของการ์ดและตาราง
+      // แบ่งข้อมูลออกเป็นการ์ดกับตาราง
+      const cardItems = dataToDisplay.filter(item => item.Status === "รอดำเนินการ" || item.Status === "เริ่มดำเนินการ");
+      const tableItems = dataToDisplay.filter(item => !(item.Status === "รอดำเนินการ" || item.Status === "เริ่มดำเนินการ"));
+      
+      // แสดงการ์ด
       const cardContainer = document.getElementById("cardContainer");
       cardContainer.innerHTML = "";
+      cardItems.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "bg-white shadow rounded-lg p-4";
+        card.innerHTML = `
+          <div class="mb-2"><span class="font-bold text-gray-600">วันที่:</span> ${item.Date}</div>
+          <div class="mb-2"><span class="font-bold text-gray-600">ชื่อลูกค้า:</span> ${item.Name}</div>
+          <div class="mb-2"><span class="font-bold text-gray-600">สถานะ:</span> ${item.Status}</div>
+          <div class="flex space-x-2">
+            <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
+            <button class="bg-green-500 text-white px-3 py-1 rounded" onclick='viewData("${item.IDkey}")'>สถานะดำเนินการ</button>
+          </div>
+        `;
+        cardContainer.appendChild(card);
+      });
+      
+      // แสดงข้อมูลในตารางโดยใช้ pagination
+      displayTable(tableItems);
+      renderPagination(tableItems);
+    }
+    
+    // แสดงข้อมูลในตาราง (เฉพาะ 3 คอลัมน์) ด้วย pagination
+    function displayTable(tableItems) {
       const tableBody = document.getElementById("tableData");
       tableBody.innerHTML = "";
+      const start = (currentPageTable - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const paginatedItems = tableItems.slice(start, end);
       
-      dataToDisplay.forEach(item => {
-        if (item.Status === "รอดำเนินการ" || item.Status === "เริ่มดำเนินการ") {
-          // สร้างการ์ดสำหรับแสดงข้อมูล
-          const card = document.createElement("div");
-          card.className = "bg-white shadow rounded-lg p-4";
-          card.innerHTML = `
-            <div class="mb-2"><span class="font-bold text-gray-600">วันที่:</span> ${item.Date}</div>
-            <div class="mb-2"><span class="font-bold text-gray-600">ชื่อลูกค้า:</span> ${item.Name}</div>
-            <div class="mb-2"><span class="font-bold text-gray-600">สถานะ:</span> ${item.Status}</div>
-            <div class="flex space-x-2">
-              <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
-              <button class="bg-green-500 text-white px-3 py-1 rounded" onclick='viewData("${item.IDkey}")'>สถานะดำเนินการ</button>
-            </div>
-          `;
-          cardContainer.appendChild(card);
-        } else {
-          // แสดงเป็นแถวในตาราง (เฉพาะวันที่, ชื่อลูกค้า, และปุ่มรายละเอียด)
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td class="py-2 px-4 border">${item.Date}</td>
-            <td class="py-2 px-4 border">${item.Name}</td>
-            <td class="py-2 px-4 border">
-              <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
-            </td>
-          `;
-          tableBody.appendChild(row);
-        }
+      paginatedItems.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="py-2 px-4 border">${item.Date}</td>
+          <td class="py-2 px-4 border">${item.Name}</td>
+          <td class="py-2 px-4 border">
+            <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>รายละเอียด</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
       });
+    }
+    
+    // ฟังก์ชัน renderPagination สร้างปุ่มกำกับหน้า
+    function renderPagination(tableItems) {
+      const paginationContainer = document.getElementById("paginationContainer");
+      paginationContainer.innerHTML = "";
+      const totalPages = Math.ceil(tableItems.length / rowsPerPage);
+      console.log("Total pages:", totalPages);
+      if (totalPages <= 1) return; // ถ้ามีเพียง 1 หน้า ไม่ต้องแสดง pagination
+      
+      // สร้างปุ่มหน้าต่างๆ
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        btn.className = "bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-3 rounded mx-1";
+        if (currentPageTable === i) {
+          btn.classList.add("bg-blue-500", "text-white");
+        }
+        btn.addEventListener("click", () => {
+          currentPageTable = i;
+          displayData();
+        });
+        paginationContainer.appendChild(btn);
+      }
     }
     
     // ฟังก์ชันแสดงรายละเอียดข้อมูล (ใช้ SweetAlert2) พร้อม badge สำหรับดูแผนที่และเบอร์ติดต่อ
@@ -340,7 +380,8 @@
                     console.log("Data received for job data:", data);
                     hideLoading();
                     allData = data;
-                    // เมื่อมีข้อมูลให้กรองทันทีตามค่า filter (ถ้าปล่อยว่างก็จะแสดง allData)
+                    // เมื่อมีข้อมูลให้กรองทันทีตามค่า filter (ถ้าปล่อยว่างจะไม่กรอง)
+                    currentPageTable = 1;
                     applyFilters();
                   })
                   .catch(error => {
