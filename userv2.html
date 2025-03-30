@@ -1082,25 +1082,34 @@
                     switch (row.status) {
                         case 'รอดำเนินการ':
                             processButton.disabled = true;
+                            startWorkButton.disabled = true;
                             completeButton.disabled = true;
                             processButton.classList.add('disabled-button');
+                            startWorkButton.classList.add('disabled-button');
                             completeButton.classList.add('disabled-button');
                             break;
                         case 'กำลังเดินทาง':
                             startButton.disabled = true;
+                            startWorkButton.disabled = true;
                             completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
+                            startWorkButton.classList.add('disabled-button');
                             completeButton.classList.add('disabled-button');
                             break;
                         case 'ถึงจุดหมาย':
                             startButton.disabled = true;
                             processButton.disabled = true;
+                            completeButton.disabled = true;
                             startButton.classList.add('disabled-button');
                             processButton.classList.add('disabled-button');
+                            completeButton.classList.add('disabled-button');
                             break;
                         case 'กำลังเริ่มงาน':
-                            // เมื่ออยู่ในขั้นตอน "กำลังเริ่มงาน" ให้ disable ปุ่มเริ่มงานใหม่และปุ่มอื่นที่เกี่ยวข้อง
+                            startButton.disabled = true;
+                            processButton.disabled = true;
                             startWorkButton.disabled = true;
+                            startButton.classList.add('disabled-button');
+                            processButton.classList.add('disabled-button');
                             startWorkButton.classList.add('disabled-button');
                             break;
                         case 'งานเสร็จสิ้น':
