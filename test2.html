@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แสดงข้อมูลงานตามทีม</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- SweetAlert2 สำหรับแสดงรายละเอียด -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
+  <style>
+    /* Loading Overlay */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <div class="loader"></div>
+  </div>
+  
+  <div class="container mx-auto p-6">
+    <h2 class="text-xl font-bold mb-4">รายการงานตามทีม</h2>
+    <table class="min-w-full border">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-2 px-4 border">วันที่</th>
+          <th class="py-2 px-4 border">ชื่อลูกค้า</th>
+          <th class="py-2 px-4 border">สถานะ</th>
+          <th class="py-2 px-4 border">รายละเอียด</th>
+          <th class="py-2 px-4 border">สถานะดำเนินการ</th>
+        </tr>
+      </thead>
+      <tbody id="dataTable">
+        <!-- ข้อมูลจะถูกโหลดเข้ามาที่นี่ -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+    // กำหนด LIFF ID และ URL ของ GAS API (Web App)
+    const LIFF_ID = "2006504113-V0Z7GrnJ";  // ปรับเป็น LIFF ID ของคุณ
+    const DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbzQXh2h36ZT8ysMpJowEpcEEpdj_M_Zb5X0qqUI4mWhY1Q_UnT8CdsJyexvmEN2BlQ4/exec";  // ปรับเป็น URL ของ GAS Web App ของคุณ
+
+    let tableData = [];
+    
+    function showLoading() {
+      document.getElementById('loadingOverlay').style.display = "flex";
+    }
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = "none";
+    }
+    
+    // ฟังก์ชันแสดงข้อมูลในตาราง
+    function displayData() {
+      const tableBody = document.getElementById("dataTable");
+      tableBody.innerHTML = "";
+      tableData.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="py-2 px-4 border">${item.Date}</td>
+          <td class="py-2 px-4 border">${item.Name}</td>
+          <td class="py-2 px-4 border">${item.Status}</td>
+          <td class="py-2 px-4 border">
+            <button class="bg-blue-500 text-white mr-1 px-3 py-1 rounded" onclick='showDetails(${JSON.stringify(item)})'>แสดงรายละเอียด</button>
+            <button class="bg-green-500 text-white px-3 py-1 rounded" onclick='viewData("${item.IDkey}")'>แสดงสถานะดำเนินการ</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    
+    // แสดงรายละเอียดข้อมูล (ใช้ SweetAlert2)
+    function showDetails(item) {
+      Swal.fire({
+        title: '<h2 style="font-size: 14px;">รายละเอียด</h2>',
+        html: `
+                            <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse; border: 1px solid #ddd;">
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>เลขที่:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.IDkey}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>ชื่อ:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>แผนที่:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><a href="${item.Maplink}" target="_blank">ดูแผนที่</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>ชื่อหมู่บ้าน:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Village}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>วันที่:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Date}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>เบอร์ติดต่อ:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Contact}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>สถานะ:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Status}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>รายละเอียด:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Detail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>บันทึกเพิ่มเติม:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Note}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>การชำระเงิน:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Payment}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>ผู้รับผิดชอบ:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Responsible}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>แอดมิน:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.Admin}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>บันทึกแอดมิน:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${item.adminNote}</td>
+            </tr>
+          </table>
+        `,
+        confirmButtonText: "ปิดหน้าต่าง"
+      });
+    }
+    
+    // เรียกดูรายละเอียดสถานะดำเนินการจาก GAS API
+    function viewData(idkey) {
+      showLoading();
+      fetch(`${DEPLOYMENT_URL}?action=getProcessData&idkey=${encodeURIComponent(idkey)}`)
+        .then(response => response.json())
+        .then(data => {
+          hideLoading();
+          displayProcessData(data);
+        })
+        .catch(error => {
+          hideLoading();
+          console.error('Error fetching process data:', error);
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลได้' });
+        });
+    }
+    
+    function displayProcessData(data) {
+      if (!data) {
+        Swal.fire("ไม่มีข้อมูล", "ไม่มีข้อมูลการดำเนินการสำหรับ ID นี้", "info");
+        return;
+      }
+      // หาก data ส่งกลับมาเป็น JSON string ให้แปลงเป็น object
+      const parsedData = (typeof data === "string") ? JSON.parse(data) : data;
+      Swal.fire({
+        title: '<h2 style="font-size: 14px;">รายละเอียดการดำเนินการ</h2>',
+        html: `
+          <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse;">
+            <tr><td style="padding:4px;"><strong>เลขที่:</strong></td><td style="padding:4px;">${parsedData.idkey || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>สถานะ:</strong></td><td style="padding:4px;">${parsedData.status || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>เวลาเริ่มงาน:</strong></td><td style="padding:4px;">${parsedData["time-inside"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>บันทึก:</strong></td><td style="padding:4px;">${parsedData["inside-note"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>เวลาดำเนินการ:</strong></td><td style="padding:4px;">${parsedData["time-process"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>บันทึก:</strong></td><td style="padding:4px;">${parsedData["process-note"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>เวลาเสร็จสิ้น:</strong></td><td style="padding:4px;">${parsedData["time-compress"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>บันทึก:</strong></td><td style="padding:4px;">${parsedData["compress-note"] || ""}</td></tr>
+            <tr><td style="padding:4px;"><strong>รูปภาพ:</strong></td><td style="padding:4px;">${parsedData["compress-photo"] ? `<img src="${parsedData["compress-photo"]}" style="max-width:100%;" />` : ""}</td></tr>
+          </table>
+        `,
+        confirmButtonText: "ปิดหน้าต่าง"
+      });
+    }
+    
+    // เริ่มต้น LIFF เมื่อหน้าโหลด
+    function initializeLiff() {
+      liff.init({ liffId: LIFF_ID })
+        .then(() => {
+          if (!liff.isLoggedIn()) {
+            liff.login();
+          } else {
+            liff.getProfile()
+              .then(profile => {
+                const lineId = profile.userId;
+                // ส่งค่า lineId ไปยัง GAS API เพื่อดึงข้อมูลที่กรองแล้ว
+                showLoading();
+                fetch(`${DEPLOYMENT_URL}?action=getJobDataByTeam&lineId=${encodeURIComponent(lineId)}`)
+                  .then(response => response.json())
+                  .then(data => {
+                    hideLoading();
+                    tableData = data;
+                    displayData();
+                    // แสดงรายละเอียดของรายการแรกโดยอัตโนมัติ หากมีข้อมูล
+                    if (tableData.length > 0) {
+                      showDetails(tableData[0]);
+                    }
+                  })
+                  .catch(error => {
+                    hideLoading();
+                    console.error('Error loading job data by team:', error);
+                  });
+              })
+              .catch(err => console.error('Error getting LIFF profile:', err));
+          }
+        })
+        .catch(err => console.error('LIFF initialization failed:', err));
+    }
+    
+    window.onload = initializeLiff;
+  </script>
+</body>
+</html>
