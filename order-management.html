@@ -343,81 +343,34 @@
       }
 
       window.orderViewDetails = function(idkey) {
-  const row = orderTableData.find(row => row.IDkey === idkey);
-  if (row) {
-    Swal.fire({
-      title: 'รายละเอียด',
-      html: `
-        <div style="text-align: left;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">
-                <a href="${row.Maplink}" target="_blank" class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">เปิดแผนที่</a>
-              </td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อหมู่บ้าน:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Village}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${orderFormatDate(row.Date)}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">
-                <a href="tel:${row.Contact}" class="bg-green-500 text-white px-2 py-1 rounded-full text-xs">${row.Contact}</a>
-              </td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${orderTranslateStatus(row.Status)}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td>
-            </tr>
-          </table>
-        </div>
-      `,
-      confirmButtonText: 'ปิด'
-    });
-  }
-}
-
+        const row = orderTableData.find(row => row.IDkey === idkey);
+        if (row) {
+          Swal.fire({
+            title: 'รายละเอียด',
+            html: `
+              <div style="text-align: left;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Name}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ที่อยู่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Address}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Map Link:</b></td><td style="border: 1px solid #ddd; padding: 8px;"><a href="${row.Maplink}" target="_blank">เปิดแผนที่</a></td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อหมู่บ้าน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Village}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>วันที่:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderFormatDate(row.Date)}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>รายละเอียด:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Detail}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Note}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>เบอร์ติดต่อ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Contact}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>การชำระเงิน:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Payment}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>สถานะ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${orderTranslateStatus(row.Status)}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>ผู้รับผิดชอบ:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Responsible}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.Admin}</td></tr>
+                  <tr><td style="border: 1px solid #ddd; padding: 8px;"><b>หมายเหตุ Admin:</b></td><td style="border: 1px solid #ddd; padding: 8px;">${row.adminNote}</td></tr>
+                </table>
+              </div>
+            `,
+            confirmButtonText: 'ปิด'
+          });
+        }
+      }
 
       window.orderOpenEditModal = function(idkey) {
         const row = orderTableData.find(row => row.IDkey === idkey);
@@ -528,46 +481,37 @@
         });
       }
 
-function orderApplyFilters() {
-  const filterName = document.getElementById('order-filter-name').value.toLowerCase();
-  const filterStatus = document.getElementById('order-filter-status').value.toLowerCase();
-  const sortOrder = document.getElementById('order-sort-order').value;
+      function orderApplyFilters() {
+        const filterName = document.getElementById('order-filter-name').value.toLowerCase();
+        const filterStatus = document.getElementById('order-filter-status').value.toLowerCase();
+        const sortOrder = document.getElementById('order-sort-order').value;
 
-  orderFilteredData = orderTableData.filter(row => {
-    const matchesName = row.Name.toLowerCase().includes(filterName);
-    const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
-    const matchesUserId = row.UserIDresponsible === orderCurrentUserId;
-    return matchesName && matchesStatus && matchesUserId;
-  });
+        orderFilteredData = orderTableData.filter(row => {
+          const matchesName = row.Name.toLowerCase().includes(filterName);
+          const matchesStatus = filterStatus ? row.Status.toLowerCase() === filterStatus : true;
+          const matchesUserId = row.UserIDresponsible === orderCurrentUserId;
+          return matchesName && matchesStatus && matchesUserId;
+        });
 
-  // กรองข้อมูล pending (รอดำเนินการ และเริ่มดำเนินการ)
-  const pendingTasks = orderFilteredData.filter(row => {
-    let status = row.Status.toLowerCase();
-    return status === 'รอดำเนินการ' || status === 'เริ่มดำเนินการ';
-  });
-  // ข้อมูลอื่น ๆ ให้ไปอยู่ใน completed table
-  orderCompletedData = orderFilteredData.filter(row => {
-    let status = row.Status.toLowerCase();
-    return status !== 'รอดำเนินการ' && status !== 'เริ่มดำเนินการ';
-  });
+        const pendingTasks = orderFilteredData.filter(row => row.Status.toLowerCase() !== 'เสร็จสิ้น');
+        orderCompletedData = orderTableData.filter(row => row.Status.toLowerCase() === 'เสร็จสิ้น');
 
-  if (sortOrder === 'newest') {
-    pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-    orderCompletedData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-  } else if (sortOrder === 'oldest') {
-    pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
-    orderCompletedData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
-  }
+        if (sortOrder === 'newest') {
+          pendingTasks.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+          orderCompletedData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+        } else if (sortOrder === 'oldest') {
+          pendingTasks.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+          orderCompletedData.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+        }
 
-  orderTotalPages = Math.ceil(pendingTasks.length / orderRowsPerPage);
-  currentOrderPage = 1;
-  orderSetupPagination();
+        orderTotalPages = Math.ceil(pendingTasks.length / orderRowsPerPage);
+        currentOrderPage = 1;
+        orderSetupPagination();
 
-  const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
-  orderDisplayCards(paginatedData);
-  orderDisplayCompletedTable(orderCompletedData);
-}
-
+        const paginatedData = orderPaginateData(pendingTasks, currentOrderPage);
+        orderDisplayCards(paginatedData);
+        orderDisplayCompletedTable(orderCompletedData);
+      }
 
       function orderSetupPagination() {
         const pageNumbersContainer = document.getElementById('order-page-numbers');
