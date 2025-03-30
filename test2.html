@@ -47,11 +47,11 @@
     <div class="mb-4 flex flex-wrap gap-4 items-end">
       <div>
         <label for="filterDate" class="block text-sm font-medium text-gray-700">วันที่</label>
-        <input type="date" id="filterDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <input type="date" id="filterDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="onFilterChange()">
       </div>
       <div>
         <label for="filterStatus" class="block text-sm font-medium text-gray-700">สถานะ</label>
-        <select id="filterStatus" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <select id="filterStatus" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="onFilterChange()">
           <option value="">ทั้งหมด</option>
           <option value="รอดำเนินการ">รอดำเนินการ</option>
           <option value="เริ่มดำเนินการ">เริ่มดำเนินการ</option>
@@ -97,10 +97,18 @@
       document.getElementById('loadingOverlay').style.display = "none";
     }
     
+    // ฟังก์ชันที่จะเรียกเมื่อมีการเปลี่ยนแปลงค่า filter (สำหรับ debug)
+    function onFilterChange() {
+      console.log("Filter changed - Date:", document.getElementById("filterDate").value,
+                  "Status:", document.getElementById("filterStatus").value);
+    }
+    
     // เมื่อคลิกปุ่ม "กรองข้อมูล" อ่านค่า filter แล้วกรองข้อมูลจาก allData
     function applyFilters() {
       const filterDate = document.getElementById("filterDate").value; // รูปแบบ YYYY-MM-DD
       const filterStatus = document.getElementById("filterStatus").value;
+      
+      console.log("Applying filters - Date:", filterDate, "Status:", filterStatus);
       
       filteredData = allData.filter(item => {
         let dateMatch = true;
@@ -116,6 +124,7 @@
         }
         return dateMatch && statusMatch;
       });
+      console.log("Filtered data:", filteredData);
       displayData();
     }
     
@@ -123,6 +132,7 @@
     function displayData() {
       // เลือกใช้ข้อมูลที่กรองแล้ว ถ้ามี ไม่เช่นนั้นใช้ allData
       const dataToDisplay = filteredData.length ? filteredData : allData;
+      console.log("Displaying data:", dataToDisplay);
       
       // แสดงใน Card Container สำหรับสถานะ "รอดำเนินการ" และ "เริ่มดำเนินการ"
       const cardContainer = document.getElementById("cardContainer");
@@ -164,6 +174,7 @@
     
     // ฟังก์ชันแสดงรายละเอียดข้อมูล (ใช้ SweetAlert2) พร้อม badge สำหรับดูแผนที่และเบอร์ติดต่อ
     function showDetails(item) {
+      console.log("showDetails called with item:", item);
       Swal.fire({
         title: '<h2 style="font-size: 14px;">รายละเอียด</h2>',
         html: `
@@ -230,9 +241,78 @@
       });
     }
     
-    // ฟังก์ชัน viewData สำหรับแสดงสถานะดำเนินการ (ไม่แก้ไขในส่วนนี้)
+    // ฟังก์ชัน viewData สำหรับแสดงสถานะดำเนินการ (เพิ่ม log เพื่อตรวจสอบ)
     function viewData(idkey) {
-      // ส่วนนี้ยังคงเหมือนเดิม หรือแก้ไขเพิ่มเติมตามที่คุณต้องการ
+      console.log("viewData called with idkey:", idkey);
+      showLoading();
+      fetch(`${DEPLOYMENT_URL}?action=getProcessData&idkey=${encodeURIComponent(idkey)}`)
+        .then(response => {
+          console.log("Response from getProcessData:", response);
+          return response.json();
+        })
+        .then(data => {
+          console.log("Data received for process data:", data);
+          hideLoading();
+          displayProcessData(data);
+        })
+        .catch(error => {
+          hideLoading();
+          console.error('Error fetching process data:', error);
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงข้อมูลได้' });
+        });
+    }
+    
+    function displayProcessData(data) {
+      if (!data) {
+        Swal.fire("ไม่มีข้อมูล", "ไม่มีข้อมูลการดำเนินการสำหรับ ID นี้", "info");
+        return;
+      }
+      const parsedData = (typeof data === "string") ? JSON.parse(data) : data;
+      console.log("Displaying process data:", parsedData);
+      Swal.fire({
+        title: '<h2 style="font-size: 14px;">รายละเอียดการดำเนินการ</h2>',
+        html: `
+          <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 4px;"><strong>เลขที่:</strong></td>
+              <td style="padding: 4px;">${parsedData.idkey || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>สถานะ:</strong></td>
+              <td style="padding: 4px;">${parsedData.status || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>เวลาเริ่มงาน:</strong></td>
+              <td style="padding: 4px;">${parsedData["time-inside"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>บันทึก:</strong></td>
+              <td style="padding: 4px;">${parsedData["inside-note"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>เวลาดำเนินการ:</strong></td>
+              <td style="padding: 4px;">${parsedData["time-process"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>บันทึก:</strong></td>
+              <td style="padding: 4px;">${parsedData["process-note"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>เวลาเสร็จสิ้น:</strong></td>
+              <td style="padding: 4px;">${parsedData["time-compress"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>บันทึก:</strong></td>
+              <td style="padding: 4px;">${parsedData["compress-note"] || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px;"><strong>รูปภาพ:</strong></td>
+              <td style="padding: 4px;">${parsedData["compress-photo"] ? `<img src="${parsedData["compress-photo"]}" style="max-width:100%;" />` : ""}</td>
+            </tr>
+          </table>
+        `,
+        confirmButtonText: "ปิดหน้าต่าง"
+      });
     }
     
     // เริ่มต้น LIFF และดึงข้อมูลจาก GAS API เมื่อหน้าโหลด
@@ -240,18 +320,24 @@
       liff.init({ liffId: LIFF_ID })
         .then(() => {
           if (!liff.isLoggedIn()) {
+            console.log("User not logged in, calling liff.login()");
             liff.login();
           } else {
             liff.getProfile()
               .then(profile => {
+                console.log("LIFF profile obtained:", profile);
                 const lineId = profile.userId;
                 showLoading();
                 fetch(`${DEPLOYMENT_URL}?action=getJobDataByTeam&lineId=${encodeURIComponent(lineId)}`)
-                  .then(response => response.json())
+                  .then(response => {
+                    console.log("Response from getJobDataByTeam:", response);
+                    return response.json();
+                  })
                   .then(data => {
+                    console.log("Data received for job data:", data);
                     hideLoading();
                     allData = data;
-                    // เริ่มต้นให้แสดงข้อมูลทั้งหมด (กรองโดยค่าเริ่มต้นจะไม่มี filter)
+                    // กรองข้อมูลทันทีเมื่อมีข้อมูล
                     applyFilters();
                   })
                   .catch(error => {
