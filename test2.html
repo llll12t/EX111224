@@ -218,11 +218,7 @@
                   .then(data => {
                     hideLoading();
                     tableData = data;
-                    displayData();
-                    // แสดงรายละเอียดของรายการแรกโดยอัตโนมัติ หากมีข้อมูล
-                    if (tableData.length > 0) {
-                      showDetails(tableData[0]);
-                    }
+                    displayData();                                     
                   })
                   .catch(error => {
                     hideLoading();
