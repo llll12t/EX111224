@@ -97,7 +97,7 @@
       document.getElementById('loadingOverlay').style.display = "none";
     }
     
-    // ฟังก์ชันที่จะเรียกเมื่อมีการเปลี่ยนแปลงค่า filter (สำหรับ debug)
+    // เมื่อมีการเปลี่ยนแปลงค่า filter ให้ log ค่าที่เปลี่ยน
     function onFilterChange() {
       console.log("Filter changed - Date:", document.getElementById("filterDate").value,
                   "Status:", document.getElementById("filterStatus").value);
@@ -128,17 +128,20 @@
       displayData();
     }
     
-    // แสดงข้อมูลทั้งใน Card view และ Table view
+    // ฟังก์ชันแสดงข้อมูลใน Card view และ Table view
     function displayData() {
-      // เลือกใช้ข้อมูลที่กรองแล้ว ถ้ามี ไม่เช่นนั้นใช้ allData
-      const dataToDisplay = filteredData.length ? filteredData : allData;
+      // ตรวจสอบว่ามีการตั้งค่าตัวกรองหรือไม่
+      const filterDate = document.getElementById("filterDate").value;
+      const filterStatus = document.getElementById("filterStatus").value;
+      const hasFilter = filterDate !== "" || filterStatus !== "";
+      
+      // ถ้ามีการตั้งค่า filter ให้ใช้ filteredData (แม้ว่าจะว่าง) มิฉะนั้นใช้ allData
+      const dataToDisplay = hasFilter ? filteredData : allData;
       console.log("Displaying data:", dataToDisplay);
       
-      // แสดงใน Card Container สำหรับสถานะ "รอดำเนินการ" และ "เริ่มดำเนินการ"
+      // Clear container ของการ์ดและตาราง
       const cardContainer = document.getElementById("cardContainer");
       cardContainer.innerHTML = "";
-      
-      // แสดงใน Table Container สำหรับข้อมูลที่เหลือ
       const tableBody = document.getElementById("tableData");
       tableBody.innerHTML = "";
       
@@ -337,7 +340,7 @@
                     console.log("Data received for job data:", data);
                     hideLoading();
                     allData = data;
-                    // กรองข้อมูลทันทีเมื่อมีข้อมูล
+                    // เมื่อมีข้อมูลให้กรองทันทีตามค่า filter (ถ้าปล่อยว่างก็จะแสดง allData)
                     applyFilters();
                   })
                   .catch(error => {
