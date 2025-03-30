@@ -571,7 +571,7 @@
                     editButton.textContent = 'แจ้งเรื่อง';
                     editButton.onclick = () => orderOpenEditModal(row.IDkey);
 
-                    const isDisabled = ['ระหว่างเดินทาง', 'รอดำเนินการ', 'เริ่มดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
+                    const isDisabled = ['ระหว่างเดินทาง','เริ่มดำเนินการ', 'เสร็จสิ้น'].includes(row.Status);
                     const confirmButton = document.createElement('button');
                     confirmButton.className = `bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition w-full ${isDisabled ? 'disabled-button' : ''}`;
                     confirmButton.textContent = 'ยืนยันรับงาน';
