@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <!-- ตั้งค่า viewport เพื่อป้องกันการซูม ย่อหรือขยาย -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>จัดการข้อมูลการสั่งซื้อและการดำเนินการ</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
-<!-- <script>
+ <script>
     // ฟังก์ชันสำหรับตรวจสอบและแสดงข้อความสั้นๆ ตาม user agent
     function getDeviceType() {
       const ua = navigator.userAgent;
@@ -41,48 +41,37 @@
         `;
       }
     });
-  </script> -->
+  </script>  
 
     <style>
-        .bg-green-custom {
+         .bg-green-custom {
             background: #FFFFFF;
         }
-
         .disabled-button {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .bg-green {
-            background: #078274;
+            background: #33422b;
         }
-
         .border-green {
-            border: 2px solid #078274;
+            border: 2px solid #33422b;
             border-radius: 10px;
         }
-
         .bg-inactive-tab {
-            background: transparent;
-            /* หรือสีที่คุณต้องการสำหรับแท็บที่ไม่ถูกเลือก */
+            background: transparent; /* หรือสีที่คุณต้องการสำหรับแท็บที่ไม่ถูกเลือก */
         }
-
         /* เพิ่มสีพื้นหลังสำหรับแท็บที่ถูกเลือก */
         .active-tab {
-            background-color: #1A2A40;
-            /* สีที่ต้องการ */
-            border-color: #1A2A40;
-            /* สีขอบ */
-            color: #FFFFFF;
+            background-color: #33422b; /* สีเขียวที่ต้องการ */
+            border-color: #33422b; /* สีขอบเขียว */
+            color: white;
         }
-
         /* สีพื้นหลังสำหรับแท็บที่ไม่ถูกเลือก */
         .inactive-tab {
-            background-color: #B1FF45;
-            /* สีเทาอ่อน */
+            background-color: #eff4e5; /* สีเทาอ่อน */
             border-color: transparent;
-            color: #1A2A40;
-            /* สีเทาเข้ม */
+            color: #4b5563; /* สีเทาเข้ม */
         }
     </style>
 </head>
