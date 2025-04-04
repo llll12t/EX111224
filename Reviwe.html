@@ -1,216 +1,339 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แสดงความคิดเห็นและให้คะแนน</title>
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- SweetAlert2 CSS and JS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"
+  />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
   <!-- FontAwesome for star icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+  />
   <!-- Custom CSS for star ratings -->
   <style>
     .star-rating {
       direction: rtl;
       display: inline-block;
     }
-    .star-rating input[type=radio] {
+    .star-rating input[type="radio"] {
       display: none;
     }
     .star-rating label {
       color: #ccc;
-      font-size: 1.5rem;
+      font-size: 2rem;
       padding: 0;
       cursor: pointer;
     }
-    .star-rating input[type=radio]:checked ~ label {
+    .star-rating input[type="radio"]:checked ~ label {
       color: #f5b301;
     }
     .star-rating label:hover,
     .star-rating label:hover ~ label {
       color: #f5b301;
     }
+
+    /* กล่องสำหรับแสดง Log (ปรับแต่งได้ตามต้องการ) */
+    #debugLog {
+      margin: 10px auto;
+      max-width: 600px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      padding: 10px;
+      font-size: 0.85rem;
+      white-space: pre-wrap; /* ให้ขึ้นบรรทัดใหม่ได้เมื่อข้อความยาว */
+    }
   </style>
 </head>
-<body>
-  <div class="max-w-md mx-auto">
-    <div class="bg-slate-900 p-6">
-    <h1 class="text-xl text-yellow-400 font-bold mb-5 "> แสดงความคิดเห็นและให้คะแนน</h1>
-    <p class="text-sm text-gray-100">ขอรบกวนลูกค้าช่วยประเมินความพึงพอใจ สำหรับการให้บริการในครั้งนี้ เพื่อเป็นการพัฒนา และปรับปรุงการให้บริการของเราให้ดียิ่งขึ้นครับ</p>
-  </div>
+<body class="bg-gray-100">
+
+  <div class="max-w-md mx-auto m-4 bg-white rounded-lg shadow-md">
+    <div class="bg-slate-800 p-6 rounded-t-lg">
+      <h1 class="text-xl text-yellow-400 font-bold mb-5">
+        แสดงความคิดเห็นและให้คะแนน
+      </h1>
+      <p class="mb-6 text-sm text-gray-100">
+        ขอรบกวนลูกค้าช่วยประเมินความพึงพอใจ เพื่อเป็นการปรับปรุงและพัฒนา
+        การให้บริการของเราให้ดียิ่งขึ้น
+      </p>
+    </div>
     <form class="p-6 text-sm" id="feedbackForm">
-      <!-- Hidden inputs for parameters -->
-      <input type="hidden" id="idkey" name="idkey">
-      <input type="hidden" id="status" name="status">
-      <input type="hidden" id="name" name="name">
-      <input type="hidden" id="responsible" name="responsible">
+      <!-- Hidden Inputs: ตั้งค่าตัวอย่างค่าเริ่มต้นไว้ที่นี่ -->
+      <input type="hidden" id="id" name="id"  value="1234"/>
+      <input type="hidden" id="room" name="room" value="room" />
+      <input type="hidden" id="fullname" name="fullname" value="fullname"/>
 
-        <!-- Question 1 -->
+      <!-- 1) ความสะอาด -->
       <div class="mb-6">
-        <p class="mb-2 text-gray-700">1. คุณภาพของการให้บริการ (1-5 ดาว)</p>
+        <p class="mb-2 text-gray-700">1. ความสะอาด (1-5 ดาว)</p>
         <div class="star-rating">
-          <input type="radio" id="quality5" name="quality" value="5"><label for="quality5"><i class="fas fa-star"></i></label>
-          <input type="radio" id="quality4" name="quality" value="4"><label for="quality4"><i class="fas fa-star"></i></label>
-          <input type="radio" id="quality3" name="quality" value="3"><label for="quality3"><i class="fas fa-star"></i></label>
-          <input type="radio" id="quality2" name="quality" value="2"><label for="quality2"><i class="fas fa-star"></i></label>
-          <input type="radio" id="quality1" name="quality" value="1" required><label for="quality1"><i class="fas fa-star"></i></label>
+          <input type="radio" id="clean5" name="clean" value="5" />
+          <label for="clean5"><i class="fas fa-star"></i></label>
+          <input type="radio" id="clean4" name="clean" value="4" />
+          <label for="clean4"><i class="fas fa-star"></i></label>
+          <input type="radio" id="clean3" name="clean" value="3" />
+          <label for="clean3"><i class="fas fa-star"></i></label>
+          <input type="radio" id="clean2" name="clean" value="2" />
+          <label for="clean2"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="clean1"
+            name="clean"
+            value="1"
+            required
+          />
+          <label for="clean1"><i class="fas fa-star"></i></label>
         </div>
       </div>
 
-      <!-- Question 2 -->
+      <!-- 2) เสียงรบกวน -->
       <div class="mb-6">
-        <p class="mb-2 text-gray-700">2. ความตรงต่อเวลา (1-5 ดาว)</p>
+        <p class="mb-2 text-gray-700">2. เสียงรบกวน (1-5 ดาว)</p>
         <div class="star-rating">
-          <input type="radio" id="punctuality5" name="punctuality" value="5"><label for="punctuality5"><i class="fas fa-star"></i></label>
-          <input type="radio" id="punctuality4" name="punctuality" value="4"><label for="punctuality4"><i class="fas fa-star"></i></label>
-          <input type="radio" id="punctuality3" name="punctuality" value="3"><label for="punctuality3"><i class="fas fa-star"></i></label>
-          <input type="radio" id="punctuality2" name="punctuality" value="2"><label for="punctuality2"><i class="fas fa-star"></i></label>
-          <input type="radio" id="punctuality1" name="punctuality" value="1" required><label for="punctuality1"><i class="fas fa-star"></i></label>
+          <input type="radio" id="noise5" name="noise" value="5" />
+          <label for="noise5"><i class="fas fa-star"></i></label>
+          <input type="radio" id="noise4" name="noise" value="4" />
+          <label for="noise4"><i class="fas fa-star"></i></label>
+          <input type="radio" id="noise3" name="noise" value="3" />
+          <label for="noise3"><i class="fas fa-star"></i></label>
+          <input type="radio" id="noise2" name="noise" value="2" />
+          <label for="noise2"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="noise1"
+            name="noise"
+            value="1"
+            required
+          />
+          <label for="noise1"><i class="fas fa-star"></i></label>
         </div>
       </div>
 
-      <!-- Question 3 -->
+      <!-- 3) การบริการ -->
       <div class="mb-6">
-        <p class="mb-2 text-gray-700">3. การให้บริการอย่างเต็มที่ (1-5 ดาว)</p>
-        <p class="mb-2 text-sm text-yellow-600">*หากพบเห็นช่างอู้งาน หรือลูกค้าเห็นช่างพักเกิน 15 นาที กรณีไม่ใช่การพักเที่ยง หรือเห็นช่างติดโทรศัพท์ กรุณาให้ 1 ดาว</p>
+        <p class="mb-2 text-gray-700">3. การบริการ (1-5 ดาว)</p>
         <div class="star-rating">
-          <input type="radio" id="dedication5" name="dedication" value="5"><label for="dedication5"><i class="fas fa-star"></i></label>
-          <input type="radio" id="dedication4" name="dedication" value="4"><label for="dedication4"><i class="fas fa-star"></i></label>
-          <input type="radio" id="dedication3" name="dedication" value="3"><label for="dedication3"><i class="fas fa-star"></i></label>
-          <input type="radio" id="dedication2" name="dedication" value="2"><label for="dedication2"><i class="fas fa-star"></i></label>
-          <input type="radio" id="dedication1" name="dedication" value="1" required><label for="dedication1"><i class="fas fa-star"></i></label>
+          <input type="radio" id="service5" name="service" value="5" />
+          <label for="service5"><i class="fas fa-star"></i></label>
+          <input type="radio" id="service4" name="service" value="4" />
+          <label for="service4"><i class="fas fa-star"></i></label>
+          <input type="radio" id="service3" name="service" value="3" />
+          <label for="service3"><i class="fas fa-star"></i></label>
+          <input type="radio" id="service2" name="service" value="2" />
+          <label for="service2"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="service1"
+            name="service"
+            value="1"
+            required
+          />
+          <label for="service1"><i class="fas fa-star"></i></label>
         </div>
       </div>
 
-      <!-- Question 4 -->
+      <!-- 4) การแก้ไขปัญหา -->
       <div class="mb-6">
-        <p class="mb-2 text-gray-700">4. ความสุภาพในการสื่อสาร (1-5 ดาว)</p>
+        <p class="mb-2 text-gray-700">4. การแก้ไขปัญหา (1-5 ดาว)</p>
         <div class="star-rating">
-          <input type="radio" id="politeness5" name="politeness" value="5"><label for="politeness5"><i class="fas fa-star"></i></label>
-          <input type="radio" id="politeness4" name="politeness" value="4"><label for="politeness4"><i class="fas fa-star"></i></label>
-          <input type="radio" id="politeness3" name="politeness" value="3"><label for="politeness3"><i class="fas fa-star"></i></label>
-          <input type="radio" id="politeness2" name="politeness" value="2"><label for="politeness2"><i class="fas fa-star"></i></label>
-          <input type="radio" id="politeness1" name="politeness" value="1" required><label for="politeness1"><i class="fas fa-star"></i></label>
+          <input type="radio" id="fixproblem5" name="fixproblem" value="5" />
+          <label for="fixproblem5"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="fixproblem4"
+            name="fixproblem"
+            value="4"
+          />
+          <label for="fixproblem4"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="fixproblem3"
+            name="fixproblem"
+            value="3"
+          />
+          <label for="fixproblem3"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="fixproblem2"
+            name="fixproblem"
+            value="2"
+          />
+          <label for="fixproblem2"><i class="fas fa-star"></i></label>
+          <input
+            type="radio"
+            id="fixproblem1"
+            name="fixproblem"
+            value="1"
+            required
+          />
+          <label for="fixproblem1"><i class="fas fa-star"></i></label>
         </div>
       </div>
 
-      <!-- Additional Message -->
-      <div class="mb-6 text-sm">
-        <p class="mb-2 text-gray-700">สำหรับการประเมินความพึงพอใจทุกครั้ง ลูกค้าจะได้รับ 10 Point สำหรับสะสมไว้ใช้เป็นส่วนลดค่าบริการในครั้งถัดไปครับ </p>
-        <p class="text-gray-700">หากมีข้อเสนอแนะเพิ่มเติม กรุณาแจ้งให้ทางเราทราบ </p>
-      </div>
-
-      <!-- Comments Field -->
+      <!-- รายละเอียดเพิ่มเติม -->
       <div class="mb-6">
-        <label for="comments" class="block mb-2 text-gray-700">ความเห็นเพิ่มเติม:</label>
-        <textarea id="comments" name="comments" rows="4" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring focus:border-blue-300" placeholder="กรอกความคิดเห็นของคุณ"></textarea>
+        <label for="details" class="block mb-2 text-gray-700"
+          >รายละเอียดเพิ่มเติม:</label
+        >
+        <textarea
+          id="details"
+          name="details"
+          rows="4"
+          class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+          placeholder="กรอกความคิดเห็นหรือรายละเอียดเพิ่มเติม"
+        ></textarea>
       </div>
 
-      <!-- Submit Button -->
+      <!-- ปุ่มส่งฟอร์ม -->
       <div class="text-center">
-        <button type="submit" class="w-full p-4 font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400">ส่งความคิดเห็น</button>
+        <button
+          type="submit"
+          class="w-full p-4 font-bold text-white bg-slate-800 rounded-lg hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-green-400"
+        >
+          ส่งความคิดเห็น
+        </button>
       </div>
     </form>
   </div>
 
+  <!-- 3) กล่องแสดง Log ตรงนี้ -->
+  <div id="debugLog"></div>
+
   <script>
-    // Initialize LIFF SDK
-    liff.init({ liffId: "2006504113-VWYEMlmk" })
+    // ฟังก์ชันสำหรับใส่ข้อความลงในกล่อง debugLog
+    function logMessage(msg) {
+      const logDiv = document.getElementById("debugLog");
+      logDiv.textContent += msg + "\n";  // เพิ่มบรรทัดใหม่
+    }
+
+    // 1) เริ่มต้น LIFF
+    liff
+      .init({ liffId: "2006504113-VWYEMlmk" }) // <-- ใส่ LIFF ID ของคุณ (หากไม่ใช้ LIFF ก็ลบทิ้งได้)
       .then(() => {
-        // Get query parameters
+        // (ตัวอย่าง) รับพารามิเตอร์จาก URL
         const urlParams = new URLSearchParams(window.location.search);
-        const idkey = urlParams.get('idkey');
-        const status = urlParams.get('status');
-        const name = urlParams.get('name');
-        const responsible = urlParams.get('responsible');
+        const id = urlParams.get("id");
+        const room = urlParams.get("room");
+        const fullname = urlParams.get("fullname");
 
-        // Set hidden input values
-        document.getElementById('idkey').value = idkey;
-        document.getElementById('status').value = status;
-        document.getElementById('name').value = name;
-        document.getElementById('responsible').value = responsible;
+        // ใส่ค่าใน hidden input (ถ้าพารามิเตอร์ไม่มา ก็ใช้ค่า default ที่ตั้งไว้ก่อนหน้า)
+        if (id) document.getElementById("id").value = id;
+        if (room) document.getElementById("room").value = room;
+        if (fullname) document.getElementById("fullname").value = fullname;
 
-        // Display values on the form
-        document.getElementById('displayIdkey').textContent = idkey || '-';
-        document.getElementById('displayName').textContent = name || '-';
-        document.getElementById('displayResponsible').textContent = responsible || '-';
-        document.getElementById('displayStatus').textContent = status || '-';
+        logMessage("LIFF init success");
+        logMessage("URL Params => id=" + (id||"") + ", room=" + (room||"") + ", fullname=" + (fullname||""));
       })
       .catch((err) => {
-        console.error('LIFF Initialization failed', err);
+        console.error("LIFF Initialization failed", err);
+        logMessage("LIFF init error: " + err);
       });
 
-    // Handle form submission
-    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    // 2) เมื่อกดส่งฟอร์ม
+    document
+      .getElementById("feedbackForm")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+        
+        // เก็บข้อมูลจากฟอร์ม
+        const formData = {
+          method: "submitFeedback",
+          id: document.getElementById("id").value,
+          room: document.getElementById("room").value,
+          fullname: document.getElementById("fullname").value,
 
-      // Collect form data
-      const formData = {
-        method: 'submitFeedback',
-        idkey: document.getElementById('idkey').value,
-        status: document.getElementById('status').value,
-        name: document.getElementById('name').value,
-        responsible: document.getElementById('responsible').value,
-        quality: document.querySelector('input[name="quality"]:checked') ? document.querySelector('input[name="quality"]:checked').value : '',
-        punctuality: document.querySelector('input[name="punctuality"]:checked') ? document.querySelector('input[name="punctuality"]:checked').value : '',
-        dedication: document.querySelector('input[name="dedication"]:checked') ? document.querySelector('input[name="dedication"]:checked').value : '',
-        politeness: document.querySelector('input[name="politeness"]:checked') ? document.querySelector('input[name="politeness"]:checked').value : '',
-        comments: document.getElementById('comments').value,
-        userId: liff.getContext() ? liff.getContext().userId : ''
-      };
+          clean: document.querySelector('input[name="clean"]:checked')
+            ? document.querySelector('input[name="clean"]:checked').value
+            : "",
+          noise: document.querySelector('input[name="noise"]:checked')
+            ? document.querySelector('input[name="noise"]:checked').value
+            : "",
+          service: document.querySelector('input[name="service"]:checked')
+            ? document.querySelector('input[name="service"]:checked').value
+            : "",
+          fixproblem: document.querySelector('input[name="fixproblem"]:checked')
+            ? document.querySelector('input[name="fixproblem"]:checked').value
+            : "",
+          details: document.getElementById("details").value,
 
-      // Validate that all ratings have been selected
-      if (!formData.quality || !formData.punctuality || !formData.dedication || !formData.politeness) {
-        Swal.fire({
-          icon: 'error',
-          title: 'กรุณาให้คะแนนทุกข้อ',
-          confirmButtonText: 'ตกลง'
-        });
-        return;
-      }
+          userIdLine: liff.getContext() ? liff.getContext().userId : "",
+        };
 
-      // Send data to Google Apps Script
-      fetch('https://script.google.com/macros/s/AKfycbwLZdVrchKrQvnmPHb6ns2rvagpfwU2g3ROgo1FSBD8xgNe5s8Eyqnmwf8Lvo_8JsfB3w/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(formData)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
+        // แสดง Log ค่า formData ก่อนส่ง
+        logMessage("Form Data to send:\n" + JSON.stringify(formData, null, 2));
+
+        // ตรวจสอบการให้คะแนน
+        if (
+          !formData.clean ||
+          !formData.noise ||
+          !formData.service ||
+          !formData.fixproblem
+        ) {
           Swal.fire({
-            icon: 'success',
-            title: 'ขอบคุณสำหรับความคิดเห็นของคุณ!',
-            text: 'คุณจะได้รับ 10 Point สำหรับส่วนลดครั้งถัดไป',
-            confirmButtonText: 'ตกลง'
-          }).then(() => {
-            liff.closeWindow();
+            icon: "error",
+            title: "กรุณาให้คะแนนทุกข้อ",
+            confirmButtonText: "ตกลง",
           });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'เกิดข้อผิดพลาดในการส่งความคิดเห็น',
-            text: data.message,
-            confirmButtonText: 'ตกลง'
-          });
+          logMessage("Error: Missing rating fields");
+          return;
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาดในการส่งความคิดเห็น',
-          confirmButtonText: 'ตกลง'
-        });
+
+        // ส่งข้อมูลด้วย Fetch ไปยัง Google Apps Script (URL Web App)
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwvzvB7ZLt8b_UHImWdvTqGyE2fT4Yh4OKB4SFTRGxwjfYMT93-8QYgNYlwf3O9JAE/exec";
+        logMessage("Sending data to: " + GAS_URL);
+
+        fetch(GAS_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(formData),
+        })
+          .then((response) => {
+            logMessage("Got response status: " + response.status);
+            return response.json();
+          })
+          .then((data) => {
+            logMessage("Response JSON:\n" + JSON.stringify(data, null, 2));
+
+            if (data.success) {
+              Swal.fire({
+                icon: "success",
+                title: "ขอบคุณสำหรับความคิดเห็นของคุณ!",
+                text: "ระบบได้บันทึกข้อมูลเรียบร้อย",
+                confirmButtonText: "ตกลง",
+              }).then(() => {
+                logMessage("Success => closing LIFF");
+                liff.closeWindow();
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "เกิดข้อผิดพลาดในการส่งความคิดเห็น",
+                text: data.message,
+                confirmButtonText: "ตกลง",
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            logMessage("Fetch error: " + error);
+            Swal.fire({
+              icon: "error",
+              title: "เกิดข้อผิดพลาดในการส่งความคิดเห็น",
+              confirmButtonText: "ตกลง",
+            });
+          });
       });
-    });
   </script>
 </body>
 </html>
