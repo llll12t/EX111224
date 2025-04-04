@@ -522,7 +522,7 @@
                     nameDiv.textContent = 'ชื่อ';
                     const nameValue = document.createElement('div');
                     nameValue.className = 'text-sm text-gray-800';
-                    nameValue.textContent = row.Name;
+                    nameValue.textContent = row.Name + ' ' + row.Workorder;
 
                     const statusDiv = document.createElement('div');
                     statusDiv.className = 'text-xs text-gray-500';
@@ -633,6 +633,10 @@
             <tr>
               <td style="border: 1px solid #ddd; padding: 8px; width: 40%;"><b>ID Key:</b></td>
               <td style="border: 1px solid #ddd; padding: 8px;">${row.IDkey}</td>
+            </tr>
+             <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;"><b>ลำดับเคส:</b></td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${row.Workorder}</td>
             </tr>
             <tr>
               <td style="border: 1px solid #ddd; padding: 8px;"><b>ชื่อ:</b></td>
