@@ -744,7 +744,6 @@
                 try {
                     const response = await fetch(WEB_APP_URL_ORDER, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&name=${encodeURIComponent(name)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
                     });
                     const result = await response.json();
@@ -1233,7 +1232,6 @@
                 try {
                     const response = await fetch(WEB_APP_URL_OPERATION, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
                     });
                     const result = await response.json();
