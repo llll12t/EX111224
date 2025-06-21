@@ -13,35 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2.1/liff.js"></script>
-<!--  <script>
-    // ฟังก์ชันสำหรับตรวจสอบและแสดงข้อความสั้นๆ ตาม user agent
-    function getDeviceType() {
-      const ua = navigator.userAgent;
-      if (/android/i.test(ua)) {
-        return "(ANDROID)";
-      } else if (/iPhone|iPad|iPod/i.test(ua)) {
-        return "(IOS)";
-      } else if (/Windows/i.test(ua)) {
-        return "(WINDOW)";
-      } else if (/Macintosh/i.test(ua)) {
-        return "(MAC)";
-      } else {
-        return "(UNKNOWN)";
-      }
-    }
-    document.addEventListener('DOMContentLoaded', function(){
-      // ตรวจสอบว่าเปิดผ่าน LINE (มือถือ) หรือไม่
-      if (!navigator.userAgent.includes('Line')) {
-        const deviceType = getDeviceType();
-        document.body.innerHTML = `
-          <div class="min-h-screen flex flex-col justify-center items-center bg-gray-100 p-4">
-            <h1 class="text-2xl font-bold mb-4">ขออภัย กรุณาเปิดใน LINE ของมือถือน้าา~</h1>
-            <p class="text-lg">คุณกำลังใช้งานผ่าน: ${deviceType}</p>
-          </div>
-        `;
-      }
-    });
-  </script>   -->
+
 
     <style>
           .bg-green-custom {
@@ -83,7 +55,7 @@
             <button id="tab-order"
                 class="w-1/2 p-4 -mb-px border-b-2 rounded-l-lg active-tab focus:outline-none">ข้อมูลงาน</button>
             <button id="tab-operation"
-                class="w-1/2 p-4 border-b-2 rounded-r-lg inactive-tab focus:outline-none">การดำเนินการ</button>
+                class="w-1/2 p-4 border-b-2 rounded-r-lg inactive-tab focus:outline-none">ข้อมูลการดำเนินการ</button>
         </div>
         <!-- Tab Content -->
         <div id="tab-order-content">
@@ -115,7 +87,7 @@
                 </div>
 
                 <!-- Card Container สำหรับงานที่ยังไม่เสร็จสิ้น -->
-                <div id="order-card-container" class="grid grid-cols-1 gap-2 mb-4">
+                <div id="order-card-container" class="grid grid-cols-1 gap-4 mb-4">
                     <!-- Card จะถูกแทรกที่นี่ -->
                 </div>
 
@@ -505,7 +477,7 @@
 
                 data.forEach(row => {
                     const card = document.createElement('div');
-                    card.className = 'border border-green-700 rounded-lg p-4  shadow-md bg-white';
+                    card.className = 'border border-green-700 rounded-lg p-4 mb-4 shadow-md bg-white';
 
                     const topRow = document.createElement('div');
                     topRow.className = 'grid grid-cols-3 gap-4 mb-4';
@@ -744,6 +716,7 @@
                 try {
                     const response = await fetch(WEB_APP_URL_ORDER, {
                         method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: `method=updateOrder&idkey=${encodeURIComponent(idkey)}&status=${encodeURIComponent(status)}&name=${encodeURIComponent(name)}&responsible=${encodeURIComponent(responsible)}&adminNote=${encodeURIComponent(adminNote)}`
                     });
                     const result = await response.json();
@@ -1232,6 +1205,7 @@
                 try {
                     const response = await fetch(WEB_APP_URL_OPERATION, {
                         method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: `method=startJob&idkey=${encodeURIComponent(idkey)}&timeInside=${encodeURIComponent(formattedTimeInside)}&insideNote=${encodeURIComponent(insideNote)}&status=${encodeURIComponent(status)}`
                     });
                     const result = await response.json();
